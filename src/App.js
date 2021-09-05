@@ -3,6 +3,7 @@ import Lobby from "./Lobby.js";
 import Room from "./Room.js";
 
 function App() {
+  // TODO: add Links component
   return (
     <>
       <h1>Connect 4 [WIP]</h1>
