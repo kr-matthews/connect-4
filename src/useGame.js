@@ -1,6 +1,6 @@
 import { useState, useReducer } from "react";
 
-function useGame() {
+function useGame(toPlayFirst) {
   //// Constants
 
   // to change board dimensions, change this
@@ -19,7 +19,7 @@ function useGame() {
   // indices of winning pieces
   const [winningIndices, dispatchIndices] = useReducer(indicesReducer, []);
   // index of player
-  const [toPlayNext, setToPlayNext] = useState(null);
+  const [toPlayNext, setToPlayNext] = useState(toPlayFirst);
   // array of arrays, row 0 at the bottom
   const [board, dispatchMove] = useReducer(boardReducer, emptyBoard(boardSize));
   // stack (array) of {player, row, col}
