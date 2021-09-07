@@ -7,11 +7,12 @@ import { useGame } from "./useGame.js";
 function Room() {
   // TODO: Room component
   const [
-    board,
     gameStatus,
-    playNext,
-    resetGame,
+    winningIndices,
+    toPlayNext,
+    board,
     moveHistory,
+    resetGame,
     placePiece,
   ] = useGame();
 
