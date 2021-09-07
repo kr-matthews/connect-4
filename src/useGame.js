@@ -100,8 +100,8 @@ function useGame(toPlayFirst) {
   // helper: find row that piece will end up in
   // QUESTION: does this need to be used (hence defined) elsewhere?
   function findEmptyRow(state, col) {
-    let height = state.length();
-    for (let row = 0; row < height; row++) {
+    let rows = state.length;
+    for (let row = 0; row < rows; row++) {
       if (state[row][col] === null) {
         return row;
       }
@@ -122,7 +122,7 @@ function useGame(toPlayFirst) {
   // check whether that was a winning move
   //  and whether the board is full (a draw)
   function checkWinOrDraw(player, row, col) {
-    let [rows, cols] = boardSize;
+    let [rows, cols] = [board.length, board[0].length];
     let message = null;
     directions.forEach(([d_r, d_c]) => {
       let current = 0;

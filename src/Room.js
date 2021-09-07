@@ -8,7 +8,7 @@ function Room() {
     <>
       <h2>Room</h2>
       <Header />
-      <Board />
+      Board here
       <Footer />
     </>
   );
