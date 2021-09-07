@@ -1,6 +1,8 @@
 import { useState, useReducer } from "react";
 
 function useGame() {
+  //// Constants
+
   // to change board dimensions, change this
   const boardSize = [6, 7];
   // the possible line directions (horizontal, vertical, diagonal)
@@ -10,7 +12,7 @@ function useGame() {
     [1, 1],
   ];
 
-  // States
+  //// States
 
   // ongoing, draw, or the index of a player
   const [gameStatus, setGameStatus] = useState("ongoing");
@@ -23,11 +25,8 @@ function useGame() {
   // stack (array) of {player, row, col}
   const [moveHistory, dispatchHistory] = useReducer(historyReducer, []);
 
-  // Internal functions
+  //// reducers
 
-  // reducers
-
-  // internal function to update board
   function boardReducer(state, action) {
     switch (action.type) {
       case "reset":
@@ -56,7 +55,6 @@ function useGame() {
     }
   }
 
-  // internal function to update move history
   function historyReducer(state, action) {
     switch (action.type) {
       case "reset":
@@ -96,6 +94,8 @@ function useGame() {
         return state;
     }
   }
+
+  // internal functions
 
   // helper: find row that piece will end up in
   // QUESTION: does this need to be used (hence defined) elsewhere?
@@ -156,7 +156,7 @@ function useGame() {
 
   // Externally accessible functions
 
-  // given out to reset reset all states in useGame
+  // given out to reset all states
   function resetGame(player) {
     setGameStatus("ongoing");
     dispatchIndices("reset");
@@ -182,6 +182,8 @@ function useGame() {
     setToPlayNext(1 - player);
     return { success: true };
   }
+
+  // Return
 
   return [
     gameStatus,
