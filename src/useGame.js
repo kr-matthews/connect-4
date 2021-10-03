@@ -17,10 +17,9 @@ function useGame(toPlayFirst) {
   // ongoing, draw, or the index of a player
   const [gameStatus, setGameStatus] = useState("ongoing");
   // indices of winning pieces
-  const [winningIndices, dispatchIndices] = useReducer(indicesReducer, []);
-  // index of player
   const [toPlayNext, setToPlayNext] = useState(toPlayFirst);
-  // array of arrays, row 0 at the bottom
+  // array of arrays, row 0 at the bottom;
+  //  cells are objects storing multiple pieces of information
   const [board, dispatchMove] = useReducer(boardReducer, emptyBoard(boardSize));
   // stack (array) of {player, row, col}
   const [moveHistory, dispatchHistory] = useReducer(historyReducer, []);
@@ -37,16 +36,22 @@ function useGame(toPlayFirst) {
           return state;
         } else {
           let newState = [...state];
-          newState[row][action.col] = action.player;
+          newState[row][action.col] = {
+            ...newState[row][action.col],
+            player: action.player,
+          };
+          // TODO: highlight winning positions if necessary
           return newState;
         }
       case "undo":
         // this case is currently not used
+        // TODO: build in UNDO to interface and add workflow
         if (moveHistory === []) {
           return state;
         } else {
           let newState = [...state];
-          newState[action.row][action.col] = null;
+          delete newState[action.row][action.col].player;
+          // TODO: unhighlight winning positions if necessary
           return newState;
         }
       default:
@@ -78,6 +83,7 @@ function useGame(toPlayFirst) {
     }
   }
 
+  // NOTE: this is unused; encorporate it into boardReducer (to highlight wins)
   function indicesReducer(state, action) {
     switch (action.type) {
       case "reset":
@@ -111,9 +117,13 @@ function useGame(toPlayFirst) {
 
   // create initial empty board, on resets
   function emptyBoard([rows, cols]) {
-    var board = [];
-    for (var r = 0; r < rows; r++) {
-      board.push(Array(cols).fill(null));
+    let board = [];
+    for (let r = 0; r < rows; r++) {
+      let row = [];
+      for (let c = 0; c < cols; c++) {
+        row.push({ player: null, inLine: false });
+      }
+      board.push(row);
     }
     return board;
   }
@@ -122,6 +132,7 @@ function useGame(toPlayFirst) {
   // check whether that was a winning move
   //  and whether the board is full (a draw)
   function checkWinOrDraw(player, row, col) {
+    // NOTE: modifications likely needed
     let [rows, cols] = [board.length, board[0].length];
     let message = null;
     directions.forEach(([d_r, d_c]) => {
@@ -159,7 +170,6 @@ function useGame(toPlayFirst) {
   // given out to reset all states
   function resetGame(player) {
     setGameStatus("ongoing");
-    dispatchIndices("reset");
     setToPlayNext(player);
     dispatchMove({ type: "reset" });
     dispatchHistory({ type: "reset" });
@@ -178,6 +188,7 @@ function useGame(toPlayFirst) {
     // move is possible; proceed
     dispatchMove({ type: "placePiece", player, col });
     dispatchHistory({ type: "addMove", player, row, col });
+    // below needs to move into dispatchMove, most likely
     checkWinOrDraw(player, row, col);
     setToPlayNext(1 - player);
     return { success: true };
@@ -185,15 +196,7 @@ function useGame(toPlayFirst) {
 
   // Return
 
-  return [
-    gameStatus,
-    winningIndices,
-    toPlayNext,
-    board,
-    moveHistory,
-    resetGame,
-    placePiece,
-  ];
+  return [gameStatus, toPlayNext, board, moveHistory, resetGame, placePiece];
 }
 
 export { useGame };

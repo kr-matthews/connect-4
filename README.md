@@ -2,7 +2,7 @@
 
 ### Play
 
-On GitHub Pages at [https://kr-matthews.github.io/connect-4](https://kr-matthews.github.io/connect-4) -- but is still a work in progress, so link may not be live yet.
+On GitHub Pages at [https://kr-matthews.github.io/connect-4](https://kr-matthews.github.io/connect-4) -- but is still a work in progress, so there is little to no functionality there right now.
 
 ### Focus
 
