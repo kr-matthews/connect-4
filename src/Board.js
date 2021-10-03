@@ -1,8 +1,6 @@
 import "./board.css";
 
-function Board({ board, placePiece, winningIndices, colours }) {
-  // TODO: use placePiece
-  // TODO: fix winningIndices (probably refactor inside hook)
+function Board({ board, placePiece, colours, toPlayNext }) {
   let rows = board.length;
   var tableRows = [];
   // the first row goes on the bottom, visually
@@ -11,8 +9,9 @@ function Board({ board, placePiece, winningIndices, colours }) {
       <Row
         key={row}
         row={board[row]}
+        placePiece={placePiece}
         colours={colours}
-        winningIndices={winningIndices}
+        toPlayNext={toPlayNext}
       />
     );
   }
@@ -24,14 +23,17 @@ function Board({ board, placePiece, winningIndices, colours }) {
   );
 }
 
-function Row({ key, row, colours, winningIndices }) {
-  var rowCells = row.map((player, col) => {
+function Row({ row, placePiece, colours, toPlayNext }) {
+  var rowCells = row.map(({ player, inLine }, col) => {
     return (
       <Cell
         key={col}
+        col={col}
         player={player}
+        placePiece={placePiece}
         colours={colours}
-        winningCell={winningIndices[key][col]}
+        inLine={inLine}
+        toPlayNext={toPlayNext}
       />
     );
   });
@@ -39,17 +41,19 @@ function Row({ key, row, colours, winningIndices }) {
   return <tr>{rowCells}</tr>;
 }
 
-function Cell({ player, colours, winningCell }) {
+function Cell({ col, player, placePiece, colours, inLine, toPlayNext }) {
   function styleColour() {
     let backgroundColor = colours[player];
-    let borderColor = winningCell
+    let borderColor = inLine
       ? oppositeColour(backgroundColor)
       : backgroundColor;
     return { backgroundColor, borderColor };
   }
+  const cellClass = player === null ? "clickable cell" : "cell";
+  const cellOnClick = player === null ? placePiece : (a, b) => {};
 
   return (
-    <td className="cell">
+    <td className={cellClass} onClick={() => cellOnClick(toPlayNext, col)}>
       {player !== null && <span className="piece" style={styleColour()}></span>}
     </td>
   );

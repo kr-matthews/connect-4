@@ -13,10 +13,16 @@
   margin: 0;
 }
 
+.clickable:hover {
+  cursor: pointer;
+}
+
 .piece {
   height: 100%;
   width: 100%;
   border: 0.1em;
   border-radius: 50%;
   display: inline-block;
+  text-align: center;
+  vertical-align: middle;
 }
