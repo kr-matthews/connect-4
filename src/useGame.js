@@ -27,10 +27,15 @@ function useGame(toPlayFirst) {
   //// reducers
 
   function boardReducer(state, action) {
+    // TODO: NEXT: in safe mode, piece is placed twice
+    // TODO: NEXT: in either mode, first piece of game is placed twice
+
+    console.log("boardReducer called with " + " " + action); // TEMP:
     switch (action.type) {
       case "reset":
         return emptyBoard(boardSize);
       case "placePiece":
+        console.log("case placePiece"); // TEMP:
         var row = findEmptyRow(state, action.col);
         if (row === null) {
           return state;
@@ -40,6 +45,7 @@ function useGame(toPlayFirst) {
             ...newState[row][action.col],
             player: action.player,
           };
+          console.log("done"); // TEMP:
           // TODO: highlight winning positions if necessary
           return newState;
         }
@@ -84,22 +90,22 @@ function useGame(toPlayFirst) {
   }
 
   // NOTE: this is unused; encorporate it into boardReducer (to highlight wins)
-  function indicesReducer(state, action) {
-    switch (action.type) {
-      case "reset":
-        return [];
-      case "addIndices":
-        let { row, col, d_r, d_c } = action;
-        let newState = [];
-        for (let k = -3; k < 1; k--) {
-          newState.push([row + k * d_r, col + k * d_c]);
-        }
-        return newState;
-      default:
-        console.log("indicesReducer switch didn't match any case");
-        return state;
-    }
-  }
+  // function indicesReducer(state, action) {
+  //   switch (action.type) {
+  //     case "reset":
+  //       return [];
+  //     case "addIndices":
+  //       let { row, col, d_r, d_c } = action;
+  //       let newState = [];
+  //       for (let k = -3; k < 1; k--) {
+  //         newState.push([row + k * d_r, col + k * d_c]);
+  //       }
+  //       return newState;
+  //     default:
+  //       console.log("indicesReducer switch didn't match any case");
+  //       return state;
+  //   }
+  // }
 
   // internal functions
 
@@ -108,7 +114,7 @@ function useGame(toPlayFirst) {
   function findEmptyRow(state, col) {
     let rows = state.length;
     for (let row = 0; row < rows; row++) {
-      if (state[row][col] === null) {
+      if (state[row][col].player === null) {
         return row;
       }
     }
@@ -139,9 +145,12 @@ function useGame(toPlayFirst) {
       let current = 0;
       for (let k = -3; k < 4; k++) {
         if (
-          -1 < row + k * d_r < rows &&
-          -1 < col + k * d_c < cols &&
-          board[row + k * d_r][col + k * d_c] === player
+          // check coordinates are in bounds, then check for piece
+          -1 < row + k * d_r &&
+          row + k * d_r < rows &&
+          -1 < col + k * d_c &&
+          col + k * d_c < cols &&
+          board[row + k * d_r][col + k * d_c].player === player
         ) {
           current += 1;
           // the only use of the 4 from "connect 4"
@@ -155,11 +164,17 @@ function useGame(toPlayFirst) {
     });
 
     if (message !== null) {
-      let [row, col, d_r, d_c] = message;
+      // let [row, col, d_r, d_c] = message;
       setGameStatus(player);
-      dispatchIndices({ type: "addIndices", row, col, d_r, d_c });
+      // TODO: deal with highlighting winning pieces (above commented row too)
+      // dispatchIndices({ type: "addIndices", row, col, d_r, d_c });
       return;
-    } else if (!board[-1].includes(null)) {
+    } else if (
+      !board[boardSize[0] - 1]
+        .slice()
+        .map((cell) => cell.player)
+        .includes(null)
+    ) {
       setGameStatus("draw");
       return;
     }
@@ -188,7 +203,7 @@ function useGame(toPlayFirst) {
     // move is possible; proceed
     dispatchMove({ type: "placePiece", player, col });
     dispatchHistory({ type: "addMove", player, row, col });
-    // below needs to move into dispatchMove, most likely
+    // NOTE: checkWinOrDraw needs to move into dispatchMove, most likely
     checkWinOrDraw(player, row, col);
     setToPlayNext(1 - player);
     return { success: true };
