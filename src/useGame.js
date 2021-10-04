@@ -27,28 +27,17 @@ function useGame(toPlayFirst) {
   //// reducers
 
   function boardReducer(state, action) {
-    // TODO: NEXT: in safe mode, piece is placed twice
-    // TODO: NEXT: in either mode, first piece of game is placed twice
-
-    console.log("boardReducer called with " + " " + action); // TEMP:
     switch (action.type) {
       case "reset":
         return emptyBoard(boardSize);
       case "placePiece":
-        console.log("case placePiece"); // TEMP:
-        var row = findEmptyRow(state, action.col);
-        if (row === null) {
-          return state;
-        } else {
-          let newState = [...state];
-          newState[row][action.col] = {
-            ...newState[row][action.col],
-            player: action.player,
-          };
-          console.log("done"); // TEMP:
-          // TODO: highlight winning positions if necessary
-          return newState;
-        }
+        let newState = [...state];
+        newState[action.row][action.col] = {
+          ...newState[action.row][action.col],
+          player: action.player,
+        };
+        // TODO: highlight winning positions if necessary
+        return newState;
       case "undo":
         // this case is currently not used
         // TODO: build in UNDO to interface and add workflow
@@ -201,7 +190,7 @@ function useGame(toPlayFirst) {
       return { success: false, details: "full column" };
     }
     // move is possible; proceed
-    dispatchMove({ type: "placePiece", player, col });
+    dispatchMove({ type: "placePiece", player, col, row });
     dispatchHistory({ type: "addMove", player, row, col });
     // NOTE: checkWinOrDraw needs to move into dispatchMove, most likely
     checkWinOrDraw(player, row, col);

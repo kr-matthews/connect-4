@@ -2,7 +2,7 @@ import "./board.css";
 
 function Board({ board, placePiece, colours, toPlayNext }) {
   let rows = board.length;
-  var tableRows = [];
+  let tableRows = [];
   // the first row goes on the bottom, visually
   for (let row = rows - 1; row > -1; row--) {
     tableRows.push(
@@ -24,7 +24,7 @@ function Board({ board, placePiece, colours, toPlayNext }) {
 }
 
 function Row({ row, placePiece, colours, toPlayNext }) {
-  var rowCells = row.map(({ player, inLine }, col) => {
+  let rowCells = row.map(({ player, inLine }, col) => {
     return (
       <Cell
         key={col}
