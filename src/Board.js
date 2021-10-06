@@ -65,3 +65,4 @@ function oppositeColour(colour) {
 }
 
 export default Board;
+export { Row, Cell }; // for testing
