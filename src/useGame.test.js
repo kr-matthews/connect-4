@@ -31,8 +31,10 @@ function validStates(states) {
   states.moveHistory.forEach((move) => {
     expect(Object.keys(move)).toHaveLength(3);
     expect([0, 1]).toContain(move.player);
-    expect(move.row).toBeBetween(0, 5);
-    expect(move.col).toBeBetween(0, 6);
+    expect(move.row).toBeGreaterThanOrEqual(0);
+    expect(move.row).toBeLessThanOrEqual(5);
+    expect(move.col).toBeGreaterThanOrEqual(0);
+    expect(move.col).toBeLessThanOrEqual(6);
   });
 
   expect(states).toHaveProperty("resetGame");
@@ -43,16 +45,16 @@ function validStates(states) {
 }
 
 it("useGame initial states valid", () => {
-  const toPlayNext = 1;
-  const { result } = renderHook(() => useGame(toPlayNext));
+  const initialPlayer = 1;
+  const { result } = renderHook(() => useGame(initialPlayer));
 
   validStates(result.current);
-  expect(result.current.toPlayNext).toBe(toPlayNext);
+  expect(result.current.toPlayNext).toBe(initialPlayer);
 });
 
 it("useGame states remain valid after (redundant) reset", () => {
-  const toPlayNext = 0;
-  const { result } = renderHook(() => useGame(toPlayNext));
+  const initialPlayer = 0;
+  const { result } = renderHook(() => useGame(initialPlayer));
 
   act(() => result.current.resetGame(0));
   validStates(result.current);
@@ -64,11 +66,70 @@ it("useGame states remain valid after (redundant) reset", () => {
 });
 
 it("useGame states remain valid after playing first piece", () => {
-  // TODO: Add tests for playing piece in useGame hook
-  console.log("Warning: Test incomplete");
+  const initialPlayer = 1;
+  const col = 4;
+  const { result } = renderHook(() => useGame(initialPlayer));
+
+  // place piece in column col
+  act(() => result.current.placePiece(result.current.toPlayNext, col));
+  validStates(result.current);
+  result.current.board.forEach((row, i) => {
+    row.forEach((entry, j) => {
+      if (i === 0 && j === col) {
+        expect(entry.player).toBe(1 - result.current.toPlayNext);
+        // expect(2).toBe(4);
+      } else {
+        expect(entry.player).toBeNull();
+        // expect(2).toBe(4);
+      }
+    });
+  });
 });
 
-it("useGame states remain valid after move then reset", () => {
-  // TODO: Add tests for playing piece then reset in useGame hook
-  console.log("Warning: Test incomplete");
+it("useGame states remain valid bewteen/after 3 moves then reset", () => {
+  const initialPlayer = 0;
+  const col = 3;
+  const { result } = renderHook(() => useGame(initialPlayer));
+  const initialState = result.current;
+
+  // place piece in column col
+  act(() => result.current.placePiece(result.current.toPlayNext, col));
+  validStates(result.current);
+
+  // place piece in another column (2 over from col)
+  act(() =>
+    result.current.placePiece(result.current.toPlayNext, (col + 2) % 7)
+  );
+  validStates(result.current);
+
+  // place piece in latter column
+  act(() =>
+    result.current.placePiece(result.current.toPlayNext, (col + 2) % 7)
+  );
+  validStates(result.current);
+
+  // check board matches the 3 pieces placed
+  result.current.board.forEach((row, i) => {
+    row.forEach((entry, j) => {
+      if ((i === 0 && j === col) || (i === 1 && j === (col + 2) % 7)) {
+        expect(entry.player).toBe(initialPlayer);
+      } else if (i === 0 && j === (col + 2) % 7) {
+        expect(entry.player).toBe(1 - initialPlayer);
+      } else {
+        expect(entry.player).toBeNull();
+      }
+    });
+  });
+
+  // reset board
+  act(() => result.current.resetGame(1 - initialPlayer));
+  validStates(result.current);
+
+  result.current.board.forEach((row, i) => {
+    row.forEach((entry, j) => {
+      expect(entry.player).toBeNull();
+    });
+  });
 });
+
+// TODO: add (new) tests (and into above tests) for gameStatus, toPlayNext, moveHistory

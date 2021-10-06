@@ -130,16 +130,6 @@ function useGame(toPlayFirst) {
   // check whether that was a winning move
   //  and whether the board is full (a draw)
   function checkWinOrDraw(player, row, col) {
-    console.log(
-      "Checking " +
-        player +
-        " at " +
-        row +
-        "," +
-        col +
-        ": " +
-        board[row][col].player
-    ); // TEMP:
     // NOTE: modifications likely needed
     let [rows, cols] = [board.length, board[0].length];
     let message = null;
@@ -186,13 +176,10 @@ function useGame(toPlayFirst) {
 
   // given out to reset all states
   function resetGame(player) {
-    // TODO: NEXT: reset doesn't work properly -- check states before/after
-    console.log("Reseting!"); // TEMP:
     setGameStatus("ongoing");
     setToPlayNext(player);
     dispatchMove({ type: "reset", boardSize });
     dispatchHistory({ type: "reset" });
-    console.log("Reset."); // TEMP:
   }
 
   // given out to allow component to (attempt to) place a piece
