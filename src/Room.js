@@ -25,14 +25,14 @@ function Room({ creator }) {
   ]);
   // the game custom hook
   // TEMP: argument of 0 (index of first palyer)
-  const [
+  const {
     gameStatus,
     toPlayNext,
     board,
     moveHistory,
     resetGame,
     placePiece,
-  ] = useGame(0);
+  } = useGame(0);
 
   function playersDispatch(state, action) {
     let newState = [...state];

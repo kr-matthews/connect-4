@@ -186,36 +186,33 @@ function useGame(toPlayFirst) {
 
   // given out to reset all states
   function resetGame(player) {
+    // TODO: NEXT: reset doesn't work properly -- check states before/after
+    console.log("Reseting!"); // TEMP:
     setGameStatus("ongoing");
     setToPlayNext(player);
     dispatchMove({ type: "reset", boardSize });
     dispatchHistory({ type: "reset" });
-    return { success: true };
+    console.log("Reset."); // TEMP:
   }
 
   // given out to allow component to (attempt to) place a piece
   function placePiece(player, col) {
-    if (player !== toPlayNext) {
-      return { success: false, details: "wrong player" };
-    }
     let row = findEmptyRow(board, col);
-    if (row === null) {
-      return { success: false, details: "full column" };
+    if (player === toPlayNext && row !== null) {
+      // move is possible; proceed
+      dispatchMove({ type: "placePiece", player, row, col });
+      dispatchHistory({ type: "addMove", player, row, col });
+      // TODO: NEXT: game state is not updating on win/lose or on draw
+      // TODO: NEXT:  since piece is not being placed before the check
+      // TODO: NEXT: research problem and solution(s)
+      checkWinOrDraw(player, row, col);
+      setToPlayNext(1 - player);
     }
-    // move is possible; proceed
-    dispatchMove({ type: "placePiece", player, row, col });
-    dispatchHistory({ type: "addMove", player, row, col });
-    // TODO: NEXT: game state is not updating on win/lose or on draw
-    // TODO: NEXT:  since piece is not being placed before the check
-    // TODO: NEXT: research problem and solution(s)
-    checkWinOrDraw(player, row, col);
-    setToPlayNext(1 - player);
-    return { success: true };
   }
 
   // Return
 
-  return [gameStatus, toPlayNext, board, moveHistory, resetGame, placePiece];
+  return { gameStatus, toPlayNext, board, moveHistory, resetGame, placePiece };
 }
 
 export { useGame };
