@@ -50,7 +50,7 @@ function Room({ creator }) {
         colours={[players[0].colour, players[1].colour]}
         toPlayNext={toPlayNext}
       />
-      <Footer />
+      <Footer resetGame={resetGame} />
     </>
   );
 }
