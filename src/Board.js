@@ -41,6 +41,7 @@ function Row({ row, placePiece, colours, toPlayNext }) {
   return <tr>{rowCells}</tr>;
 }
 
+// TODO: cell should only be clickable if current player is next player
 function Cell({ col, player, placePiece, colours, inLine, toPlayNext }) {
   function styleColour() {
     let backgroundColor = colours[player];

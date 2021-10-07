@@ -2,13 +2,15 @@ import { renderHook, act } from "@testing-library/react-hooks";
 
 import { useGame } from "./useGame.js";
 
+// helpers
+
 function validStates(states) {
   // only returns the 6 expected consts and functions
   expect(Object.keys(states)).toHaveLength(6);
 
   // test each of the 6
   expect(states).toHaveProperty("gameStatus");
-  expect(["ongoing", "won", "lost", "draw"]).toContain(states.gameStatus);
+  expect(["ongoing", 0, 1, "draw"]).toContain(states.gameStatus);
 
   expect(states).toHaveProperty("toPlayNext");
   expect([0, 1]).toContain(states.toPlayNext);
@@ -44,12 +46,30 @@ function validStates(states) {
   expect(states.placePiece).toBeFunction;
 }
 
+function isEmpty(board) {
+  board.forEach((row, i) => {
+    row.forEach((entry, j) => {
+      expect(entry.player).toBeNull();
+      expect(entry.inLine).toBe(false);
+    });
+  });
+}
+
+function isInitialState(states, player) {
+  expect(states.gameStatus).toBe("ongoing");
+  expect(states.toPlayNext).toBe(player);
+  isEmpty(states.board);
+  expect(states.moveHistory).toEqual([]);
+}
+
+// tests
+
 it("useGame initial states valid", () => {
   const initialPlayer = 1;
   const { result } = renderHook(() => useGame(initialPlayer));
 
   validStates(result.current);
-  expect(result.current.toPlayNext).toBe(initialPlayer);
+  isInitialState(result.current, initialPlayer);
 });
 
 it("useGame states remain valid after (redundant) reset", () => {
@@ -58,11 +78,11 @@ it("useGame states remain valid after (redundant) reset", () => {
 
   act(() => result.current.resetGame(0));
   validStates(result.current);
-  expect(result.current.toPlayNext).toBe(0);
+  isInitialState(result.current, 0);
 
   act(() => result.current.resetGame(1));
   validStates(result.current);
-  expect(result.current.toPlayNext).toBe(1);
+  isInitialState(result.current, 1);
 });
 
 it("useGame states remain valid after playing first piece", () => {
@@ -73,14 +93,13 @@ it("useGame states remain valid after playing first piece", () => {
   // place piece in column col
   act(() => result.current.placePiece(result.current.toPlayNext, col));
   validStates(result.current);
+  expect(result.current.gameStatus).toBe("ongoing");
   result.current.board.forEach((row, i) => {
     row.forEach((entry, j) => {
       if (i === 0 && j === col) {
         expect(entry.player).toBe(1 - result.current.toPlayNext);
-        // expect(2).toBe(4);
       } else {
         expect(entry.player).toBeNull();
-        // expect(2).toBe(4);
       }
     });
   });
@@ -109,6 +128,7 @@ it("useGame states remain valid bewteen/after 3 moves then reset", () => {
   validStates(result.current);
 
   // check board matches the 3 pieces placed
+  expect(result.current.gameStatus).toBe("ongoing");
   result.current.board.forEach((row, i) => {
     row.forEach((entry, j) => {
       if ((i === 0 && j === col) || (i === 1 && j === (col + 2) % 7)) {
@@ -124,12 +144,8 @@ it("useGame states remain valid bewteen/after 3 moves then reset", () => {
   // reset board
   act(() => result.current.resetGame(1 - initialPlayer));
   validStates(result.current);
-
-  result.current.board.forEach((row, i) => {
-    row.forEach((entry, j) => {
-      expect(entry.player).toBeNull();
-    });
-  });
+  isInitialState(result.current, 1 - initialPlayer);
 });
 
-// TODO: add (new) tests (and into above tests) for gameStatus, toPlayNext, moveHistory
+// TODO: add tests for wins, loses, and draws
+// TODO: test moveHistory (unless it gets replaced with an undo function)

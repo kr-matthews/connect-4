@@ -10,7 +10,7 @@ function Room({ creator }) {
   // TODO: Room component
 
   // TODO: keep playerCount and players up-to-date (useEffect?)
-  // TODO: allow player 0 to pick who goes first
+  // TODO: allow someone to pick who goes first
 
   // how many players are present
   // TEMP: initial state
@@ -29,7 +29,7 @@ function Room({ creator }) {
     gameStatus,
     toPlayNext,
     board,
-    moveHistory,
+    // moveHistory, // TEMP: hide
     resetGame,
     placePiece,
   } = useGame(0);
@@ -50,7 +50,7 @@ function Room({ creator }) {
         colours={[players[0].colour, players[1].colour]}
         toPlayNext={toPlayNext}
       />
-      <Footer resetGame={resetGame} />
+      <Footer gameStatus={gameStatus} resetGame={resetGame} />
     </>
   );
 }
