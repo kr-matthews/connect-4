@@ -42,9 +42,11 @@ function Row({ row, placePiece, colours, toPlayNext }) {
 }
 
 // TODO: cell should only be clickable if current player is next player
+//  and if game is ongoing
 function Cell({ col, player, placePiece, colours, inLine, toPlayNext }) {
   function styleColour() {
     let backgroundColor = colours[player];
+    // TODO: NEXT border colour not showing up on screen - check css
     let borderColor = inLine
       ? oppositeColour(backgroundColor)
       : backgroundColor;

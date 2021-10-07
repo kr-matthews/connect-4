@@ -8,26 +8,34 @@ function boardReducer(state, action) {
     case "reset":
       return emptyBoard(action.boardSize);
     case "placePiece":
-      let newState = [...state];
-      newState[action.row][action.col] = {
-        ...newState[action.row][action.col],
-        player: action.player,
-      };
-      // TODO: highlight winning positions if necessary
+      let newState = state;
+      // add the piece
+      newState[action.row][action.col].player = action.player;
+      // if there is a new, highlight the winning pieces
+      let { success, r_0, c_0, d_r, d_c } = findWin(
+        newState,
+        action.row,
+        action.col
+      );
+      if (success) {
+        // NOTE: another use of 4 from "connect 4"
+        for (let k = 0; k < 4; k++) {
+          newState[r_0 + k * d_r][c_0 + k * d_c].inLine = true;
+        }
+      }
       return newState;
     case "undo":
-      // this case is currently not used
+      // NOTE: this case is currently not used
       // TODO: build in UNDO to interface and add workflow -- note it needs moveHistory passed in
       if (action.moveHistory === []) {
         return state;
       } else {
-        let newState = [...state];
+        let newState = state;
         delete newState[action.row][action.col].player;
         // TODO: unhighlight winning positions if necessary
         return newState;
       }
     default:
-      console.log("boardReducer switch didn't match any case");
       return state;
   }
 }
@@ -37,7 +45,7 @@ function historyReducer(state, action) {
     case "reset":
       return [];
     case "addMove":
-      let newState = [...state];
+      let newState = state;
       let { player, row, col } = action;
       newState.push({ player, row, col });
       return newState;
@@ -45,7 +53,7 @@ function historyReducer(state, action) {
       if (state === []) {
         return state;
       } else {
-        let newState = [...state];
+        let newState = state;
         newState.pop();
         return newState;
       }
@@ -102,9 +110,50 @@ function full(board, boardSize) {
   return !hasNull;
 }
 
-function findWin() {
-  // TODO: NEXT: define findWin() function (use commented code below)
-  return { start: [0, 1], direction: [1, 1] };
+// NOTE: this is the main place that 4 from "connect 4" is used
+function findWin(board, row, col) {
+  const [rows, cols] = [board.length, board[0].length];
+  const player = board[row][col].player;
+  if (player === null) {
+    return { success: false };
+  }
+  let success = false;
+  let [r_0, c_0, d_r, d_c] = [null, null, null, null];
+  directions.forEach(([d_row, d_col]) => {
+    if (!success) {
+      // no need to proceed if we already found a win
+      // reset return values
+      [r_0, c_0, d_r, d_c] = [null, null, d_row, d_col];
+      let current = 0;
+      for (let k = -3; k < 4; k++) {
+        if (
+          -1 < row + k * d_row &&
+          row + k * d_row < rows &&
+          -1 < col + k * d_col &&
+          col + k * d_col < cols &&
+          board[row + k * d_row][col + k * d_col].player === player
+        ) {
+          // if the player has a piece here
+          if (current === 0) {
+            // if the piror piece was not compatible (wrong player or out of bounds)
+            // then this is the new start
+            r_0 = row + k * d_row;
+            c_0 = col + k * d_col;
+          }
+          current += 1;
+          if (current >= 4) {
+            // found a winner
+            success = true;
+          }
+        } else {
+          // no piece here -- reset
+          current = 0;
+        }
+      }
+    }
+  });
+
+  return { success, r_0, c_0, d_r, d_c };
 }
 
 function useGame(toPlayFirst) {
@@ -130,55 +179,20 @@ function useGame(toPlayFirst) {
 
   // check for win/draw
   useEffect(() => {
-    let { success, row, col } = findWin();
-    if (success) {
-      // the game state is the index of the winner
-      setGameStatus(board[row][col].player);
-    } else if (full(board, boardSize)) {
-      // it's a draw
-      setGameStatus("draw");
+    if (moveHistory.length > 0) {
+      let { row, col, player } = moveHistory[moveHistory.length - 1];
+      let { success, r_0, c_0 } = findWin(board, row, col);
+      if (gameStatus === "ongoing" && success) {
+        // the game state should be the index of the winner
+        setGameStatus(board[row][col].player);
+      } else if (full(board, boardSize)) {
+        // it's a draw
+        setGameStatus("draw");
+      }
     }
-  }, [board, boardSize]);
+  }, [board, boardSize, gameStatus, moveHistory]);
 
-  // highlight winning pieces
-  useEffect(() => {
-    if (gameStatus === 0 || gameStatus === 1) {
-      let { success, row, col, d_r, d_c } = findWin();
-      // TODO: NEXT: given data above, update the board to highlight pieces
-    }
-  }, [gameStatus]);
-
-  //
-  // piece was just added to row, col by player
-  // check whether that was a winning move
-  //  and whether the board is full (a draw)
-  // function checkWinOrDraw(player, row, col) {
-  //   let [rows, cols] = [board.length, board[0].length];
-  //   let message = null;
-  //   directions.forEach(([d_r, d_c]) => {
-  //     let current = 0;
-  //     for (let k = -3; k < 4; k++) {
-  //       if (
-  //         // check coordinates are in bounds, then check for piece
-  //         -1 < row + k * d_r &&
-  //         row + k * d_r < rows &&
-  //         -1 < col + k * d_c &&
-  //         col + k * d_c < cols &&
-  //         board[row + k * d_r][col + k * d_c].player === player
-  //       ) {
-  //         current += 1;
-  //         if (current >= 4) {
-  //           // the only use of the 4 from "connect 4"
-  //           message = [row + k * d_r, col + k * d_c, d_r, d_c];
-  //         }
-  //       } else {
-  //         current = 0;
-  //       }
-  //     }
-  //   });
-  // }
-
-  // Externally accessible functions
+  //// Externally accessible functions
 
   // given out to reset all states
   function resetGame(player) {
