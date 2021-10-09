@@ -46,7 +46,6 @@ function Row({ row, placePiece, colours, toPlayNext }) {
 function Cell({ col, player, placePiece, colours, inLine, toPlayNext }) {
   function styleColour() {
     let backgroundColor = colours[player];
-    // TODO: NEXT border colour not showing up on screen - check css
     let borderColor = inLine
       ? oppositeColour(backgroundColor)
       : backgroundColor;
@@ -63,8 +62,8 @@ function Cell({ col, player, placePiece, colours, inLine, toPlayNext }) {
 }
 
 function oppositeColour(colour) {
-  // TODO: calculate opposite colour (just using DarkGray for now)
-  return "DarkGray";
+  // TODO: calculate opposite colour (just using Black for now)
+  return "Black";
 }
 
 export default Board;
