@@ -6,25 +6,32 @@ import Footer from "./Footer.js";
 
 import { useGame } from "./useGame.js";
 
-function Room({ creator }) {
-  // TODO: Room component
+//// reducers
 
-  // TODO: keep playerCount and players up-to-date (useEffect?)
-  // TODO: allow someone to pick who goes first
+function opponentReducer(state, action) {
+  let newState = [...state];
+  newState[action.property] = action.value;
+  return newState;
+}
+
+// the room is seen from the current player's view
+//  each player has their own instantiation of the 'shared' room
+
+function Room() {
+  // TODO: keep playerCount and opponent -- involves network
+
+  //// States
 
   // how many players are present
-  // TEMP: initial state
+  // TEMP: initial state -- should be 2 if joining someone else's room
   const [playerCount, setPlayerCount] = useState(1);
-  // index to access self in players array
-  const selfIndex = creator ? 0 : 1;
   // other player's name and colour, once they join
-  // TEMP: initial state
-  const [players, setPlayers] = useReducer(playersDispatch, [
-    { name: "Alice", colour: "blue" },
-    { name: "Bob", colour: "red" },
-  ]);
+  // TEMP: initial state -- should check network and be null if necessary
+  const [opponent, dispatchOpponent] = useReducer(opponentReducer, {
+    name: "Bob",
+    colour: "red",
+  });
   // the game custom hook
-  // TEMP: argument of 0 (index of first palyer)
   const {
     gameStatus,
     toPlayNext,
@@ -32,22 +39,20 @@ function Room({ creator }) {
     // moveHistory, // TEMP: hide
     resetGame,
     placePiece,
-  } = useGame(0);
+  } = useGame(0); // TEMP: argument of 0 (index of first palyer)
+  // TODO: allow someone to pick method for first-player selection
 
-  function playersDispatch(state, action) {
-    let newState = [...state];
-    newState[action.player][action.property] = action.value;
-    return newState;
-  }
+  //// Return
 
   return (
     <>
       <h2>Room</h2>
       <Header />
       <Board
+        viewer={0}
         board={board}
         placePiece={placePiece}
-        colours={[players[0].colour, players[1].colour]}
+        colours={["Blue", opponent.colour]} // TEMP: get blue from context
         toPlayNext={toPlayNext}
       />
       <Footer gameStatus={gameStatus} resetGame={resetGame} />

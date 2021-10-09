@@ -1,13 +1,14 @@
 import "./board.css";
 
-function Board({ board, placePiece, colours, toPlayNext }) {
-  let rows = board.length;
+function Board({ viewer, board, placePiece, colours, toPlayNext }) {
+  const rows = board.length;
   let tableRows = [];
   // the first row goes on the bottom, visually
   for (let row = rows - 1; row > -1; row--) {
     tableRows.push(
       <Row
         key={row}
+        viewer={viewer}
         row={board[row]}
         placePiece={placePiece}
         colours={colours}
@@ -23,11 +24,12 @@ function Board({ board, placePiece, colours, toPlayNext }) {
   );
 }
 
-function Row({ row, placePiece, colours, toPlayNext }) {
+function Row({ viewer, row, placePiece, colours, toPlayNext }) {
   let rowCells = row.map(({ player, inLine }, col) => {
     return (
       <Cell
         key={col}
+        viewer={viewer}
         col={col}
         player={player}
         placePiece={placePiece}
@@ -43,7 +45,15 @@ function Row({ row, placePiece, colours, toPlayNext }) {
 
 // TODO: cell should only be clickable if current player is next player
 //  and if game is ongoing
-function Cell({ col, player, placePiece, colours, inLine, toPlayNext }) {
+function Cell({
+  viewer,
+  col,
+  player,
+  placePiece,
+  colours,
+  inLine,
+  toPlayNext,
+}) {
   function styleColour() {
     let backgroundColor = colours[player];
     let borderColor = inLine
@@ -51,8 +61,10 @@ function Cell({ col, player, placePiece, colours, inLine, toPlayNext }) {
       : backgroundColor;
     return { backgroundColor, borderColor };
   }
-  const cellClass = player === null ? "clickable cell" : "cell";
+  const cellClass =
+    player === null && viewer === toPlayNext ? "clickable cell" : "cell";
   const cellOnClick = player === null ? placePiece : (a, b) => {};
+  // TEMP: change cellOnClick check to include 'viewer === toPlayNext', as in cellClass
 
   return (
     <td className={cellClass} onClick={() => cellOnClick(toPlayNext, col)}>

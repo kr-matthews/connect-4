@@ -17,6 +17,8 @@ function validStates(states) {
 
   // next player can only be null if game is not ongoing
   expect(states.gameStatus !== "ongoing" || states.toPlayNext !== null);
+  // and if the game is not ongoing, it should be null
+  expect(states.gameStatus === "ongoing" || states.toPlayNext === null);
 
   expect(states).toHaveProperty("board");
   expect(states.board).toHaveLength(6);
