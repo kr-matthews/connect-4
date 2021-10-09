@@ -209,7 +209,7 @@ function useGame(toPlayFirst) {
   // given out to allow component to (attempt to) place a piece
   function placePiece(player, col) {
     let row = findEmptyRow(board, col);
-    if (player === toPlayNext && row !== null) {
+    if (gameStatus === "ongoing" && player === toPlayNext && row !== null) {
       // move is possible; proceed
       dispatchMove({ type: "placePiece", player, row, col });
       dispatchHistory({ type: "addMove", player, row, col });

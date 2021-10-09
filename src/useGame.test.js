@@ -167,5 +167,67 @@ it("useGame detects horizontal win", () => {
   }
 });
 
-// TODO: NEXT: add tests for wins, loses, and draws
+it("useGame detects vertical win", () => {
+  const initialPlayer = 0;
+  const col = 4;
+  const { result } = renderHook(() => useGame(initialPlayer));
+
+  // - - - - 1 - -
+  // - - - - 1 0 -
+  // - - - - 1 0 -
+  // 0 - - - 1 0 -    <- bottom row
+
+  act(() => result.current.placePiece(initialPlayer, 0));
+  for (let i = 0; i < 7; i++) {
+    act(() =>
+      result.current.placePiece(result.current.toPlayNext, (col + (i % 2)) % 7)
+    );
+  }
+
+  validStates(result.current);
+  expect(result.current.gameStatus).toBe(1 - initialPlayer);
+
+  for (let i = 0; i < 4; i++) {
+    expect(result.current.board[i][col].inLine).toBe(true);
+  }
+});
+
+it("useGame detects draw", () => {
+  // TODO: check nothing gets highlighted
+  const initialPlayer = 1;
+  const { result } = renderHook(() => useGame(initialPlayer));
+
+  // 0 1 0 1 0 1 0
+  // 0 1 0 1 0 1 1
+  // 0 1 0 1 0 1 0
+  // 1 0 1 0 1 0 1
+  // 1 0 1 0 1 0 0
+  // 1 0 1 0 1 0 1    <- bottom row
+
+  for (let k = 0; k < 3; k++) {
+    // do columns 2 * k and 2 * k + 1
+    for (let j = 0; j < 2; j++) {
+      // do the bottom 3 rows (j = 0) then the top 3 (j = 1)
+      for (let i = 0; i < 6; i++) {
+        // place the pieces
+        act(() =>
+          result.current.placePiece(
+            result.current.toPlayNext,
+            2 * k + ((i + j) % 2)
+          )
+        );
+      }
+    }
+  }
+  for (let k = 0; k < 6; k++) {
+    // do the final column
+    act(() => result.current.placePiece(result.current.toPlayNext, 6));
+  }
+
+  validStates(result.current);
+  expect(result.current.gameStatus).toBe("draw");
+});
+
+// TODO: add checks for diagonal and anti-diagonal wins
+// TODO: test win on (6 * 7)th piece placed (ie filling up board but no draw)
 // TODO: test moveHistory (unless it gets replaced with an undo function)
