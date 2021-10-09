@@ -189,9 +189,11 @@ function useGame(toPlayFirst) {
       if (gameStatus === "ongoing" && success) {
         // the game state should be the index of the winner
         setGameStatus(board[row][col].player);
-      } else if (full(board)) {
+        setToPlayNext(null);
+      } else if (gameStatus === "ongoing" && full(board)) {
         // it's a draw
         setGameStatus("draw");
+        setToPlayNext(null);
       }
     }
   }, [moveHistory, board, gameStatus]);

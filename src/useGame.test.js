@@ -13,7 +13,10 @@ function validStates(states) {
   expect(["ongoing", 0, 1, "draw"]).toContain(states.gameStatus);
 
   expect(states).toHaveProperty("toPlayNext");
-  expect([0, 1]).toContain(states.toPlayNext);
+  expect([0, 1, null]).toContain(states.toPlayNext);
+
+  // next player can only be null if game is not ongoing
+  expect(states.gameStatus !== "ongoing" || states.toPlayNext !== null);
 
   expect(states).toHaveProperty("board");
   expect(states.board).toHaveLength(6);
