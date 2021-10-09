@@ -109,7 +109,6 @@ it("useGame states remain valid bewteen/after 3 moves then reset", () => {
   const initialPlayer = 0;
   const col = 3;
   const { result } = renderHook(() => useGame(initialPlayer));
-  const initialState = result.current;
 
   // place piece in column col
   act(() => result.current.placePiece(result.current.toPlayNext, col));
@@ -147,5 +146,26 @@ it("useGame states remain valid bewteen/after 3 moves then reset", () => {
   isInitialState(result.current, 1 - initialPlayer);
 });
 
-// TODO: add tests for wins, loses, and draws
+it("useGame detects horizontal win", () => {
+  const initialPlayer = 0;
+  const { result } = renderHook(() => useGame(initialPlayer));
+
+  // - - 1 1 1 - -
+  // - - 0 0 0 0 -    <- bottom row
+
+  for (let i = 4; i < 11; i++) {
+    act(() =>
+      result.current.placePiece(result.current.toPlayNext, Math.floor(i / 2))
+    );
+  }
+
+  validStates(result.current);
+  expect(result.current.gameStatus).toBe(initialPlayer);
+
+  for (let i = 2; i < 6; i++) {
+    expect(result.current.board[0][i].inLine).toBe(true);
+  }
+});
+
+// TODO: NEXT: add tests for wins, loses, and draws
 // TODO: test moveHistory (unless it gets replaced with an undo function)

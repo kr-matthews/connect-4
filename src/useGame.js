@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect, useMemo } from "react";
+import { useState, useReducer, useEffect } from "react";
 
 //// reducers
 // outside the hook function to ensure they are pure
@@ -8,7 +8,7 @@ function boardReducer(state, action) {
     case "reset":
       return emptyBoard(action.boardSize);
     case "placePiece":
-      let newState = state;
+      let newState = [...state];
       // add the piece
       newState[action.row][action.col].player = action.player;
       // if there is a new, highlight the winning pieces
@@ -30,7 +30,7 @@ function boardReducer(state, action) {
       if (action.moveHistory === []) {
         return state;
       } else {
-        let newState = state;
+        let newState = [...state];
         delete newState[action.row][action.col].player;
         // TODO: unhighlight winning positions if necessary
         return newState;
@@ -45,7 +45,7 @@ function historyReducer(state, action) {
     case "reset":
       return [];
     case "addMove":
-      let newState = state;
+      let newState = [...state];
       let { player, row, col } = action;
       newState.push({ player, row, col });
       return newState;
@@ -53,7 +53,7 @@ function historyReducer(state, action) {
       if (state === []) {
         return state;
       } else {
-        let newState = state;
+        let newState = [...state];
         newState.pop();
         return newState;
       }
@@ -99,10 +99,10 @@ const directions = [
   [-1, 1],
 ];
 
-function full(board, boardSize) {
+function full(board) {
   let hasNull = false;
   // check the top row for nulls
-  board[boardSize[0] - 1].forEach((entry) => {
+  board[board.length - 1].forEach((entry) => {
     if (entry.player === null) {
       hasNull = true;
     }
@@ -161,10 +161,14 @@ function useGame(toPlayFirst) {
 
   // to change board dimensions, change this
   // NOTE: maybe add as prop for hook?
-  const boardSize = useMemo(() => [6, 7], []);
+  const boardSize = [6, 7];
   // the possible line directions (horizontal, vertical, diagonal, anti-diagonal)
 
   //// States
+
+  // NOTE: probably better to store board state and winning indices separately,
+  //  then combine them into a const to return to the component,
+  //  rather than having them in the same state -- makes updates more awkward
 
   // ongoing, draw, or the index of a player
   const [gameStatus, setGameStatus] = useState("ongoing");
@@ -180,17 +184,17 @@ function useGame(toPlayFirst) {
   // check for win/draw
   useEffect(() => {
     if (moveHistory.length > 0) {
-      let { row, col, player } = moveHistory[moveHistory.length - 1];
-      let { success, r_0, c_0 } = findWin(board, row, col);
+      let { row, col } = moveHistory[moveHistory.length - 1];
+      let { success } = findWin(board, row, col);
       if (gameStatus === "ongoing" && success) {
         // the game state should be the index of the winner
         setGameStatus(board[row][col].player);
-      } else if (full(board, boardSize)) {
+      } else if (full(board)) {
         // it's a draw
         setGameStatus("draw");
       }
     }
-  }, [board, boardSize, gameStatus, moveHistory]);
+  }, [moveHistory, board, gameStatus]);
 
   //// Externally accessible functions
 
