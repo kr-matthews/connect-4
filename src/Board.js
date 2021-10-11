@@ -18,7 +18,7 @@ function Board({ viewer, board, placePiece, colours, toPlayNext }) {
   }
 
   return (
-    <table className="board">
+    <table className="board" style={{ backgroundColor: "Black" }}>
       <tbody>{tableRows}</tbody>
     </table>
   );
@@ -43,8 +43,6 @@ function Row({ viewer, row, placePiece, colours, toPlayNext }) {
   return <tr>{rowCells}</tr>;
 }
 
-// TODO: cell should only be clickable if current player is next player
-//  and if game is ongoing
 function Cell({
   viewer,
   col,
@@ -54,28 +52,27 @@ function Cell({
   inLine,
   toPlayNext,
 }) {
-  function styleColour() {
-    let backgroundColor = colours[player];
-    let borderColor = inLine
-      ? oppositeColour(backgroundColor)
-      : backgroundColor;
-    return { backgroundColor, borderColor };
-  }
-  const cellClass =
-    player === null && viewer === toPlayNext ? "clickable cell" : "cell";
-  const cellOnClick = player === null ? placePiece : (a, b) => {};
-  // TEMP: change cellOnClick check to include 'viewer === toPlayNext', as in cellClass
+  const backgroundColor = colours[player] || "White";
+  const borderColor = inLine ? oppColour(backgroundColor) : backgroundColor;
+  const pieceStyle = { backgroundColor, borderColor };
+
+  // can click if there is no piece && the viewer is next to play
+  // note that if game is over, toPlayNext is null so this works
+  const isClickable = player === null && viewer === toPlayNext;
+  const cellClass = isClickable ? "clickable cell" : "cell";
+  const clickHandler = () => player === null && placePiece(toPlayNext, col);
+  // TEMP: change cellOnClick check to isClickable, as in cellClass
 
   return (
-    <td className={cellClass} onClick={() => cellOnClick(toPlayNext, col)}>
-      {player !== null && <span className="piece" style={styleColour()}></span>}
+    <td className={cellClass} onClick={clickHandler}>
+      <span className="piece" style={pieceStyle}></span>
     </td>
   );
 }
 
-function oppositeColour(colour) {
-  // TODO: calculate opposite colour (just using Black for now)
-  return "Black";
+function oppColour(colour) {
+  // TODO: calculate opposite colour (just using White for now)
+  return "White";
 }
 
 export default Board;
