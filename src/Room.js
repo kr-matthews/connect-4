@@ -5,6 +5,7 @@ import Board from "./Board.js";
 import Footer from "./Footer.js";
 
 import { useGame } from "./useGame.js";
+import { useResults } from "./useResults.js";
 
 //// reducers
 
@@ -18,10 +19,11 @@ function opponentReducer(state, action) {
 //  each player has their own instantiation of the 'shared' room
 
 function Room() {
-  // TODO: keep playerCount and opponent -- involves network
+  // TODO: keep playerCount and opponent updated -- involves network
 
   //// States
 
+  const roomID = 0; // TEMP: network should assign on creation, or find if joining
   // how many players are present
   // TEMP: initial state -- should be 2 if joining someone else's room
   const [playerCount, setPlayerCount] = useState(1);
@@ -41,13 +43,15 @@ function Room() {
     placePiece,
   } = useGame(0); // TEMP: argument of 0 (index of first palyer)
   // TODO: allow someone to pick method for first-player selection
+  // history of all games played
+  const { resultHistory, dispatchResult } = useResults();
 
   //// Return
 
   return (
     <>
       <h2>Room</h2>
-      <Header />
+      <Header opponent={opponent} resultHistory={resultHistory} />
       <Board
         viewer={0}
         board={board}
