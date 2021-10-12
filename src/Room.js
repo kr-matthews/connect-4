@@ -5,7 +5,6 @@ import Board from "./Board.js";
 import Footer from "./Footer.js";
 
 import { useGame } from "./useGame.js";
-import { useResults } from "./useResults.js";
 
 //// reducers
 
@@ -15,6 +14,21 @@ function opponentReducer(state, action) {
   return newState;
 }
 
+function resultReducer(state, action) {
+  switch (action.type) {
+    case "reset":
+      return initialResults;
+    default:
+      let newState = [...state];
+      newState.action.type += 1;
+      return newState;
+  }
+}
+
+const initialResults = { wins: 0, draws: 0, loses: 0 };
+
+// TODO: NEXT:?? useRoom hook? and put useGame call within that?
+
 // the room is seen from the current player's view
 //  each player has their own instantiation of the 'shared' room
 
@@ -23,7 +37,6 @@ function Room() {
 
   //// States
 
-  const roomID = 0; // TEMP: network should assign on creation, or find if joining
   // how many players are present
   // TEMP: initial state -- should be 2 if joining someone else's room
   const [playerCount, setPlayerCount] = useState(1);
@@ -44,14 +57,21 @@ function Room() {
   } = useGame(0); // TEMP: argument of 0 (index of first palyer)
   // TODO: allow someone to pick method for first-player selection
   // history of all games played
-  const { resultHistory, dispatchResult } = useResults();
+  const [resultHistory, dispatchResult] = useReducer(
+    resultReducer,
+    initialResults
+  );
 
   //// Return
 
   return (
     <>
       <h2>Room</h2>
-      <Header opponent={opponent} resultHistory={resultHistory} />
+      <Header
+        playerCount={playerCount}
+        opponent={opponent}
+        resultHistory={resultHistory}
+      />
       <Board
         viewer={0}
         board={board}
@@ -59,7 +79,12 @@ function Room() {
         colours={["Blue", opponent.colour]} // TEMP: get blue from context
         toPlayNext={toPlayNext}
       />
-      <Footer gameStatus={gameStatus} resetGame={resetGame} />
+      <Footer
+        viewer={0}
+        toPlayNext={toPlayNext}
+        gameStatus={gameStatus}
+        resetGame={resetGame}
+      />
     </>
   );
 }
