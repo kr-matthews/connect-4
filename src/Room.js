@@ -19,8 +19,8 @@ function resultReducer(state, action) {
     case "reset":
       return initialResults;
     default:
-      let newState = [...state];
-      newState.action.type += 1;
+      let newState = { ...state };
+      newState[action.type] += 1;
       return newState;
   }
 }
@@ -32,20 +32,22 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 // the room is seen from the current player's view
 //  each player has their own instantiation of the 'shared' room
 
-function Room() {
+function Room({ roomId, restartMethod, firstPlayer }) {
   // TODO: keep playerCount and opponent updated -- involves network
 
   //// States
 
   // how many players are present
   // TEMP: initial state -- should be 2 if joining someone else's room
-  const [playerCount, setPlayerCount] = useState(1);
+  const [playerCount, setPlayerCount] = useState(2);
   // other player's name and colour, once they join
   // TEMP: initial state -- should check network and be null if necessary
   const [opponent, dispatchOpponent] = useReducer(opponentReducer, {
     name: "Bob",
     colour: "red",
   });
+  // who started the current game (in case first player should alternate)
+  const [wentFirst, setWentFirst] = useState(firstPlayer);
   // the game custom hook
   const {
     gameStatus,
@@ -54,8 +56,7 @@ function Room() {
     // moveHistory, // TEMP: hide
     resetGame,
     placePiece,
-  } = useGame(0); // TEMP: argument of 0 (index of first palyer)
-  // TODO: allow someone to pick method for first-player selection
+  } = useGame(firstPlayer);
   // history of all games played
   const [resultHistory, dispatchResult] = useReducer(
     resultReducer,
@@ -84,6 +85,10 @@ function Room() {
         toPlayNext={toPlayNext}
         gameStatus={gameStatus}
         resetGame={resetGame}
+        restartMethod={restartMethod}
+        wentFirst={wentFirst}
+        setWentFirst={setWentFirst}
+        dispatchResult={dispatchResult}
       />
     </>
   );

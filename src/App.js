@@ -9,7 +9,14 @@ function App() {
       <h1>Connect 4 [WIP]</h1>
       <Options />
       {true && <Lobby />}
-      {true && <Room />}
+      {/* TEMP: parameters */}
+      {true && (
+        <Room
+          roomId="2134676543"
+          restartMethod="alternate"
+          firstPlayer={Math.floor(Math.random() * 2)}
+        />
+      )}
     </>
   );
 }
