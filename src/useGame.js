@@ -222,9 +222,9 @@ function useGame(toPlayFirst) {
 
   // Return
 
-  return { gameStatus, toPlayNext, board, moveHistory, resetGame, placePiece };
+  return { gameStatus, toPlayNext, board, resetGame, placePiece };
 
-  // TODO: return an undo function, rather than the moveHistory?
+  // TODO: return an undo function, utilizing moveHistory
 }
 
 export { useGame };

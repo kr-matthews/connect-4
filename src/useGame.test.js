@@ -2,11 +2,13 @@ import { renderHook, act } from "@testing-library/react-hooks";
 
 import { useGame } from "./useGame.js";
 
+// NOTE: hook used to return moveHistory, so those were commented out
+
 // helpers
 
 function validStates(states) {
   // only returns the 6 expected consts and functions
-  expect(Object.keys(states)).toHaveLength(6);
+  expect(Object.keys(states)).toHaveLength(5);
 
   // test each of the 6
   expect(states).toHaveProperty("gameStatus");
@@ -33,16 +35,16 @@ function validStates(states) {
     });
   });
 
-  expect(states).toHaveProperty("moveHistory");
-  expect(states.moveHistory).toBeInstanceOf(Array);
-  states.moveHistory.forEach((move) => {
-    expect(Object.keys(move)).toHaveLength(3);
-    expect([0, 1]).toContain(move.player);
-    expect(move.row).toBeGreaterThanOrEqual(0);
-    expect(move.row).toBeLessThanOrEqual(5);
-    expect(move.col).toBeGreaterThanOrEqual(0);
-    expect(move.col).toBeLessThanOrEqual(6);
-  });
+  // expect(states).toHaveProperty("moveHistory");
+  // expect(states.moveHistory).toBeInstanceOf(Array);
+  // states.moveHistory.forEach((move) => {
+  //   expect(Object.keys(move)).toHaveLength(3);
+  //   expect([0, 1]).toContain(move.player);
+  //   expect(move.row).toBeGreaterThanOrEqual(0);
+  //   expect(move.row).toBeLessThanOrEqual(5);
+  //   expect(move.col).toBeGreaterThanOrEqual(0);
+  //   expect(move.col).toBeLessThanOrEqual(6);
+  // });
 
   expect(states).toHaveProperty("resetGame");
   expect(states.resetGame).toBeFunction;
@@ -64,7 +66,7 @@ function isInitialState(states, player) {
   expect(states.gameStatus).toBe("ongoing");
   expect(states.toPlayNext).toBe(player);
   isEmpty(states.board);
-  expect(states.moveHistory).toEqual([]);
+  // expect(states.moveHistory).toEqual([]);
 }
 
 // tests
@@ -235,4 +237,4 @@ it("useGame detects draw", () => {
 
 // TODO: add checks for diagonal and anti-diagonal wins
 // TODO: test win on (6 * 7)th piece placed (ie filling up board but no draw)
-// TODO: test moveHistory (unless it gets replaced with an undo function)
+// TODO: test undo, once (if) it is defined
