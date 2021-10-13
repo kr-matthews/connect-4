@@ -60,7 +60,7 @@ function Footer({
   }
 
   function forfeitHandler() {
-    // TODO: update W-D-L record
+    // TODO: update W-D-L record on forfeit
     restartHandler(1); // call with gameStatus being 1 (opponent win)
   }
 

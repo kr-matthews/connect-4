@@ -1,53 +1,103 @@
-import { useReducer } from "react";
+import { useState, useEffect, useReducer } from "react";
 
 import { useGame } from "./useGame.js";
 
-function useRoom(roomID, name, colour) {
+// TODO: NEXT: clean up; encapsulate more and return more specific functions
+
+//// Reducers
+
+function opponentReducer(state, action) {
+  let newState = [...state];
+  newState[action.property] = action.value;
+  return newState;
+}
+
+function resultReducer(state, action) {
+  switch (action.type) {
+    case "reset":
+      return initialResults;
+    default:
+      // win, draw, or lose
+      let newState = { ...state };
+      newState[action.type + "s"] += 1;
+      return newState;
+  }
+}
+
+const initialResults = { wins: 0, draws: 0, loses: 0 };
+
+function useRoom() {
+  // first player of first game is random, regardless
+  const firstPlayer = Math.floor(Math.random() * 2);
+
   //// States
 
-  // players
-  const [players, playersDispatch] = useReducer(playersReducer, [
-    { name, colour },
-  ]);
-  const playerCount = players.length();
-  // game results history (W-D-L)
-  const [results, resultsDispatch] = useReducer(resultsReducer, {
-    win: 0,
-    draw: 0,
-    lose: 0,
+  // TODO: keep playerCount and opponent updated -- involves network
+
+  // how many players are present
+  // TEMP: initial state -- should be 2 if joining someone else's room
+  const [playerCount, setPlayerCount] = useState(2);
+  // other player's name and colour, once they join
+  // TEMP: initial state -- should check network and be null if necessary
+  const [opponent, dispatchOpponent] = useReducer(opponentReducer, {
+    name: "Bob",
+    colour: "red",
   });
+  // who started the current game (in case first player should alternate)
+  const [wentFirst, setWentFirst] = useState(firstPlayer);
+  // history of all games played
+  const [resultHistory, dispatchResult] = useReducer(
+    resultReducer,
+    initialResults
+  );
+  // the game custom hook
+  const game = useGame(firstPlayer);
+  const { gameStatus, toPlayNext, board, resetGame, placePiece } = game;
 
-  //// Reducers
+  //// Effects
 
-  function playersReducer(state, action) {
-    switch (action.type) {
-      case "reset":
-        return [];
-      case "add":
-        let { name, colour } = action;
-        let newState = [...state];
-        newState.push({ name, colour });
-        return newState;
-      case "update":
-        let newState = [...state];
-        newState[action.player][action.property] = action.value;
-        return newState;
+  // (only) when gameStatus changes, update the W-D-L tally
+  useEffect(() => {
+    switch (gameStatus) {
+      case 0:
+        // TODO: add sounds for each end-game case
+        dispatchResult({ type: "win" });
+        break;
+      case 1:
+        dispatchResult({ type: "lose" });
+        break;
+      case "draw":
+        dispatchResult({ type: "draw" });
+        break;
       default:
-        console.log("playersReducer default switch");
-        return state;
     }
-  }
+  }, [gameStatus]);
 
-  function resultsReducer(state, action) {
-    if (action.type === "reset") {
-      return { win: 0, draw: 0, lose: 0 };
+  // play sounds when it becomes your turn to play (opponent moves, or new game)
+  useEffect(() => {
+    if (toPlayNext === 0) {
+      // TODO: your turn sound
     }
-    let newState = [...state];
-    newState[action.type] += 1;
-    return newState;
-  }
+  }, [toPlayNext]);
+  useEffect(() => {
+    if (playerCount === 1) {
+      // TODO: player leaving sound
+    } else {
+      // TODO: player joining sound
+    }
+  }, [playerCount]);
 
   //// Return
 
-  return [playerCount, players, playersDispatch, results, resultsDispatch];
+  return {
+    game,
+    playerCount,
+    opponent,
+    resultHistory,
+    wentFirst,
+    setWentFirst,
+    dispatchResult,
+  };
 }
+
+export { useRoom };
