@@ -12,6 +12,7 @@ function App() {
       {/* TEMP: parameters */}
       {true && (
         <Room
+          isOwner={true}
           roomId="2134676543"
           restartMethod="alternate"
           firstPlayer={Math.floor(Math.random() * 2)}

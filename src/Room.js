@@ -1,4 +1,4 @@
-import { useState, useReducer } from "react";
+import { useState, useReducer, useEffect } from "react";
 
 import Header from "./Header.js";
 import Board from "./Board.js";
@@ -19,8 +19,9 @@ function resultReducer(state, action) {
     case "reset":
       return initialResults;
     default:
+      // win, draw, or lose
       let newState = { ...state };
-      newState[action.type] += 1;
+      newState[action.type + "s"] += 1;
       return newState;
   }
 }
@@ -32,7 +33,7 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 // the room is seen from the current player's view
 //  each player has their own instantiation of the 'shared' room
 
-function Room({ roomId, restartMethod, firstPlayer }) {
+function Room({ isOwner, roomId, restartMethod, firstPlayer }) {
   // TODO: keep playerCount and opponent updated -- involves network
 
   //// States
@@ -49,6 +50,10 @@ function Room({ roomId, restartMethod, firstPlayer }) {
   // who started the current game (in case first player should alternate)
   const [wentFirst, setWentFirst] = useState(firstPlayer);
   // the game custom hook
+  const [resultHistory, dispatchResult] = useReducer(
+    resultReducer,
+    initialResults
+  );
   const {
     gameStatus,
     toPlayNext,
@@ -58,10 +63,39 @@ function Room({ roomId, restartMethod, firstPlayer }) {
     placePiece,
   } = useGame(firstPlayer);
   // history of all games played
-  const [resultHistory, dispatchResult] = useReducer(
-    resultReducer,
-    initialResults
-  );
+
+  //// Effects
+
+  // (only) when gameStatus changes, update the W-D-L tally
+  useEffect(() => {
+    switch (gameStatus) {
+      case 0:
+        // TODO: add sounds for each end-game case
+        dispatchResult({ type: "win" });
+        break;
+      case 1:
+        dispatchResult({ type: "lose" });
+        break;
+      case "draw":
+        dispatchResult({ type: "draw" });
+        break;
+      default:
+    }
+  }, [gameStatus]);
+
+  // play sounds when it becomes your turn to play (opponent moves, or new game)
+  useEffect(() => {
+    if (toPlayNext === 0) {
+      // TODO: your turn sound
+    }
+  }, [toPlayNext]);
+  useEffect(() => {
+    if (playerCount === 1) {
+      // TODO: player leaving sound
+    } else {
+      // TODO: player joining sound
+    }
+  }, [playerCount]);
 
   //// Return
 
@@ -69,27 +103,33 @@ function Room({ roomId, restartMethod, firstPlayer }) {
     <>
       <h2>Room</h2>
       <Header
+        isOwner={isOwner}
         playerCount={playerCount}
         opponent={opponent}
+        restartMethod={restartMethod}
         resultHistory={resultHistory}
       />
-      <Board
-        viewer={0}
-        board={board}
-        placePiece={placePiece}
-        colours={["Blue", opponent.colour]} // TEMP: get blue from context
-        toPlayNext={toPlayNext}
-      />
-      <Footer
-        viewer={0}
-        toPlayNext={toPlayNext}
-        gameStatus={gameStatus}
-        resetGame={resetGame}
-        restartMethod={restartMethod}
-        wentFirst={wentFirst}
-        setWentFirst={setWentFirst}
-        dispatchResult={dispatchResult}
-      />
+      {playerCount === 2 && (
+        <Board
+          viewer={0}
+          board={board}
+          placePiece={placePiece}
+          colours={["Blue", opponent.colour]} // TEMP: get blue from context
+          toPlayNext={toPlayNext}
+        />
+      )}
+      {playerCount === 2 && (
+        <Footer
+          viewer={0}
+          toPlayNext={toPlayNext}
+          gameStatus={gameStatus}
+          resetGame={resetGame}
+          restartMethod={restartMethod}
+          wentFirst={wentFirst}
+          setWentFirst={setWentFirst}
+          dispatchResult={dispatchResult}
+        />
+      )}
     </>
   );
 }
