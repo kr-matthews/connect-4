@@ -34,11 +34,13 @@ function Header({
           <span style={{ color: opponent.colour }}>{opponent.name}</span>.
         </div>
       )}
-      <div>
-        <span>Wins: {resultHistory.wins}</span>
-        <span>Draws: {resultHistory.draws}</span>
-        <span>Loses: {resultHistory.loses}</span>
-      </div>
+      {playerCount === 2 && (
+        <div>
+          <span>Wins: {resultHistory.wins}</span>
+          <span>Draws: {resultHistory.draws}</span>
+          <span>Loses: {resultHistory.loses}</span>
+        </div>
+      )}
       <div>
         {isOwner ? <button>Close Room</button> : <button>Leave Room</button>}
         {isOwner && playerCount === 2 && <button>Kick Opponent</button>}
