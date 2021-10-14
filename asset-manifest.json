@@ -1,20 +1,20 @@
 {
   "files": {
     "main.css": "/connect-4/static/css/main.2d2de2ba.chunk.css",
-    "main.js": "/connect-4/static/js/main.d25de0e6.chunk.js",
-    "main.js.map": "/connect-4/static/js/main.d25de0e6.chunk.js.map",
+    "main.js": "/connect-4/static/js/main.143209f7.chunk.js",
+    "main.js.map": "/connect-4/static/js/main.143209f7.chunk.js.map",
     "runtime-main.js": "/connect-4/static/js/runtime-main.31555a0b.js",
     "runtime-main.js.map": "/connect-4/static/js/runtime-main.31555a0b.js.map",
-    "static/js/2.2aa570db.chunk.js": "/connect-4/static/js/2.2aa570db.chunk.js",
-    "static/js/2.2aa570db.chunk.js.map": "/connect-4/static/js/2.2aa570db.chunk.js.map",
+    "static/js/2.c18ca490.chunk.js": "/connect-4/static/js/2.c18ca490.chunk.js",
+    "static/js/2.c18ca490.chunk.js.map": "/connect-4/static/js/2.c18ca490.chunk.js.map",
     "index.html": "/connect-4/index.html",
     "static/css/main.2d2de2ba.chunk.css.map": "/connect-4/static/css/main.2d2de2ba.chunk.css.map",
-    "static/js/2.2aa570db.chunk.js.LICENSE.txt": "/connect-4/static/js/2.2aa570db.chunk.js.LICENSE.txt"
+    "static/js/2.c18ca490.chunk.js.LICENSE.txt": "/connect-4/static/js/2.c18ca490.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.31555a0b.js",
-    "static/js/2.2aa570db.chunk.js",
+    "static/js/2.c18ca490.chunk.js",
     "static/css/main.2d2de2ba.chunk.css",
-    "static/js/main.d25de0e6.chunk.js"
+    "static/js/main.143209f7.chunk.js"
   ]
 }
