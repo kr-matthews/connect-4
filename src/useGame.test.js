@@ -30,8 +30,8 @@ function validStates(states) {
       expect(Object.keys(entry)).toHaveLength(2);
       expect(entry).toHaveProperty("player");
       expect([0, 1, null]).toContain(entry.player);
-      expect(entry).toHaveProperty("inLine");
-      expect([true, false]).toContain(entry.inLine);
+      expect(entry).toHaveProperty("isHighlight");
+      expect([true, false]).toContain(entry.isHighlight);
     });
   });
 
@@ -57,7 +57,7 @@ function isEmpty(board) {
   board.forEach((row, i) => {
     row.forEach((entry, j) => {
       expect(entry.player).toBeNull();
-      expect(entry.inLine).toBe(false);
+      expect(entry.isHighlight).toBe(false);
     });
   });
 }
@@ -170,7 +170,7 @@ it("useGame detects horizontal win", () => {
   expect(result.current.gameStatus).toBe(initialPlayer);
 
   for (let i = 2; i < 6; i++) {
-    expect(result.current.board[0][i].inLine).toBe(true);
+    expect(result.current.board[0][i].isHighlight).toBe(true);
   }
 });
 
@@ -195,7 +195,7 @@ it("useGame detects vertical win", () => {
   expect(result.current.gameStatus).toBe(1 - initialPlayer);
 
   for (let i = 0; i < 4; i++) {
-    expect(result.current.board[i][col].inLine).toBe(true);
+    expect(result.current.board[i][col].isHighlight).toBe(true);
   }
 });
 

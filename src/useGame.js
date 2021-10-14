@@ -1,230 +1,235 @@
-import { useState, useReducer, useEffect } from "react";
+import { useState, useReducer } from "react";
 
-//// reducers
-// outside the hook function to ensure they are pure
+//// Generic constants helpers
 
-function boardReducer(state, action) {
-  switch (action.type) {
-    case "reset":
-      return emptyBoard(action.boardSize);
-    case "placePiece":
-      let newState = [...state];
-      // add the piece
-      newState[action.row][action.col].player = action.player;
-      // if there is a new, highlight the winning pieces
-      let { success, r_0, c_0, d_r, d_c } = findWin(
-        newState,
-        action.row,
-        action.col
-      );
-      if (success) {
-        // NOTE: another use of 4 from "connect 4"
-        for (let k = 0; k < 4; k++) {
-          newState[r_0 + k * d_r][c_0 + k * d_c].inLine = true;
-        }
-      }
-      return newState;
-    case "undo":
-      // NOTE: this case is currently not used
-      // TODO: build in UNDO to interface and add workflow -- note it needs moveHistory passed in
-      if (action.moveHistory === []) {
-        return state;
-      } else {
-        let newState = [...state];
-        delete newState[action.row][action.col].player;
-        // TODO: unhighlight winning positions if necessary
-        return newState;
-      }
-    default:
-      return state;
-  }
-}
+// the possible line directions from/to a fixed point
+const directions = [
+  [0, 1],
+  [1, 1],
+  [1, 0],
+  [1, -1],
+  [0, -1],
+  [-1, -1],
+  [-1, 0],
+  [-1, 1],
+];
 
-function historyReducer(state, action) {
-  switch (action.type) {
-    case "reset":
-      return [];
-    case "addMove":
-      let newState = [...state];
-      let { player, row, col } = action;
-      newState.push({ player, row, col });
-      return newState;
-    case "undo":
-      if (state === []) {
-        return state;
-      } else {
-        let newState = [...state];
-        newState.pop();
-        return newState;
-      }
-    default:
-      console.log("historyReducer switch didn't match any case");
-      return state;
-  }
-}
-
-//// helpers for reducers
-
-// create initial empty board (on resets)
-function emptyBoard([rows, cols]) {
+// create empty tables (for initial states, and on resets)
+function emptyTable(rows, cols, val) {
   let board = [];
   for (let r = 0; r < rows; r++) {
     let row = [];
     for (let c = 0; c < cols; c++) {
-      row.push({ player: null, inLine: false });
+      row.push(val === "empty" ? {} : val);
     }
     board.push(row);
   }
   return board;
 }
 
-// find row that piece will end up in
-function findEmptyRow(boardState, col) {
-  let rows = boardState.length;
+// merge data into one table for passing to component
+function combineTables(tables, names) {
+  const tableCount = tables.length;
+  const [rows, cols] = [tables[0].length, tables[0][0].length];
+  let combinedTable = emptyTable(rows, cols, "empty");
   for (let row = 0; row < rows; row++) {
-    if (boardState[row][col].player === null) {
-      return row;
+    for (let col = 0; col < cols; col++) {
+      combinedTable[row][col] = {};
+      for (let i = 0; i < tableCount; i++) {
+        combinedTable[row][col][names[i]] = tables[i][row][col];
+      }
     }
   }
-  return null;
+  return combinedTable;
 }
 
-//// helpers for effects
-// outside to ensure pure (to avoid being needed in the dependency array)
+//// Reducers
+// outside the hook function to ensure they are pure
 
-const directions = [
-  [0, 1],
-  [1, 0],
-  [1, 1],
-  [-1, 1],
-];
-
-function full(board) {
-  let hasNull = false;
-  // check the top row for nulls
-  board[board.length - 1].forEach((entry) => {
-    if (entry.player === null) {
-      hasNull = true;
-    }
-  });
-  return !hasNull;
-}
-
-// NOTE: this is the main place that 4 from "connect 4" is used
-function findWin(board, row, col) {
-  const [rows, cols] = [board.length, board[0].length];
-  const player = board[row][col].player;
-  if (player === null) {
-    return { success: false };
+function moveHistoryReducer(state, action) {
+  let newState = [...state];
+  switch (action.type) {
+    case "reset":
+      return [];
+    case "addMove":
+      let { player, row, col } = action;
+      newState.push({ player, row, col });
+      return newState;
+    case "undo":
+      // NOTE: this case is currently not used
+      if (state === []) {
+        // nothing to undo
+        return state;
+      } else {
+        newState.pop();
+        return newState;
+      }
+    default:
+      console.log("moveHistoryReducer switch didn't match any case");
+      return state;
   }
-  let success = false;
-  let [r_0, c_0, d_r, d_c] = [null, null, null, null];
-  directions.forEach(([d_row, d_col]) => {
-    if (!success) {
-      // no need to proceed if we already found a win
-      // reset return values
-      [r_0, c_0, d_r, d_c] = [null, null, d_row, d_col];
-      let current = 0;
-      for (let k = -3; k < 4; k++) {
-        if (
-          -1 < row + k * d_row &&
-          row + k * d_row < rows &&
-          -1 < col + k * d_col &&
-          col + k * d_col < cols &&
-          board[row + k * d_row][col + k * d_col].player === player
-        ) {
-          // if the player has a piece here
-          if (current === 0) {
-            // if the piror piece was not compatible (wrong player or out of bounds)
-            // then this is the new start
-            r_0 = row + k * d_row;
-            c_0 = col + k * d_col;
-          }
-          current += 1;
-          if (current >= 4) {
-            // found a winner
-            success = true;
-          }
-        } else {
-          // no piece here -- reset
-          current = 0;
+}
+
+function piecesReducer(state, action) {
+  let newState = [...state];
+  switch (action.type) {
+    case "reset":
+      return emptyTable(action.rows, action.cols, null);
+    case "placePiece":
+      // add the piece
+      newState[action.row][action.col] = action.player;
+      return newState;
+    case "undo":
+      // NOTE: this case is currently not used
+      newState[action.row][action.col] = null;
+      return newState;
+    default:
+      console.log("peicesReducer switch didn't match any case");
+      return state;
+  }
+}
+
+//// The actual hook
+
+function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
+  //// States & Constants
+
+  // index of player to play first; only updates on reset
+  const [toPlayFirst, setToPlayFirst] = useState(initialToPlayFirst);
+  // stack (array) of {player, row, col}
+  const [moveHistory, dispatchMoveHistory] = useReducer(moveHistoryReducer, []);
+  // table of player indices/null; indicates which piece is there (if any)
+  const [pieces, dispatchPieces] = useReducer(
+    piecesReducer,
+    emptyTable(rows, cols, null)
+  );
+  // index of player, or draw or ongoing
+  const gameStatus = isWon()
+    ? moveHistory[moveHistory.length - 1].player
+    : isFull()
+    ? "draw"
+    : "ongoing";
+  // table of booleans; indicates whether spot is highlighted in a win
+  // (not using state and useEffect since it might make undo awkward?)
+  const highlights = createHighlights();
+  // matrix, row 0 at the bottom; each cell is an object
+  const board = combineTables([pieces, highlights], ["player", "isHighlight"]);
+  // index of player to play next move, or null if game is not ongoing
+  const toPlayNext =
+    gameStatus !== "ongoing"
+      ? null
+      : moveHistory.length === 0
+      ? toPlayFirst
+      : 1 - moveHistory[moveHistory.length - 1].player;
+
+  //// Helpers
+  // isWon and createHighlights share a lot of code :(
+
+  // find row that piece will end up in when dropped in this col
+  function findEmptyRow(col) {
+    for (let row = 0; row < rows; row++) {
+      if (pieces[row][col] === null) {
+        return row;
+      }
+    }
+    return null;
+  }
+
+  // check whether the board is full (using pieces)
+  function isFull() {
+    // check the top row for nulls
+    for (let col = 0; col < cols; col++) {
+      if (pieces[rows - 1][col] === null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // check if the game is won
+  function isWon() {
+    if (moveHistory.length < 2 * lineLen - 1) {
+      // impossible for anyone to have won yet
+      return false;
+    }
+    // only need to examine most recent move (which exists)
+    const { player, row, col } = moveHistory[moveHistory.length - 1];
+    for (let d = 0; d < directions.length; d++) {
+      const [d_r, d_c] = directions[d];
+      // check for a win using given piece in direction directions[d]
+      for (let j = -3; j < 1; j++) {
+        // check for a win in the direction starting from offset of j
+        if (checkLine(player, row + j * d_r, col + j * d_c, d_r, d_c)) {
+          return true;
         }
       }
     }
-  });
+    return false;
+  }
 
-  return { success, r_0, c_0, d_r, d_c };
-}
-
-function useGame(toPlayFirst) {
-  //// Constants
-
-  // to change board dimensions, change this
-  // NOTE: maybe add as prop for hook?
-  const boardSize = [6, 7];
-  // the possible line directions (horizontal, vertical, diagonal, anti-diagonal)
-
-  //// States
-
-  // NOTE: probably better to store board state and winning indices separately,
-  //  then combine them into a const to return to the component,
-  //  rather than having them in the same state -- makes updates more awkward
-
-  // ongoing, draw, or the index of a player
-  const [gameStatus, setGameStatus] = useState("ongoing");
-  // index of player to play next move
-  const [toPlayNext, setToPlayNext] = useState(toPlayFirst);
-  // matrix, row 0 at the bottom; each cell is an object
-  const [board, dispatchMove] = useReducer(boardReducer, emptyBoard(boardSize));
-  // stack (array) of {player, row, col}
-  const [moveHistory, dispatchHistory] = useReducer(historyReducer, []);
-
-  //// Effects
-
-  // check for win/draw
-  useEffect(() => {
-    if (moveHistory.length > 0) {
-      let { row, col } = moveHistory[moveHistory.length - 1];
-      let { success } = findWin(board, row, col);
-      if (gameStatus === "ongoing" && success) {
-        // the game state should be the index of the winner
-        setGameStatus(board[row][col].player);
-        setToPlayNext(null);
-      } else if (gameStatus === "ongoing" && full(board)) {
-        // it's a draw
-        setGameStatus("draw");
-        setToPlayNext(null);
+  // highlight winning locations
+  function createHighlights() {
+    let table = emptyTable(rows, cols, false);
+    if (moveHistory.length < 2 * lineLen - 1) {
+      // impossible for anyone to have won yet; no highlights needed
+      return table;
+    }
+    // only check the most recently played location (which exists)
+    let { player, row, col } = moveHistory[moveHistory.length - 1];
+    for (let d = 0; d < directions.length; d++) {
+      const [d_r, d_c] = directions[d];
+      // for the 4 pieces in this direction (including row,col),
+      //  check if it is in a line pointing towards row,col
+      for (let j = -lineLen + 1; j < 1; j++) {
+        if (checkLine(player, row + j * d_r, col + j * d_c, d_r, d_c)) {
+          // this piece, and the 3 after it, form a line of 4, so update them all
+          for (let k = j; k < j + lineLen; k++) {
+            table[row + k * d_r][col + k * d_c] = true;
+          }
+        }
       }
     }
-  }, [moveHistory, board, gameStatus]);
+    return table;
+  }
+
+  // given a piece and a direction, check if it's a line of 4
+  function checkLine(player, row, col, d_r, d_c) {
+    for (let k = 0; k < lineLen; k++) {
+      let [r, c] = [row + k * d_r, col + k * d_c];
+      // if (r, c) is out of bounds, or doesn't have the right piece
+      if (0 > r || r >= rows || 0 > c || c >= cols || pieces[r][c] !== player) {
+        return false;
+      }
+    }
+    // all 4 were in-bounds and belonged to player, so return true (they won)
+    return true;
+  }
 
   //// Externally accessible functions
 
   // given out to reset all states
   function resetGame(player) {
-    setGameStatus("ongoing");
-    setToPlayNext(player);
-    dispatchMove({ type: "reset", boardSize });
-    dispatchHistory({ type: "reset" });
+    setToPlayFirst(player);
+    dispatchMoveHistory({ type: "reset" });
+    // (use dispatch instead of useEffect since might make undo awkward?)
+    dispatchPieces({ type: "reset", rows, cols });
   }
 
   // given out to allow component to (attempt to) place a piece
   function placePiece(player, col) {
-    let row = findEmptyRow(board, col);
+    let row = findEmptyRow(col);
+    // only proceed if move is valid
     if (gameStatus === "ongoing" && player === toPlayNext && row !== null) {
-      // move is possible; proceed
-      dispatchMove({ type: "placePiece", player, row, col });
-      dispatchHistory({ type: "addMove", player, row, col });
-      setToPlayNext(1 - player);
-      // gameStatus is then updated via a useEffect
+      dispatchMoveHistory({ type: "addMove", player, row, col });
+      // (use dispatch instead of useEffect since might make undo awkward?)
+      dispatchPieces({ type: "placePiece", player, row, col });
     }
   }
 
   // Return
 
+  // TODO: return an undo function, maybe?
   return { gameStatus, toPlayNext, board, resetGame, placePiece };
-
-  // TODO: return an undo function, utilizing moveHistory
 }
 
 export { useGame };

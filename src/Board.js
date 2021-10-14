@@ -25,7 +25,7 @@ function Board({ viewer, board, placePiece, colours, toPlayNext }) {
 }
 
 function Row({ viewer, row, placePiece, colours, toPlayNext }) {
-  let rowCells = row.map(({ player, inLine }, col) => {
+  let rowCells = row.map(({ player, isHighlight }, col) => {
     return (
       <Cell
         key={col}
@@ -34,7 +34,7 @@ function Row({ viewer, row, placePiece, colours, toPlayNext }) {
         player={player}
         placePiece={placePiece}
         colours={colours}
-        inLine={inLine}
+        isHighlight={isHighlight}
         toPlayNext={toPlayNext}
       />
     );
@@ -49,11 +49,13 @@ function Cell({
   player,
   placePiece,
   colours,
-  inLine,
+  isHighlight,
   toPlayNext,
 }) {
   const backgroundColor = colours[player] || "White";
-  const borderColor = inLine ? oppColour(backgroundColor) : backgroundColor;
+  const borderColor = isHighlight
+    ? oppColour(backgroundColor)
+    : backgroundColor;
   const pieceStyle = { backgroundColor, borderColor };
 
   // can click if there is no piece && the viewer is next to play
