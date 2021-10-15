@@ -26,10 +26,8 @@ function resultReducer(state, action) {
 
 const initialResults = { wins: 0, draws: 0, loses: 0 };
 
-function useRoom() {
-  // first player of first game is random, regardless
-  const firstPlayer = Math.floor(Math.random() * 2);
-
+// first player of first game is random
+function useRoom(firstPlayer = Math.floor(Math.random() * 2)) {
   //// States
 
   // TODO: keep playerCount and opponent updated -- involves network
@@ -52,7 +50,15 @@ function useRoom() {
   );
   // the game custom hook
   const game = useGame(firstPlayer);
-  const { gameStatus, toPlayNext, board, resetGame, placePiece } = game;
+  const {
+    board,
+    gameStatus,
+    toPlayNext,
+    winner,
+    resetGame,
+    placePiece,
+    forfeit,
+  } = game;
 
   //// Effects
 

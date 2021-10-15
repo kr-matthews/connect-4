@@ -8,7 +8,7 @@ function Footer({
   setWentFirst,
   dispatchResult,
 }) {
-  // TODO: add information about forfeit when applicable
+  // TODO: redo given forfeit info and new gameStatus definition
   //  (right now it just says you win with no highlights, is confusing)
   function message() {
     switch (gameStatus) {

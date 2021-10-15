@@ -23,9 +23,10 @@ function Room({ isOwner, roomId, restartMethod }) {
   } = useRoom();
   // game, called within room hook
   const {
+    board,
     gameStatus,
     toPlayNext,
-    board,
+    winner,
     resetGame,
     placePiece,
     forfeit,

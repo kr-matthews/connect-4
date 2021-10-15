@@ -96,8 +96,8 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
 
   // index of player to play first; only updates on reset
   const [toPlayFirst, setToPlayFirst] = useState(initialToPlayFirst);
-  // index of player who has forfeit, or null
-  const [hasForfeit, setHasForfeit] = useState(null);
+  // who has forfeit (player index, or null)
+  const [forfeiter, setForfeiter] = useState(null);
   // stack (array) of {player, row, col}
   const [moveHistory, dispatchMoveHistory] = useReducer(moveHistoryReducer, []);
   // table of player indices/null; indicates which piece is there (if any)
@@ -105,15 +105,24 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
     piecesReducer,
     emptyTable(rows, cols, null)
   );
-  // index of winning player, or draw or ongoing
+  // based purely on the board (not forfeit); ongoing, won, or draw
+  const boardStatus = isWon() // check the board for a win
+    ? "won" // found win
+    : isFull() // otherwise, check the board for a draw
+    ? "draw" // found draw
+    : "ongoing"; // didn't find draw
+  // takes into account possible forfeit: ongoing, won, draw, or forfeit
   const gameStatus =
-    hasForfeit !== null
-      ? 1 - hasForfeit
-      : isWon()
-      ? moveHistory[moveHistory.length - 1].player
-      : isFull()
-      ? "draw"
-      : "ongoing";
+    forfeiter !== null // check for feifeit
+      ? "forfeit" // if so
+      : boardStatus; // otherwise, default to boardStatus
+  // index of winning player (via game play for via forfeit), or null
+  const winner =
+    gameStatus === "forfeit" // check for forfeit
+      ? 1 - forfeiter // if so, other player won
+      : gameStatus !== "won" // otherwise, check for win
+      ? null // if no win, there's no winner
+      : moveHistory[moveHistory.length - 1].player; // if win, then most recent player won
   // table of booleans; indicates whether spot is highlighted in a win
   // (not using state and useEffect since it might make undo awkward?)
   const highlights = createHighlights();
@@ -215,7 +224,7 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
   // given out to reset all states
   function resetGame(player) {
     setToPlayFirst(player);
-    setHasForfeit(null);
+    setForfeiter(null);
     dispatchMoveHistory({ type: "reset" });
     // (use dispatch instead of useEffect since might make undo awkward?)
     dispatchPieces({ type: "reset", rows, cols });
@@ -233,13 +242,21 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
   }
 
   function forfeit(player) {
-    setHasForfeit(player);
+    setForfeiter(player);
   }
 
   //// Return
 
   // TODO: return an undo function, maybe?
-  return { gameStatus, toPlayNext, board, resetGame, placePiece, forfeit };
+  return {
+    board,
+    gameStatus,
+    toPlayNext,
+    winner,
+    resetGame,
+    placePiece,
+    forfeit,
+  };
 }
 
 export { useGame };
