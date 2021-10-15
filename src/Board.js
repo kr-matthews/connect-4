@@ -1,6 +1,6 @@
 import "./board.css";
 
-function Board({ viewer, board, placePiece, colours, toPlayNext }) {
+function Board({ viewer, board, toPlayNext, colours, placePiece }) {
   const rows = board.length;
   let tableRows = [];
   // the first row goes on the bottom, visually
@@ -17,6 +17,7 @@ function Board({ viewer, board, placePiece, colours, toPlayNext }) {
     );
   }
 
+  // TODO: dynamic colour
   return (
     <table className="board" style={{ backgroundColor: "Black" }}>
       <tbody>{tableRows}</tbody>
@@ -52,6 +53,8 @@ function Cell({
   isHighlight,
   toPlayNext,
 }) {
+  // colours/styles
+  // TODO: dynamic colour (post "||")
   const backgroundColor = colours[player] || "White";
   const borderColor = isHighlight
     ? oppColour(backgroundColor)
@@ -63,7 +66,7 @@ function Cell({
   const isClickable = player === null && viewer === toPlayNext;
   const cellClass = isClickable ? "clickable cell" : "cell";
   const clickHandler = () => player === null && placePiece(toPlayNext, col);
-  // TEMP: change cellOnClick check to isClickable, as in cellClass
+  // TEMP: change clickHandler pre "&&" to isClickable, as in cellClass
 
   return (
     <td className={cellClass} onClick={clickHandler}>
@@ -73,7 +76,7 @@ function Cell({
 }
 
 function oppColour(colour) {
-  // TODO: calculate opposite colour (just using White for now)
+  // TODO: calculate opposite colour; probably move this function elsewhere
   return "White";
 }
 

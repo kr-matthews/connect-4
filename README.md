@@ -33,7 +33,7 @@ If I can't get a live connection figured out, then I'll just split the screen do
 
 ## Intentions
 
-Best practices with state management and (custom) hooks. Separation of concerns (keeping views dumb and state logic within hooks) and better component management/organization. Communication with a network -- potentially PubNub.
+Best practices with state management and (custom) hooks. Separation of concerns (keeping views dumb and state logic within hooks) and better component management/organization -- including, and especially, testing. Communication with a network -- potentially PubNub.
 
 ## Focus
 

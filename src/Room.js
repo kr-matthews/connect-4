@@ -31,8 +31,53 @@ function Room({ isOwner, roomId, restartMethod }) {
     placePiece,
     forfeit,
   } = game;
+
+  //// OLD, to deal within
+
+  function newGameHandler(gameStatus) {
+    // TODO: redo this, after useRoom hook is refactored
+    switch (restartMethod) {
+      case "random":
+        const player = Math.floor(Math.random() * 2);
+        resetGame(player);
+        setWentFirst(player);
+        break;
+      case "alternate":
+        resetGame(1 - wentFirst);
+        setWentFirst(1 - wentFirst);
+        break;
+      case "loser":
+        if (gameStatus === "draw") {
+          // if it's a draw, keep the same player
+          resetGame(wentFirst);
+        } else {
+          resetGame(1 - gameStatus);
+          setWentFirst(1 - gameStatus);
+        }
+        break;
+      case "winner":
+        if (gameStatus === "draw") {
+          // if it's a draw, keep the same player
+          resetGame(wentFirst);
+        } else {
+          resetGame(gameStatus);
+        }
+        break;
+      default:
+        console.log("New Game click handler didn't match any case.");
+        resetGame(0);
+    }
+  }
+
+  function forfeitHandler(player) {
+    // TODO: redo this, after useRoom hook is refactored
+    forfeit(player);
+  }
+
   //// Return
 
+  // header is room-based, board and footer and game-based
+  // only show the latter pair if an opponent exists
   return (
     <>
       <h2>Room</h2>
@@ -43,25 +88,26 @@ function Room({ isOwner, roomId, restartMethod }) {
         restartMethod={restartMethod}
         resultHistory={resultHistory}
       />
+
       {playerCount === 2 && (
         <Board
           viewer={0}
           board={board}
-          placePiece={placePiece}
-          colours={["Blue", opponent.colour]} // TEMP: get blue from context
           toPlayNext={toPlayNext}
+          colours={["Blue", opponent.colour]} // TEMP: get blue from context
+          placePiece={placePiece}
         />
       )}
+
       {playerCount === 2 && (
         <Footer
           viewer={0}
-          toPlayNext={toPlayNext}
+          isOwner={isOwner}
           gameStatus={gameStatus}
-          resetGame={resetGame}
-          restartMethod={restartMethod}
-          wentFirst={wentFirst}
-          setWentFirst={setWentFirst}
-          dispatchResult={dispatchResult}
+          winner={winner}
+          toPlayNext={toPlayNext}
+          forfeitHandler={forfeitHandler}
+          newGameHandler={newGameHandler}
         />
       )}
     </>
