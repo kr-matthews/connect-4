@@ -7,8 +7,8 @@ import { useGame } from "./useGame.js";
 // helpers
 
 function validStates(states) {
-  // only returns the 6 expected consts and functions
-  expect(Object.keys(states)).toHaveLength(5);
+  // only returns the expected consts and functions
+  expect(Object.keys(states)).toHaveLength(6);
 
   // test each of the 6
   expect(states).toHaveProperty("gameStatus");
@@ -51,6 +51,9 @@ function validStates(states) {
 
   expect(states).toHaveProperty("placePiece");
   expect(states.placePiece).toBeFunction;
+
+  expect(states).toHaveProperty("forfeit");
+  expect(states.forfeit).toBeFunction;
 }
 
 function isEmpty(board) {
@@ -237,4 +240,5 @@ it("useGame detects draw", () => {
 
 // TODO: add checks for diagonal and anti-diagonal wins
 // TODO: test win on (6 * 7)th piece placed (ie filling up board but no draw)
-// TODO: test undo, once (if) it is defined
+// TODO: test forfeit action
+// TODO: test undo action (if/when it is added)

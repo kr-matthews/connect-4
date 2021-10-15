@@ -8,6 +8,8 @@ function Footer({
   setWentFirst,
   dispatchResult,
 }) {
+  // TODO: add information about forfeit when applicable
+  //  (right now it just says you win with no highlights, is confusing)
   function message() {
     switch (gameStatus) {
       case viewer:

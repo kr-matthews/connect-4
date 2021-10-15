@@ -22,7 +22,14 @@ function Room({ isOwner, roomId, restartMethod }) {
     dispatchResult,
   } = useRoom();
   // game, called within room hook
-  const { gameStatus, toPlayNext, board, resetGame, placePiece } = game;
+  const {
+    gameStatus,
+    toPlayNext,
+    board,
+    resetGame,
+    placePiece,
+    forfeit,
+  } = game;
   //// Return
 
   return (
