@@ -10,9 +10,8 @@ function App() {
       <h1>Connect 4 [WIP]</h1>
       <Options />
       {true && <Lobby />}
-      {/* TEMP: parameters */}
       {true && (
-        <Room
+        <Room // TEMP: Room params in App
           player={{ name: "Alice", colour: "Blue" }}
           isOwner={true}
           roomId="2134676543"

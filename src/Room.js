@@ -10,13 +10,12 @@ import { useRoom } from "./useRoom.js";
 // the room is seen from the current player's view
 //  each player has their own instantiation of the 'shared' room
 
-function Room({ player, isOwner, roomId, restartMethod, closeRoomHandler }) {
+function Room({ player, isOwner, roomId, restartMethod }) {
   //// Constants
 
   const {
-    opponent,
+    opponent, // TODO: initialize and update -- involves network
     resultHistory,
-    kickOpponentHandler,
     board,
     gameStatus,
     winner,
@@ -24,10 +23,9 @@ function Room({ player, isOwner, roomId, restartMethod, closeRoomHandler }) {
     moveHandler,
     forfeitHandler,
     newGameHandler,
+    kickOpponentHandler,
+    closeRoomHandler,
   } = useRoom(restartMethod);
-
-  // TODO: get Blue from context
-  const colours = ["Blue", opponent.colour];
 
   //// Return
 
@@ -51,7 +49,7 @@ function Room({ player, isOwner, roomId, restartMethod, closeRoomHandler }) {
             viewer={0}
             board={board}
             isViewersTurn={0 === toPlayNext}
-            colours={colours}
+            colours={[player.colour, opponent.colour]}
             moveHandler={moveHandler}
           />
           <GameFooter
