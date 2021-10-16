@@ -30,7 +30,7 @@ function Row({ row, viewer, isViewersTurn, moveHandler, colours }) {
     return (
       <Cell
         key={col}
-        clickHandler={() => moveHandler(viewer, col)}
+        clickHandler={() => moveHandler(col)} // TEMP: moveHandler(col, viewer)
         colour={colours[player]}
         isHighlight={isHighlight}
         isClickable={isViewersTurn && colIsOpen}

@@ -1,5 +1,7 @@
 import { useState, useReducer } from "react";
 
+// TODO: NEXT add isOpenCol to board
+
 //// Generic constants helpers
 
 // the possible line directions from/to a fixed point
@@ -231,7 +233,7 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
   }
 
   // given out to allow component to (attempt to) place a piece
-  function placePiece(player, col) {
+  function placePiece(col, player = toPlayNext) {
     let row = findEmptyRow(col);
     // only proceed if move is valid
     if (gameStatus === "ongoing" && player === toPlayNext && row !== null) {

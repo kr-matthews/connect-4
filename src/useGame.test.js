@@ -120,11 +120,11 @@ it("useGame states remain valid after (redundant) reset", () => {
 
 it("useGame states remain valid after playing first piece", () => {
   for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
-    for (let col = 0; col < 8; col++) {
+    for (let col = 0; col < 7; col++) {
       const { result } = renderHook(() => useGame(initialPlayer));
 
       // place piece in column col
-      act(() => result.current.placePiece(result.current.toPlayNext, col));
+      act(() => result.current.placePiece(col, result.current.toPlayNext));
       validStates(result.current);
       expect(result.current.gameStatus).toBe("ongoing");
       result.current.board.forEach((row, i) => {
@@ -146,18 +146,18 @@ it("useGame states remain valid bewteen/after 3 moves then reset", () => {
       const { result } = renderHook(() => useGame(initialPlayer));
 
       // place piece in column col
-      act(() => result.current.placePiece(result.current.toPlayNext, col));
+      act(() => result.current.placePiece(col, result.current.toPlayNext));
       validStates(result.current);
 
       // place piece in another column (2 over from col)
       act(() =>
-        result.current.placePiece(result.current.toPlayNext, (col + 2) % 7)
+        result.current.placePiece((col + 2) % 7, result.current.toPlayNext)
       );
       validStates(result.current);
 
       // place piece in latter column
       act(() =>
-        result.current.placePiece(result.current.toPlayNext, (col + 2) % 7)
+        result.current.placePiece((col + 2) % 7, result.current.toPlayNext)
       );
       validStates(result.current);
 
@@ -192,7 +192,7 @@ it("useGame detects horizontal win", () => {
 
     for (let i = 4; i < 11; i++) {
       act(() =>
-        result.current.placePiece(result.current.toPlayNext, Math.floor(i / 2))
+        result.current.placePiece(Math.floor(i / 2), result.current.toPlayNext)
       );
     }
 
@@ -216,12 +216,12 @@ it("useGame detects vertical win", () => {
       // - - - - 1 0 -
       // 0 - - - 1 0 -    <- bottom row
 
-      act(() => result.current.placePiece(initialPlayer, (col + 3) % 7));
+      act(() => result.current.placePiece((col + 3) % 7), initialPlayer);
       for (let i = 0; i < 7; i++) {
         act(() =>
           result.current.placePiece(
-            result.current.toPlayNext,
-            (col + (i % 2)) % 7
+            (col + (i % 2)) % 7,
+            result.current.toPlayNext
           )
         );
       }
@@ -257,8 +257,8 @@ it("useGame detects draw", () => {
           // place the pieces
           act(() =>
             result.current.placePiece(
-              result.current.toPlayNext,
-              2 * k + ((i + j) % 2)
+              2 * k + ((i + j) % 2),
+              result.current.toPlayNext
             )
           );
         }
@@ -266,7 +266,7 @@ it("useGame detects draw", () => {
     }
     for (let k = 0; k < 6; k++) {
       // do the final column
-      act(() => result.current.placePiece(result.current.toPlayNext, 6));
+      act(() => result.current.placePiece(6, result.current.toPlayNext));
     }
 
     validStates(result.current);
