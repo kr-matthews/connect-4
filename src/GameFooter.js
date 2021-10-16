@@ -1,4 +1,4 @@
-function Footer({
+function GameFooter({
   viewer,
   isOwner,
   gameStatus,
@@ -44,4 +44,4 @@ function Footer({
   );
 }
 
-export default Footer;
+export default GameFooter;

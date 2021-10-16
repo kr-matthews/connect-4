@@ -1,9 +1,10 @@
-function Header({
+function RoomHeader({
   isOwner,
-  playerCount,
   opponent,
   restartMethod,
   resultHistory,
+  closeRoomHandler,
+  kickOpponentHandler,
 }) {
   function resstartMethodMessage() {
     switch (restartMethod) {
@@ -28,18 +29,18 @@ function Header({
       <div>{resstartMethodMessage()}</div>
 
       {/* describe opponent, or say waiting for one */}
-      {playerCount === 1 ? (
-        <div>Waiting for an opponent to join the room.</div>
-      ) : (
+      {opponent ? (
         <div>
           {/* TODO: get Blue from context */}
           <span style={{ color: "Blue" }}>You</span> are playing against{" "}
           <span style={{ color: opponent.colour }}>{opponent.name}</span>.
         </div>
+      ) : (
+        <div>Waiting for an opponent to join the room.</div>
       )}
 
       {/* display W-D-L history against this opponent */}
-      {playerCount === 2 && (
+      {opponent && (
         <div>
           <span>Wins: {resultHistory.wins}</span>
           <span>Draws: {resultHistory.draws}</span>
@@ -49,11 +50,17 @@ function Header({
 
       {/* options to close/leave room or kick opponent, as applicable */}
       <div>
-        {isOwner ? <button>Close Room</button> : <button>Leave Room</button>}
-        {isOwner && playerCount === 2 && <button>Kick Opponent</button>}
+        {isOwner ? (
+          <button onClick={closeRoomHandler}>Close Room</button>
+        ) : (
+          <button>Leave Room</button>
+        )}
+        {isOwner && opponent && (
+          <button onClick={kickOpponentHandler}>Kick Opponent</button>
+        )}
       </div>
     </>
   );
 }
 
-export default Header;
+export default RoomHeader;

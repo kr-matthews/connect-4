@@ -1,6 +1,6 @@
 import "./board.css";
 
-function Board({ viewer, board, toPlayNext, colours, placePiece }) {
+function Board({ viewer, board, isViewersTurn, colours, moveHandler }) {
   const rows = board.length;
   let tableRows = [];
   // the first row goes on the bottom, visually
@@ -8,11 +8,11 @@ function Board({ viewer, board, toPlayNext, colours, placePiece }) {
     tableRows.push(
       <Row
         key={row}
-        viewer={viewer}
         row={board[row]}
-        placePiece={placePiece}
+        viewer={viewer}
+        isViewersTurn={isViewersTurn}
+        moveHandler={moveHandler}
         colours={colours}
-        toPlayNext={toPlayNext}
       />
     );
   }
@@ -25,18 +25,15 @@ function Board({ viewer, board, toPlayNext, colours, placePiece }) {
   );
 }
 
-function Row({ viewer, row, placePiece, colours, toPlayNext }) {
-  let rowCells = row.map(({ player, isHighlight }, col) => {
+function Row({ row, viewer, isViewersTurn, moveHandler, colours }) {
+  let rowCells = row.map(({ player, isHighlight, colIsOpen }, col) => {
     return (
       <Cell
         key={col}
-        viewer={viewer}
-        col={col}
-        player={player}
-        placePiece={placePiece}
-        colours={colours}
+        clickHandler={() => moveHandler(viewer, col)}
+        colour={colours[player]}
         isHighlight={isHighlight}
-        toPlayNext={toPlayNext}
+        isClickable={isViewersTurn && colIsOpen}
       />
     );
   });
@@ -44,29 +41,16 @@ function Row({ viewer, row, placePiece, colours, toPlayNext }) {
   return <tr>{rowCells}</tr>;
 }
 
-function Cell({
-  viewer,
-  col,
-  player,
-  placePiece,
-  colours,
-  isHighlight,
-  toPlayNext,
-}) {
+function Cell({ clickHandler, colour, isHighlight, isClickable }) {
   // colours/styles
   // TODO: dynamic colour (post "||")
-  const backgroundColor = colours[player] || "White";
+  const backgroundColor = colour || "White";
   const borderColor = isHighlight
     ? oppColour(backgroundColor)
     : backgroundColor;
   const pieceStyle = { backgroundColor, borderColor };
 
-  // can click if there is no piece && the viewer is next to play
-  // note that if game is over, toPlayNext is null so this works
-  const isClickable = player === null && viewer === toPlayNext;
   const cellClass = isClickable ? "clickable cell" : "cell";
-  const clickHandler = () => player === null && placePiece(toPlayNext, col);
-  // TEMP: change clickHandler pre "&&" to isClickable, as in cellClass
 
   return (
     <td className={cellClass} onClick={clickHandler}>

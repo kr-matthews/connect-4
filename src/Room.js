@@ -1,78 +1,33 @@
 // import { useState, useReducer, useEffect } from "react";
 
-import Header from "./Header.js";
+import RoomHeader from "./RoomHeader.js";
+import Game from "./Game.js";
 import Board from "./Board.js";
-import Footer from "./Footer.js";
+import GameFooter from "./GameFooter.js";
 
 import { useRoom } from "./useRoom.js";
 
 // the room is seen from the current player's view
 //  each player has their own instantiation of the 'shared' room
 
-function Room({ isOwner, roomId, restartMethod }) {
-  //// States
-  // room
+function Room({ player, isOwner, roomId, restartMethod, closeRoomHandler }) {
+  //// Constants
+
   const {
-    game,
-    playerCount,
     opponent,
     resultHistory,
-    wentFirst,
-    setWentFirst,
-    dispatchResult,
-  } = useRoom();
-  // game, called within room hook
-  const {
+    kickOpponentHandler,
     board,
     gameStatus,
-    toPlayNext,
     winner,
-    resetGame,
-    placePiece,
-    forfeit,
-  } = game;
+    toPlayNext,
+    moveHandler,
+    forfeitHandler,
+    newGameHandler,
+  } = useRoom(restartMethod);
 
-  //// OLD, to deal within
-
-  function newGameHandler(gameStatus) {
-    // TODO: redo this, after useRoom hook is refactored
-    switch (restartMethod) {
-      case "random":
-        const player = Math.floor(Math.random() * 2);
-        resetGame(player);
-        setWentFirst(player);
-        break;
-      case "alternate":
-        resetGame(1 - wentFirst);
-        setWentFirst(1 - wentFirst);
-        break;
-      case "loser":
-        if (gameStatus === "draw") {
-          // if it's a draw, keep the same player
-          resetGame(wentFirst);
-        } else {
-          resetGame(1 - gameStatus);
-          setWentFirst(1 - gameStatus);
-        }
-        break;
-      case "winner":
-        if (gameStatus === "draw") {
-          // if it's a draw, keep the same player
-          resetGame(wentFirst);
-        } else {
-          resetGame(gameStatus);
-        }
-        break;
-      default:
-        console.log("New Game click handler didn't match any case.");
-        resetGame(0);
-    }
-  }
-
-  function forfeitHandler(player) {
-    // TODO: redo this, after useRoom hook is refactored
-    forfeit(player);
-  }
+  // TODO: get Blue from context
+  const colours = ["Blue", opponent.colour];
 
   //// Return
 
@@ -81,34 +36,34 @@ function Room({ isOwner, roomId, restartMethod }) {
   return (
     <>
       <h2>Room</h2>
-      <Header
+      <RoomHeader
         isOwner={isOwner}
-        playerCount={playerCount}
         opponent={opponent}
         restartMethod={restartMethod}
         resultHistory={resultHistory}
+        closeRoomHandler={closeRoomHandler}
+        kickOpponentHandler={kickOpponentHandler}
       />
 
-      {playerCount === 2 && (
-        <Board
-          viewer={0}
-          board={board}
-          toPlayNext={toPlayNext}
-          colours={["Blue", opponent.colour]} // TEMP: get blue from context
-          placePiece={placePiece}
-        />
-      )}
-
-      {playerCount === 2 && (
-        <Footer
-          viewer={0}
-          isOwner={isOwner}
-          gameStatus={gameStatus}
-          winner={winner}
-          toPlayNext={toPlayNext}
-          forfeitHandler={forfeitHandler}
-          newGameHandler={newGameHandler}
-        />
+      {opponent && (
+        <Game>
+          <Board
+            viewer={0}
+            board={board}
+            isViewersTurn={0 === toPlayNext}
+            colours={colours}
+            moveHandler={moveHandler}
+          />
+          <GameFooter
+            viewer={0}
+            isOwner={isOwner}
+            gameStatus={gameStatus}
+            winner={winner}
+            toPlayNext={toPlayNext}
+            forfeitHandler={forfeitHandler}
+            newGameHandler={newGameHandler}
+          />
+        </Game>
       )}
     </>
   );

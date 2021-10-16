@@ -27,7 +27,7 @@ function resultReducer(state, action) {
 const initialResults = { wins: 0, draws: 0, loses: 0 };
 
 // first player of first game is random
-function useRoom(firstPlayer = Math.floor(Math.random() * 2)) {
+function useRoom(restartMethod, firstPlayer = Math.floor(Math.random() * 2)) {
   //// States
 
   // TODO: keep playerCount and opponent updated -- involves network
@@ -41,6 +41,8 @@ function useRoom(firstPlayer = Math.floor(Math.random() * 2)) {
     name: "Bob",
     colour: "red",
   });
+  // colours
+  const colours = ["Blue", opponent.colour]; // TEMP: get blue from context
   // who started the current game (in case first player should alternate)
   const [wentFirst, setWentFirst] = useState(firstPlayer);
   // history of all games played
@@ -93,16 +95,69 @@ function useRoom(firstPlayer = Math.floor(Math.random() * 2)) {
     }
   }, [playerCount]);
 
+  //// Helpers
+
+  function moveHandler() {
+    // TODO: moveHandler
+  }
+
+  function newGameHandler(gameStatus) {
+    // TODO: redo this, after useRoom hook is refactored
+    switch (restartMethod) {
+      case "random":
+        const player = Math.floor(Math.random() * 2);
+        resetGame(player);
+        setWentFirst(player);
+        break;
+      case "alternate":
+        resetGame(1 - wentFirst);
+        setWentFirst(1 - wentFirst);
+        break;
+      case "loser":
+        if (gameStatus === "draw") {
+          // if it's a draw, keep the same player
+          resetGame(wentFirst);
+        } else {
+          resetGame(1 - gameStatus);
+          setWentFirst(1 - gameStatus);
+        }
+        break;
+      case "winner":
+        if (gameStatus === "draw") {
+          // if it's a draw, keep the same player
+          resetGame(wentFirst);
+        } else {
+          resetGame(gameStatus);
+        }
+        break;
+      default:
+        console.log("New Game click handler didn't match any case.");
+        resetGame(0);
+    }
+  }
+
+  function forfeitHandler(player) {
+    // TODO: redo this, after useRoom hook is refactored
+    forfeit(player);
+  }
+
+  function kickOpponentHandler() {
+    // TODO: kickOpponentHandler
+  }
+
   //// Return
 
   return {
-    game,
-    playerCount,
     opponent,
     resultHistory,
-    wentFirst,
-    setWentFirst,
-    dispatchResult,
+    kickOpponentHandler,
+    board,
+    gameStatus,
+    winner,
+    toPlayNext,
+    moveHandler,
+    forfeitHandler,
+    newGameHandler,
   };
 }
 

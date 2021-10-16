@@ -4,6 +4,7 @@ import Room from "./Room.js";
 
 function App() {
   // TODO: add Links component
+  // TODO: NEXT: add context for light/dark theme
   return (
     <>
       <h1>Connect 4 [WIP]</h1>
@@ -11,7 +12,13 @@ function App() {
       {true && <Lobby />}
       {/* TEMP: parameters */}
       {true && (
-        <Room isOwner={true} roomId="2134676543" restartMethod="alternate" />
+        <Room
+          player={{ name: "Alice", colour: "Blue" }}
+          isOwner={true}
+          roomId="2134676543"
+          restartMethod="alternate"
+          closeRoomHandler={null}
+        />
       )}
     </>
   );
