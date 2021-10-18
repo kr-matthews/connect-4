@@ -1,5 +1,5 @@
 function Options() {
-  // TODO: Options component
+  // TODO: COMPONENT: Options component
   return <p>Options: set name, colour, theme</p>;
 }
 

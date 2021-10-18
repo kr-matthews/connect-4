@@ -1,5 +1,5 @@
 function Lobby() {
-  // TODO: Lobby component
+  // TODO: COMPONENT: Lobby component
   return (
     <>
       <h2>Lobby</h2>

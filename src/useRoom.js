@@ -2,13 +2,7 @@ import { useState, useEffect, useReducer } from "react";
 
 import { useGame } from "./useGame.js";
 
-//// Reducers
-
-// function opponentReducer(state, action) {
-//   let newState = [...state];
-//   newState[action.property] = action.value;
-//   return newState;
-// }
+// TODO: TEST: create tests for useRoom hook
 
 function resultReducer(state, action) {
   switch (action.type) {
@@ -26,12 +20,12 @@ function resultReducer(state, action) {
 
 const initialResults = { wins: 0, draws: 0, loses: 0 };
 
-// first player of first game is random
+// first player of first game is random if unspecified
 function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   //// States
 
   // other player's name and colour, once they join
-  // TODO: should be stateful, and updated elsewhere
+  // TODO: HOOK: create custom hook to replace constant below
   // TEMP: opponent value in useRoom
   const opponent = { name: "Bob", colour: "red" };
   // how many players are present
@@ -57,21 +51,22 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   //// Effects
 
   // at end of game, update the W-D-L tally and make sounds
+  //  possibly these should be distinct effects?
   useEffect(() => {
     switch (gameStatus) {
       case "won":
       case "forfeit":
         winner === 0 && dispatchResult({ type: "win" });
-        // TODO: add sounds for win
+        // TODO: SOUND: for win
         winner === 0 && console.log("win sound"); // TEMP:
         winner === 1 && dispatchResult({ type: "lose" });
-        // TODO: add sound for lose
+        // TODO: SOUND: for lose
         winner === 1 && console.log("lose sound"); // TEMP:
         break;
       case "draw":
         dispatchResult({ type: "draw" });
         console.log("draw sound"); // TEMP:
-        // TODO: add sounds for win
+        // TODO: SOUND: for win
         break;
       default:
     }
@@ -85,20 +80,19 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   }, [playerCount]);
 
   // play sounds when it becomes your turn to play (opponent moves, or new game)
-  // TODO: Problem: might play leaving/joining sound on every re-render?
-  // TODO: Problem: plays both sounds when opponent joins and it's your turn
+  // TODO: SOUND: problem: plays both sounds when opp joins and it's your turn
   useEffect(() => {
     if (playerCount === 1) {
-      // TODO: player leaving sound
+      // TODO: SOUND: player leaving
       console.log("Opponent left sound"); // TEMP:
     } else {
-      // TODO: player joining sound
+      // TODO: SOUND: player joining
       console.log("Opponent joined sound"); // TEMP:
     }
   }, [playerCount]);
   useEffect(() => {
     if (toPlayNext === 0) {
-      // TODO: your turn sound
+      // TODO: SOUND: your turn
       console.log("Your turn sound"); // TEMP:
     }
   }, [toPlayNext]);
@@ -106,7 +100,7 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   //// Externally available functions
 
   function newGameHandler(gameStatus) {
-    // TODO: redo this, after useRoom hook is refactored
+    // TODO: NEXT: review/redo newGameHandler
     switch (restartMethod) {
       case "random":
         const player = Math.floor(Math.random() * 2);
@@ -152,10 +146,10 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
     moveHandler: placePiece,
     forfeitHandler: forfeit,
     newGameHandler,
-    kickOpponentHandler: null,
-    closeRoomHandler: null,
+    kickOpponentHandler: null, // TEMP:
+    closeRoomHandler: null, // TEMP:
+    leaveRoomHandler: null, // TEMP:
   };
-  // TODO: create useOpponent custom hook
 }
 
 export { useRoom };

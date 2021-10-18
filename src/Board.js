@@ -17,7 +17,7 @@ function Board({ viewer, board, isViewersTurn, colours, moveHandler }) {
     );
   }
 
-  // TODO: dynamic colour
+  // TODO: CONTEXT: dynamic colour
   return (
     <table className="board" style={{ backgroundColor: "Black" }}>
       <tbody>{tableRows}</tbody>
@@ -43,7 +43,7 @@ function Row({ row, viewer, isViewersTurn, moveHandler, colours }) {
 
 function Cell({ clickHandler, colour, isHighlight, isClickable }) {
   // colours/styles
-  // TODO: dynamic colour (post "||")
+  // TODO: CONTEXT dynamic colour (post "||")
   const backgroundColor = colour || "White";
   const borderColor = isHighlight
     ? oppColour(backgroundColor)
@@ -60,7 +60,8 @@ function Cell({ clickHandler, colour, isHighlight, isClickable }) {
 }
 
 function oppColour(colour) {
-  // TODO: calculate opposite colour; probably move this function elsewhere
+  // TODO: CONTEXT: calculate opposite colour;
+  //  probably move this function elsewhere
   return "White";
 }
 

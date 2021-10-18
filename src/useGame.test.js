@@ -16,11 +16,13 @@ function validStates(states) {
   states.board.forEach((row) => {
     expect(row).toHaveLength(7);
     row.forEach((entry) => {
-      expect(Object.keys(entry)).toHaveLength(2);
+      expect(Object.keys(entry)).toHaveLength(3);
       expect(entry).toHaveProperty("player");
       expect([0, 1, null]).toContain(entry.player);
       expect(entry).toHaveProperty("isHighlight");
       expect([true, false]).toContain(entry.isHighlight);
+      expect(entry).toHaveProperty("colIsOpen");
+      expect([true, false]).toContain(entry.colIsOpen);
     });
   });
 
@@ -238,7 +240,7 @@ it("useGame detects vertical win", () => {
 });
 
 it("useGame detects draw", () => {
-  // TODO: check nothing gets highlighted
+  // TODO: TEST: check nothing gets highlighted
   for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
     const { result } = renderHook(() => useGame(initialPlayer));
 
@@ -274,8 +276,8 @@ it("useGame detects draw", () => {
   }
 });
 
-// TODO: add checks on .winner to current tests
-// TODO: test for diagonal and anti-diagonal wins
-// TODO: test win on (6 * 7)th piece placed (ie filling up board but no draw)
-// TODO: test forfeit action
-// TODO: test undo action (if/when it is added)
+// TODO: TEST: add checks on .winner to current tests
+// TODO: TEST: test for diagonal and anti-diagonal wins
+// TODO: TEST: test win on 42nd piece placed (ie filling up board but no draw)
+// TODO: TEST: test forfeit action
+// TODO: TEST: test undo action (if/when it is added)

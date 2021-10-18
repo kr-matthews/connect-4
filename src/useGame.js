@@ -1,7 +1,5 @@
 import { useState, useReducer } from "react";
 
-// TODO: NEXT add isOpenCol to board
-
 //// Generic constants helpers
 
 // the possible line directions from/to a fixed point
@@ -129,7 +127,11 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
   // (not using state and useEffect since it might make undo awkward?)
   const highlights = createHighlights();
   // matrix, row 0 at the bottom; each cell is an object
-  const board = combineTables([pieces, highlights], ["player", "isHighlight"]);
+  const openColumns = checkOpenCols();
+  const board = combineTables(
+    [pieces, highlights, openColumns],
+    ["player", "isHighlight", "colIsOpen"]
+  );
   // index of player to play next move, or null if game is not ongoing
   const toPlayNext =
     gameStatus !== "ongoing"
@@ -208,6 +210,18 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
     return table;
   }
 
+  // indicates whether the cell is in an open column
+  function checkOpenCols() {
+    let table = emptyTable(rows, cols);
+    for (let col = 0; col < cols; col++) {
+      const isOpen = pieces[rows - 1][col] === null;
+      for (let row = 0; row < rows; row++) {
+        table[row][col] = isOpen;
+      }
+    }
+    return table;
+  }
+
   // given a spot and a direction, check if it's a line of 4
   function checkLine(player, row, col, d_r, d_c) {
     for (let k = 0; k < lineLen; k++) {
@@ -249,7 +263,7 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
 
   //// Return
 
-  // TODO: return an undo function, maybe?
+  // TODO: MAYBE LATER: return an undo function
   return {
     board,
     gameStatus,

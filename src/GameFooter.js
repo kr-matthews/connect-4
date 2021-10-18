@@ -27,8 +27,9 @@ function GameFooter({
     }
   }
 
-  // TODO: improve Footer design/css
-  // displayed for viewer's point of view
+  // TODO: UI: improve Footer design/css
+
+  //  displayed for viewer's point of view
   return (
     <>
       {/* explain what's going on with the game */}

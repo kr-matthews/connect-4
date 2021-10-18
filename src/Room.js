@@ -14,7 +14,7 @@ function Room({ player, isOwner, roomId, restartMethod }) {
   //// Constants
 
   const {
-    opponent, // TODO: initialize and update -- involves network
+    opponent,
     resultHistory,
     board,
     gameStatus,
@@ -25,6 +25,7 @@ function Room({ player, isOwner, roomId, restartMethod }) {
     newGameHandler,
     kickOpponentHandler,
     closeRoomHandler,
+    leaveRoomHandler,
   } = useRoom(restartMethod);
 
   //// Return
@@ -39,8 +40,9 @@ function Room({ player, isOwner, roomId, restartMethod }) {
         opponent={opponent}
         restartMethod={restartMethod}
         resultHistory={resultHistory}
-        closeRoomHandler={closeRoomHandler}
         kickOpponentHandler={kickOpponentHandler}
+        closeRoomHandler={closeRoomHandler}
+        leaveRoomHandler={leaveRoomHandler}
       />
 
       {opponent && (

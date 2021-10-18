@@ -3,10 +3,11 @@ function RoomHeader({
   opponent,
   restartMethod,
   resultHistory,
-  closeRoomHandler,
   kickOpponentHandler,
+  closeRoomHandler,
+  leaveRoomHandler,
 }) {
-  function resstartMethodMessage() {
+  function restartMethodMessage() {
     switch (restartMethod) {
       case "random":
         return "The first player of a new game is selected randomly.";
@@ -22,17 +23,16 @@ function RoomHeader({
     }
   }
 
-  // TODO: improve Header design/css
+  // TODO: UI: improve Header design/css
   return (
     <>
       {/* explain who goes first for new games */}
-      <div>{resstartMethodMessage()}</div>
+      <div>{restartMethodMessage()}</div>
 
       {/* describe opponent, or say waiting for one */}
       {opponent ? (
         <div>
-          {/* TODO: get Blue from context */}
-          <span style={{ color: "Blue" }}>You</span> are playing against{" "}
+          You are playing against{" "}
           <span style={{ color: opponent.colour }}>{opponent.name}</span>.
         </div>
       ) : (
@@ -53,7 +53,7 @@ function RoomHeader({
         {isOwner ? (
           <button onClick={closeRoomHandler}>Close Room</button>
         ) : (
-          <button>Leave Room</button>
+          <button onClick={leaveRoomHandler}>Leave Room</button>
         )}
         {isOwner && opponent && (
           <button onClick={kickOpponentHandler}>Kick Opponent</button>
