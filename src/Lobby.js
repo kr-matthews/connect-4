@@ -1,9 +1,6 @@
-import CreateRoom from "./CreateRoom.js";
-import JoinRoom from "./JoinRoom.js";
-
 // TODO: UI: improve design/css of lobby (and sub-components)
 
-function Lobby({ createRoomHandler, joinRoomHandler }) {
+function Lobby({ children }) {
   return (
     <>
       <h2>Lobby</h2>
@@ -12,8 +9,7 @@ function Lobby({ createRoomHandler, joinRoomHandler }) {
         Rooms are where you can play a game of Connect 4, and can fit up to 2
         players.
       </p>
-      <CreateRoom createRoomHandler={createRoomHandler} />
-      <JoinRoom joinRoomHandler={joinRoomHandler} />
+      {children}
     </>
   );
 }
