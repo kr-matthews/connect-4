@@ -1,9 +1,19 @@
-function Lobby() {
-  // TODO: COMPONENT: Lobby component
+import CreateRoom from "./CreateRoom.js";
+import JoinRoom from "./JoinRoom.js";
+
+// TODO: UI: improve design/css of lobby (and sub-components)
+
+function Lobby({ createRoomHandler, joinRoomHandler }) {
   return (
     <>
       <h2>Lobby</h2>
-      <p>Create or join a room.</p>
+      <p>
+        Welcome to the Connect 4 lobby. Here, you can create or join a room.
+        Rooms are where you can play a game of Connect 4, and can fit up to 2
+        players.
+      </p>
+      <CreateRoom createRoomHandler={createRoomHandler} />
+      <JoinRoom joinRoomHandler={joinRoomHandler} />
     </>
   );
 }

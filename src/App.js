@@ -3,6 +3,7 @@ import Lobby from "./Lobby.js";
 import Room from "./Room.js";
 
 function App() {
+  // TODO: COMPONENT: App
   // TODO: COMPONENT: add Links component
   // TODO: CONTEXT: add context for light/dark theme
   return (
