@@ -99,40 +99,35 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
 
   //// Externally available functions
 
+  // when room owner starts a new game
+  //  basically figure out who goes first and then call useGame's reset
+  //  also update setWentFirst as may be needed for next such update
   function newGameHandler(gameStatus) {
-    // TODO: NEXT: review/redo newGameHandler
+    let toGoFirst = null;
+    // figure out who will go first
     switch (restartMethod) {
       case "random":
-        const player = Math.floor(Math.random() * 2);
-        resetGame(player);
-        setWentFirst(player);
+        toGoFirst = Math.floor(Math.random() * 2);
         break;
       case "alternate":
-        resetGame(1 - wentFirst);
-        setWentFirst(1 - wentFirst);
+        toGoFirst = 1 - wentFirst;
+
         break;
       case "loser":
-        if (gameStatus === "draw") {
-          // if it's a draw, keep the same player
-          resetGame(wentFirst);
-        } else {
-          resetGame(1 - gameStatus);
-          setWentFirst(1 - gameStatus);
-        }
+        // if it's a draw, keep the same player
+        toGoFirst = gameStatus === "draw" ? wentFirst : 1 - winner;
         break;
       case "winner":
-        if (gameStatus === "draw") {
-          // if it's a draw, keep the same player
-          resetGame(wentFirst);
-        } else {
-          resetGame(gameStatus);
-        }
+        // if it's a draw, keep the same player
+        toGoFirst = gameStatus === "draw" ? wentFirst : winner;
         break;
       default:
         console.log("New Game click handler didn't match any case.");
-        resetGame(0);
-        setWentFirst(0);
+        toGoFirst = 0;
     }
+    // call useGame's reset, update own state
+    resetGame(toGoFirst);
+    setWentFirst(toGoFirst);
   }
   //// Return
 
