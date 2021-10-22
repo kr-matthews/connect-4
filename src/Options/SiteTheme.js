@@ -1,4 +1,4 @@
-function Theme({ themeType, toggleTheme }) {
+function SiteTheme({ themeType, toggleTheme }) {
   return (
     <>
       The theme is <span onClick={toggleTheme}>{themeType}</span>.
@@ -6,4 +6,4 @@ function Theme({ themeType, toggleTheme }) {
   );
 }
 
-export default Theme;
+export default SiteTheme;
