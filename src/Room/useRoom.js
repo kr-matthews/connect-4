@@ -1,6 +1,6 @@
 import { useState, useEffect, useReducer } from "react";
 
-import { useGame } from "./useGame.js";
+import { useGame } from "./../Game/useGame.js";
 
 // TODO: TEST: create tests for useRoom hook
 

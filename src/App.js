@@ -1,17 +1,15 @@
 import { useState } from "react";
 
-import Header from "./Header.js";
-import Lobby from "./Lobby.js";
-import Room from "./Room.js";
+import Header from "./Options/Header.js";
+import Lobby from "./Options/Lobby.js";
+import Room from "./Room/Room.js";
 
-import PlayerName from "./PlayerName.js";
-import PlayerColour from "./PlayerColour.js";
-import Theme from "./Theme.js";
+import PlayerName from "./Options/PlayerName.js";
+import PlayerColour from "./Options/PlayerColour.js";
+import Theme from "./Options/Theme.js";
 
-import CreateRoom from "./CreateRoom.js";
-import JoinRoom from "./JoinRoom.js";
-
-// TODO: NEXT: reorganize file structure - add folders
+import CreateRoom from "./Room/CreateRoom.js";
+import JoinRoom from "./Room/JoinRoom.js";
 
 function App() {
   // TODO: COMPONENT: App

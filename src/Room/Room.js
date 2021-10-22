@@ -1,9 +1,9 @@
 // import { useState, useReducer, useEffect } from "react";
 
 import RoomHeader from "./RoomHeader.js";
-import Game from "./Game.js";
-import Board from "./Board.js";
-import GameFooter from "./GameFooter.js";
+import Game from "./../Game/Game.js";
+import Board from "./../Game/Board.js";
+import GameFooter from "./../Game/GameFooter.js";
 
 import { useRoom } from "./useRoom.js";
 
