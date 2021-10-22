@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, createContext } from "react";
 
 import Header from "./Options/Header.js";
 import Lobby from "./Options/Lobby.js";
@@ -11,23 +11,35 @@ import Theme from "./Options/Theme.js";
 import CreateRoom from "./Room/CreateRoom.js";
 import JoinRoom from "./Room/JoinRoom.js";
 
-function App() {
-  // TODO: COMPONENT: App
-  // TODO: CONTEXT: add context for light/dark theme
+//// Page Theme
 
-  // Player Attributes/Properties
+const themes = {
+  light: { type: "light", background: "White", foreground: "Black" },
+  dark: { type: "dark", background: "Black", foreground: "White" },
+};
+const ThemeContext = createContext(themes.dark);
+
+function App() {
+  //// Player Attributes/Properties and Theme
 
   // TODO: LOCAL STORAGE: store name and colour in local storage
   const [name, setName] = useState("Nameless");
   // TODO: INIT VAL: select random colour as  default
   const [colour, setColour] = useState("#0000FF");
 
+  const [theme, setTheme] = useState(themes.dark);
+  function toggleTheme() {
+    setTheme(theme.type === "light" ? themes.dark : themes.light);
+  }
+
+  //// Return
+
   return (
-    <>
+    <ThemeContext.Provider value={theme}>
       <Header>
         <PlayerName name={name} setName={setName} />
         <PlayerColour colour={colour} setColour={setColour} />
-        <Theme />
+        <Theme themeType={theme.type} toggleTheme={toggleTheme} />
       </Header>
       <h1>Connect 4 [WIP]</h1>
       {true && (
@@ -46,9 +58,11 @@ function App() {
           closeRoomHandler={null}
         />
       )}
-    </>
+    </ThemeContext.Provider>
     // TODO: COMPONENT: add Links component
   );
 }
 
 export default App;
+
+export { ThemeContext };

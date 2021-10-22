@@ -25,7 +25,7 @@ function PlayerName({ name, setName }) {
     setIsEditing(true);
   }
 
-  // TODO: UI: style PlayerName; change cursor on hover; auto-focus on click
+  // TODO: UI: style PlayerName; change cursor on hover; auto-focus on click, submit off of focus
 
   return (
     <>
