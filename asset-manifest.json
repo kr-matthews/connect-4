@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.css": "/connect-4/static/css/main.2d2de2ba.chunk.css",
-    "main.js": "/connect-4/static/js/main.143209f7.chunk.js",
-    "main.js.map": "/connect-4/static/js/main.143209f7.chunk.js.map",
-    "runtime-main.js": "/connect-4/static/js/runtime-main.31555a0b.js",
-    "runtime-main.js.map": "/connect-4/static/js/runtime-main.31555a0b.js.map",
-    "static/js/2.c18ca490.chunk.js": "/connect-4/static/js/2.c18ca490.chunk.js",
-    "static/js/2.c18ca490.chunk.js.map": "/connect-4/static/js/2.c18ca490.chunk.js.map",
+    "main.css": "/connect-4/static/css/main.7cfba54c.chunk.css",
+    "main.js": "/connect-4/static/js/main.68dd9ecc.chunk.js",
+    "main.js.map": "/connect-4/static/js/main.68dd9ecc.chunk.js.map",
+    "runtime-main.js": "/connect-4/static/js/runtime-main.f8bf22a7.js",
+    "runtime-main.js.map": "/connect-4/static/js/runtime-main.f8bf22a7.js.map",
+    "static/js/2.a16e87da.chunk.js": "/connect-4/static/js/2.a16e87da.chunk.js",
+    "static/js/2.a16e87da.chunk.js.map": "/connect-4/static/js/2.a16e87da.chunk.js.map",
     "index.html": "/connect-4/index.html",
-    "static/css/main.2d2de2ba.chunk.css.map": "/connect-4/static/css/main.2d2de2ba.chunk.css.map",
-    "static/js/2.c18ca490.chunk.js.LICENSE.txt": "/connect-4/static/js/2.c18ca490.chunk.js.LICENSE.txt"
+    "static/css/main.7cfba54c.chunk.css.map": "/connect-4/static/css/main.7cfba54c.chunk.css.map",
+    "static/js/2.a16e87da.chunk.js.LICENSE.txt": "/connect-4/static/js/2.a16e87da.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.31555a0b.js",
-    "static/js/2.c18ca490.chunk.js",
-    "static/css/main.2d2de2ba.chunk.css",
-    "static/js/main.143209f7.chunk.js"
+    "static/js/runtime-main.f8bf22a7.js",
+    "static/js/2.a16e87da.chunk.js",
+    "static/css/main.7cfba54c.chunk.css",
+    "static/js/main.68dd9ecc.chunk.js"
   ]
 }
