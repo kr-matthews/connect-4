@@ -1,6 +1,7 @@
 .board {
   border-collapse: collapse;
   margin: 1em auto;
+  transition: all 0.5s ease-in;
 }
 
 .cell {
@@ -11,6 +12,7 @@
   width: 2.5em;
   padding: 0;
   margin: 0;
+  transition: all 0.5s ease-in;
 }
 
 .clickable:hover {
@@ -25,4 +27,5 @@
   display: inline-block;
   text-align: center;
   vertical-align: middle;
+  transition: all 0.5s linear;
 }

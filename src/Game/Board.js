@@ -1,6 +1,11 @@
+import { useContext } from "react";
+
+import { ThemeContext } from "./../App.js";
+
 import "./board.css";
 
 function Board({ viewer, board, isViewersTurn, colours, moveHandler }) {
+  const { foreground } = useContext(ThemeContext);
   const rows = board.length;
   let tableRows = [];
   // the first row goes on the bottom, visually
@@ -17,9 +22,8 @@ function Board({ viewer, board, isViewersTurn, colours, moveHandler }) {
     );
   }
 
-  // TODO: CONTEXT: dynamic colour
   return (
-    <table className="board" style={{ backgroundColor: "Black" }}>
+    <table className="board" style={{ backgroundColor: foreground }}>
       <tbody>{tableRows}</tbody>
     </table>
   );
@@ -43,26 +47,20 @@ function Row({ row, viewer, isViewersTurn, moveHandler, colours }) {
 
 function Cell({ clickHandler, colour, isHighlight, isClickable }) {
   // colours/styles
-  // TODO: CONTEXT dynamic colour (post "||")
-  const backgroundColor = colour || "White";
-  const borderColor = isHighlight
-    ? oppColour(backgroundColor)
-    : backgroundColor;
+  const { background, foreground } = useContext(ThemeContext);
+  const backgroundColor = colour || background;
+  // TODO: LATER: COLOUR: make highlight opp colour of piece
+  const borderColor = isHighlight ? background : backgroundColor;
   const pieceStyle = { backgroundColor, borderColor };
 
   const cellClass = isClickable ? "clickable cell" : "cell";
+  const cellStyle = { borderColor: foreground };
 
   return (
-    <td className={cellClass} onClick={clickHandler}>
+    <td className={cellClass} style={cellStyle} onClick={clickHandler}>
       <span className="piece" style={pieceStyle}></span>
     </td>
   );
-}
-
-function oppColour(colour) {
-  // TODO: CONTEXT: calculate opposite colour;
-  //  probably move this function elsewhere
-  return "White";
 }
 
 export default Board;

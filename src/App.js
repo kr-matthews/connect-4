@@ -12,14 +12,17 @@ import JoinRoom from "./Room/JoinRoom.js";
 import Room from "./Room/Room.js";
 
 import { useLocalState } from "./useLocalState.js";
+import { GlobalStyle } from "./GlobalStyle.js";
 
 //// Page Theme
 
 const themes = {
-  light: { type: "light", background: "White", foreground: "Black" },
-  dark: { type: "dark", background: "Black", foreground: "White" },
+  light: { type: "light", background: "#F5F5F5", foreground: "#121212" },
+  dark: { type: "dark", background: "#121212", foreground: "#F5F5F5" },
 };
-const ThemeContext = createContext(themes.dark);
+const ThemeContext = createContext(themes.light);
+
+//// App
 
 function App() {
   //// Player Attributes/Properties and Theme
@@ -28,7 +31,7 @@ function App() {
   // TODO: INIT VAL: select random colour as  default
   const [colour, setColour] = useLocalState("colour", "#0000FF");
 
-  const [theme, setTheme] = useLocalState("theme", themes.dark);
+  const [theme, setTheme] = useLocalState("theme", themes.light);
   function toggleTheme() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
   }
@@ -39,6 +42,7 @@ function App() {
 
   return (
     <ThemeContext.Provider value={theme}>
+      <GlobalStyle theme={theme} />
       <Header>
         <PlayerName name={name} setName={setName} />
         <PlayerColour colour={colour} setColour={setColour} />

@@ -1,7 +1,7 @@
 function SiteTheme({ themeType, toggleTheme }) {
   return (
     <>
-      The theme is <span onClick={toggleTheme}>{themeType}</span>.
+      You're using the <span onClick={toggleTheme}>{themeType}</span> theme.
     </>
   );
 }
