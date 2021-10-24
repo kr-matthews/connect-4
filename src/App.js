@@ -38,8 +38,6 @@ function App() {
 
   //// Return
 
-  // TODO: NEXT: remove logic from PlayerName & PlayerColour
-
   return (
     <ThemeContext.Provider value={theme}>
       <GlobalStyle theme={theme} />

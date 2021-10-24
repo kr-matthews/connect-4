@@ -1,37 +1,39 @@
 import { useState } from "react";
 
+const defaultName = "Nameless";
+
 function PlayerName({ name, setName }) {
   const [isEditing, setIsEditing] = useState(false);
 
-  function changeHandler(e) {
-    setName(e.target.value.trim());
-  }
-
-  // TODO: CLEAN-UP: repeated code; pass in defaultName and isValidName as params?
-
-  function keyDownHandler(e) {
-    if (e.key === "Enter") {
-      name === "" && setName("Nameless");
-      setIsEditing(false);
-    }
-  }
-
-  function loseFocusHandler(e) {
-    name === "" && setName("Nameless");
-    setIsEditing(false);
-  }
-
+  // click name to edit it
   function clickHandler() {
     setIsEditing(true);
   }
 
-  // TODO: UI: style PlayerName; change cursor on hover; auto-focus on click, submit off of focus
+  // type name; update state
+  function changeHandler(e) {
+    setName(e.target.value.trim());
+  }
+
+  // save/submit via enter...
+  function keyDownHandler(e) {
+    if (e.key === "Enter") {
+      loseFocusHandler();
+    }
+  }
+
+  // ... or by clicking anywhere outside (losing focus)
+  function loseFocusHandler() {
+    name === "" && setName(defaultName);
+    setIsEditing(false);
+  }
 
   return (
     <>
       Your name is{" "}
       {isEditing ? (
         <input
+          autoFocus
           type="text"
           value={name}
           placeholder="Name"
@@ -40,7 +42,7 @@ function PlayerName({ name, setName }) {
           onBlur={loseFocusHandler}
         />
       ) : (
-        <span onClick={clickHandler}>{name}</span>
+        <button onClick={clickHandler}>{name}</button>
       )}
       .
     </>

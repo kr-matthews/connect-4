@@ -3,8 +3,6 @@ function PlayerColour({ colour, setColour }) {
     setColour(e.target.value);
   }
 
-  // TODO: UI: styling for PlayerColour
-
   return (
     <>
       Your piece colour is{" "}

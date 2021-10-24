@@ -1,5 +1,5 @@
 function Header({ children }) {
-  // TODO: UI: styling for Header (options)
+  // TODO: UI: styling for Header/options (and all sub-components)
 
   // TODO: LATER: allow user to clear local storage via localStorage.clear()
 
