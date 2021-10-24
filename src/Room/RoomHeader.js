@@ -7,28 +7,19 @@ function RoomHeader({
   closeRoomHandler,
   leaveRoomHandler,
 }) {
-  function restartMethodMessage() {
-    switch (restartMethod) {
-      case "random":
-        return "The first player of a new game is selected randomly.";
-      case "alternate":
-        return "Players alternate playing first in a new game.";
-      default:
-        // "winner" or "loser"
-        return (
-          "The " +
-          restartMethod +
-          " of a game will go first for the next game. In the event of a draw, the same player will go first."
-        );
-    }
-  }
+  const restartMethodMessage =
+    restartMethod === "random"
+      ? "The first player of a new game is selected randomly."
+      : restartMethod === "alternate"
+      ? "Players alternate playing first in a new game."
+      : // else it's "winner" or "loser"
+        "The " +
+        restartMethod +
+        " of a game will go first for the next game. In the event of a draw, the same player will go first.";
 
   // TODO: UI: improve Header design/css
   return (
     <>
-      {/* explain who goes first for new games */}
-      <div>{restartMethodMessage()}</div>
-
       {/* describe opponent, or say waiting for one */}
       {opponent ? (
         <div>
@@ -38,6 +29,18 @@ function RoomHeader({
       ) : (
         <div>Waiting for an opponent to join the room.</div>
       )}
+
+      {/* who owns the room */}
+      {isOwner ? (
+        <div>You created and are in control of this room.</div>
+      ) : (
+        <div>
+          You are in {opponent.name}'s room. They have control of the room.
+        </div>
+      )}
+
+      {/* explain who goes first for new games */}
+      <div>{restartMethodMessage}</div>
 
       {/* display W-D-L history against this opponent */}
       {opponent && (

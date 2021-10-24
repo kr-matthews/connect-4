@@ -1,5 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 
+// TODO: THEME: in dark mode, on refresh, page transitions from light mode
+
 const GlobalStyle = createGlobalStyle`
   body {
       background: ${({ theme }) => theme.background};
