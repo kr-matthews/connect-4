@@ -6,6 +6,7 @@ import Lobby from "./Options/Lobby.js";
 import PlayerName from "./Options/PlayerName.js";
 import PlayerColour from "./Options/PlayerColour.js";
 import SiteTheme from "./Options/SiteTheme.js";
+import Mute from "./Options/Mute.js";
 
 import CreateRoom from "./Room/CreateRoom.js";
 import JoinRoom from "./Room/JoinRoom.js";
@@ -75,7 +76,7 @@ function App() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
   }
 
-  // these 3 consts and 5 functions should probably be a hook?
+  // TODO: NEXT: these 3 consts and 5 functions should probably be a hook?
   const [roomCode, setRoomCode] = useState(null);
   const [isOwner, setIsOwner] = useState(null);
   const [restartMethod, setRestartMethod] = useState("alternate");
@@ -122,6 +123,7 @@ function App() {
         <PlayerName name={name} setName={setName} />
         <PlayerColour colour={colour} setColour={setColour} />
         <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
+        <Mute soundIsOn={soundIsOn} setSoundIsOn={setSoundIsOn} />
       </Header>
       <h1>Connect 4 [WIP]</h1>
       {roomCode ? (
