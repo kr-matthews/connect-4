@@ -17,6 +17,8 @@ import { GlobalStyle } from "./GlobalStyle.js";
 // TODO: LATER: option to add time limit to moves
 //  careful: game auto starts on second player join
 
+// TODO: LATER: add computer opponent as an option?
+
 //// Page Theme
 
 const themes = {
@@ -25,6 +27,32 @@ const themes = {
 };
 const ThemeContext = createContext(themes.light);
 
+//// Simple Helpers
+
+function generateRoomCode() {
+  // TODO: HELPER: write generateRoomCode
+  //  check it's not already in use
+  //  and confirm codes are 4 chars (see JoinRoom.js)
+  // TEMP: generateRoomCode returns same code every time
+  return "KNKT";
+}
+
+// unfortunately, colour inputs don't recognize names like "Red"
+const colours = [
+  "#FF0000", // Red
+  "#FF69B4", // HotPink
+  "#FF8C00", // DarkOrange
+  "#FFD700", // Gold
+  "#FF00FF", // Magenta
+  "#228B22", // ForestGreen
+  "#0000FF", // Blue
+  "#8B4513", // SaddleBrown
+  "#C0C0C0", // Silver
+];
+function getRandomColour() {
+  return colours[Math.floor(Math.random() * colours.length)];
+}
+
 //// App
 
 function App() {
@@ -32,7 +60,7 @@ function App() {
 
   const [name, setName] = useLocalState("name", "Nameless");
   // TODO: INIT VAL: select random colour as  default
-  const [colour, setColour] = useLocalState("colour", "#0000FF");
+  const [colour, setColour] = useLocalState("colour", getRandomColour());
 
   const [theme, setTheme] = useLocalState("theme", themes.light);
   function toggleTheme() {
@@ -71,14 +99,6 @@ function App() {
     setRoomCode(null);
     setIsOwner(null);
     setRestartMethod("alternate");
-  }
-
-  function generateRoomCode() {
-    // TODO: write generateRoomCode
-    //  and confirm codes are 4 chars (see JoinRoom.js)
-    // TEMP: generateRoomCode returns same code every time
-
-    return "KNKT";
   }
 
   //// Return
