@@ -1,5 +1,3 @@
-// import { useState, useReducer, useEffect } from "react";
-
 import RoomHeader from "./RoomHeader.js";
 import Game from "./../Game/Game.js";
 import Board from "./../Game/Board.js";
@@ -10,7 +8,14 @@ import { useRoom } from "./useRoom.js";
 // the room is seen from the current player's view
 //  each player has their own instantiation of the 'shared' room
 
-function Room({ player, isOwner, roomId, restartMethod }) {
+function Room({
+  player,
+  isOwner,
+  roomCode,
+  restartMethod,
+  closeRoomHandler,
+  leaveRoomHandler,
+}) {
   //// Constants
 
   const {
@@ -24,18 +29,15 @@ function Room({ player, isOwner, roomId, restartMethod }) {
     forfeitHandler,
     newGameHandler,
     kickOpponentHandler,
-    closeRoomHandler,
-    leaveRoomHandler,
   } = useRoom(restartMethod);
 
   //// Return
 
-  // header is room-based, board and footer and game-based
-  // only show the latter pair if an opponent exists
   return (
     <>
       <h2>Room</h2>
       <RoomHeader
+        roomCode={roomCode}
         isOwner={isOwner}
         opponent={opponent}
         restartMethod={restartMethod}

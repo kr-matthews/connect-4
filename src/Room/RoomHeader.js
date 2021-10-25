@@ -1,4 +1,5 @@
 function RoomHeader({
+  roomCode,
   isOwner,
   opponent,
   restartMethod,
@@ -17,7 +18,13 @@ function RoomHeader({
         restartMethod +
         " of a game will go first for the next game. In the event of a draw, the same player will go first.";
 
+  const copyToClipboard = async () => {
+    await navigator.clipboard.writeText(roomCode);
+    alert("Text copied to clipboard.");
+  };
+
   // TODO: UI: improve Header design/css
+
   return (
     <>
       {/* describe opponent, or say waiting for one */}
@@ -30,7 +37,7 @@ function RoomHeader({
         <div>Waiting for an opponent to join the room.</div>
       )}
 
-      {/* who owns the room */}
+      {/* who owns the room, and the code */}
       {isOwner ? (
         <div>You created and are in control of this room.</div>
       ) : (
@@ -38,6 +45,9 @@ function RoomHeader({
           You are in {opponent.name}'s room. They have control of the room.
         </div>
       )}
+      <div>
+        The room code is <button onClick={copyToClipboard}>{roomCode}</button>.
+      </div>
 
       {/* explain who goes first for new games */}
       <div>{restartMethodMessage}</div>

@@ -1,4 +1,12 @@
+import { useState } from "react";
+
 function CreateRoom({ createRoomHandler }) {
+  const [restartMethodInput, setRestartMethodInput] = useState("alternate");
+
+  function handleChange(e) {
+    setRestartMethodInput(e.target.value);
+  }
+
   return (
     <div>
       <h3>Create a Room</h3>
@@ -6,7 +14,33 @@ function CreateRoom({ createRoomHandler }) {
         Once created, you will be given a room code which you can share with a
         friend to join.
       </p>
-      <button onClick={createRoomHandler}>Create</button>
+      <p>
+        The first player of the first game will be selected randomly. Select who
+        will go first in subsequent games.
+      </p>
+      <form>
+        {["Alternate", "Loser", "Winner", "Random"].map((method) => {
+          return (
+            <label key={method}>
+              <input
+                type="radio"
+                value={method.toLowerCase()}
+                checked={restartMethodInput === method.toLowerCase()}
+                onChange={handleChange}
+              />
+              {method}
+            </label>
+          );
+        })}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            createRoomHandler(restartMethodInput);
+          }}
+        >
+          Create
+        </button>
+      </form>
     </div>
   );
 }

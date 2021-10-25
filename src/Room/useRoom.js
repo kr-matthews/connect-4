@@ -25,9 +25,9 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   //// States
 
   // other player's name and colour, once they join
-  // TODO: HOOK: create custom hook to replace constant below
+  // TODO: HOOK: create custom hook to replace constant below?
   // TEMP: opponent value in useRoom
-  const opponent = { name: "Bob", colour: "red" };
+  const [opponent, setOpponent] = useState({ name: "Bob", colour: "red" });
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
   // history of all games played
@@ -129,6 +129,12 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
     resetGame(toGoFirst);
     setWentFirst(toGoFirst);
   }
+
+  function kickOpponentHandler() {
+    // TEMP: kickOpponentHandler -- need to send out message
+    setOpponent(null);
+  }
+
   //// Return
 
   return {
@@ -141,9 +147,7 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
     moveHandler: placePiece,
     forfeitHandler: forfeit,
     newGameHandler,
-    kickOpponentHandler: null, // TEMP:
-    closeRoomHandler: null, // TEMP:
-    leaveRoomHandler: null, // TEMP:
+    kickOpponentHandler,
   };
 }
 

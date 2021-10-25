@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { useState, createContext } from "react";
 
 import Header from "./Options/Header.js";
 import Lobby from "./Options/Lobby.js";
@@ -13,6 +13,9 @@ import Room from "./Room/Room.js";
 
 import { useLocalState } from "./useLocalState.js";
 import { GlobalStyle } from "./GlobalStyle.js";
+
+// TODO: LATER: option to add time limit to moves
+//  careful: game auto starts on second player join
 
 //// Page Theme
 
@@ -36,6 +39,48 @@ function App() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
   }
 
+  // these 3 consts and 5 functions should probably be a hook?
+  const [roomCode, setRoomCode] = useState(null);
+  const [isOwner, setIsOwner] = useState(null);
+  const [restartMethod, setRestartMethod] = useState("alternate");
+
+  // many of these functions need to send out messages
+
+  function createRoomHandler(restartMethodInput) {
+    // randomly generate room code (make sure it doesn't already exist)
+    // take in restartMethod and pass to Room
+    setRoomCode(generateRoomCode());
+    setIsOwner(true);
+    setRestartMethod(restartMethodInput);
+  }
+
+  function joinRoomHandler(roomCodeInput) {
+    // TODO: check roomCode is valid
+    if (true) {
+      setRoomCode(roomCodeInput);
+      setIsOwner(false);
+    }
+  }
+
+  function closeRoomHandler() {
+    setRoomCode(null);
+    setIsOwner(null);
+  }
+
+  function leaveRoomHandler() {
+    setRoomCode(null);
+    setIsOwner(null);
+    setRestartMethod("alternate");
+  }
+
+  function generateRoomCode() {
+    // TODO: write generateRoomCode
+    //  and confirm codes are 4 chars (see JoinRoom.js)
+    // TEMP: generateRoomCode returns same code every time
+
+    return "KNKT";
+  }
+
   //// Return
 
   return (
@@ -47,21 +92,20 @@ function App() {
         <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
       </Header>
       <h1>Connect 4 [WIP]</h1>
-      {true && (
-        <Lobby // TEMP: Lobby params in App
-        >
-          <CreateRoom createRoomHandler={null} />
-          <JoinRoom joinRoomHandler={null} />
-        </Lobby>
-      )}
-      {true && (
-        <Room // TEMP: Room params in App
+      {roomCode ? (
+        <Room
           player={{ name, colour }}
-          isOwner={true}
-          roomId="2134676543"
-          restartMethod="alternate"
-          closeRoomHandler={null}
+          isOwner={isOwner}
+          roomCode={roomCode}
+          restartMethod={restartMethod}
+          closeRoomHandler={closeRoomHandler}
+          leaveRoomHandler={leaveRoomHandler}
         />
+      ) : (
+        <Lobby>
+          <CreateRoom createRoomHandler={createRoomHandler} />
+          <JoinRoom joinRoomHandler={joinRoomHandler} />
+        </Lobby>
       )}
     </ThemeContext.Provider>
     // TODO: COMPONENT: add Links component

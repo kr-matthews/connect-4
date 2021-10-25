@@ -1,10 +1,10 @@
 import { useState } from "react";
 
 function JoinRoom({ joinRoomHandler }) {
-  // input state and handler
-  const [code, setCode] = useState("");
+  const [roomCodeInput, setRoomCodeInput] = useState("");
+
   function changeHandler(e) {
-    setCode(e.target.value.toUpperCase().trim());
+    setRoomCodeInput(e.target.value.toUpperCase().trim());
   }
 
   return (
@@ -12,15 +12,23 @@ function JoinRoom({ joinRoomHandler }) {
       <h3>Join a Room</h3>
       <p>
         If someone else has given you a code, use that code to join their room.
+        Codes are 4 characters.
       </p>
       <form>
         <input
           type="text"
-          value={code}
+          value={roomCodeInput}
           placeholder="enter room code"
-          onChange={(e) => changeHandler(e)}
+          onChange={changeHandler}
         />
-        <button onClick={() => joinRoomHandler(code)}>Join</button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            joinRoomHandler(roomCodeInput);
+          }}
+        >
+          Join
+        </button>
       </form>
     </div>
   );
