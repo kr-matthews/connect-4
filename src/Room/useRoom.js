@@ -1,6 +1,15 @@
 import { useState, useEffect, useReducer } from "react";
 
+import { playSound } from "./../sounds/playSound.js";
 import { useGame } from "./../Game/useGame.js";
+
+import playerJoinSound from "./../sounds/chime-sound-7143.mp3";
+import playerLeaveSound from "./../sounds/notification-sound-7062.mp3";
+import kickOpponentSound from "./../sounds/fist-punch-or-kick-7171.mp3";
+import yourTurnSound from "./../sounds/water_dropwav-6707.mp3";
+import winSound from "./../sounds/good-6081.mp3";
+import loseSound from "./../sounds/failure-drum-sound-effect-2mp3-7184.mp3";
+import drawSound from "./../sounds/mixkit-retro-game-notification-212.wav";
 
 // TODO: TEST: create tests for useRoom hook
 
@@ -56,17 +65,17 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
     switch (gameStatus) {
       case "won":
       case "forfeit":
-        winner === 0 && dispatchResult({ type: "win" });
-        // TODO: SOUND: for win
-        winner === 0 && console.log("win sound"); // TEMP:
-        winner === 1 && dispatchResult({ type: "lose" });
-        // TODO: SOUND: for lose
-        winner === 1 && console.log("lose sound"); // TEMP:
+        if (winner === 0) {
+          dispatchResult({ type: "win" });
+          playSound(winSound);
+        } else if (winner === 1) {
+          dispatchResult({ type: "lose" });
+          playSound(loseSound);
+        }
         break;
       case "draw":
         dispatchResult({ type: "draw" });
-        console.log("draw sound"); // TEMP:
-        // TODO: SOUND: for win
+        playSound(drawSound);
         break;
       default:
     }
@@ -83,17 +92,14 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   // TODO: SOUND: problem: plays both sounds when opp joins and it's your turn
   useEffect(() => {
     if (playerCount === 1) {
-      // TODO: SOUND: player leaving
-      console.log("Opponent left sound"); // TEMP:
+      playSound(playerLeaveSound);
     } else {
-      // TODO: SOUND: player joining
-      console.log("Opponent joined sound"); // TEMP:
+      playSound(playerJoinSound);
     }
   }, [playerCount]);
   useEffect(() => {
     if (toPlayNext === 0) {
-      // TODO: SOUND: your turn
-      console.log("Your turn sound"); // TEMP:
+      playSound(yourTurnSound);
     }
   }, [toPlayNext]);
 
@@ -133,6 +139,7 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   function kickOpponentHandler() {
     // TEMP: kickOpponentHandler -- need to send out message
     setOpponent(null);
+    playSound(kickOpponentSound);
   }
 
   //// Return

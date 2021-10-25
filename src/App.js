@@ -11,8 +11,14 @@ import CreateRoom from "./Room/CreateRoom.js";
 import JoinRoom from "./Room/JoinRoom.js";
 import Room from "./Room/Room.js";
 
+import { playSound } from "./sounds/playSound.js";
 import { useLocalState } from "./useLocalState.js";
 import { GlobalStyle } from "./GlobalStyle.js";
+
+import createRoomSound from "./sounds/success-1-6297.mp3";
+import closeRoomSound from "./sounds/power-down-7103.mp3";
+import joinRoomSound from "./sounds/good-6081.mp3";
+import leaveRoomSound from "./sounds/notification-sound-7062.mp3";
 
 // TODO: LATER: option to add time limit to moves
 //  careful: game auto starts on second player join
@@ -62,6 +68,8 @@ function App() {
   // TODO: INIT VAL: select random colour as  default
   const [colour, setColour] = useLocalState("colour", getRandomColour());
 
+  // TODO: NEXT: add mute button to options
+  const [soundIsOn, setSoundIsOn] = useState(true);
   const [theme, setTheme] = useLocalState("theme", themes.light);
   function toggleTheme() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
@@ -80,6 +88,7 @@ function App() {
     setRoomCode(generateRoomCode());
     setIsOwner(true);
     setRestartMethod(restartMethodInput);
+    playSound(createRoomSound);
   }
 
   function joinRoomHandler(roomCodeInput) {
@@ -87,18 +96,21 @@ function App() {
     if (true) {
       setRoomCode(roomCodeInput);
       setIsOwner(false);
+      playSound(joinRoomSound);
     }
   }
 
   function closeRoomHandler() {
     setRoomCode(null);
     setIsOwner(null);
+    playSound(closeRoomSound);
   }
 
   function leaveRoomHandler() {
     setRoomCode(null);
     setIsOwner(null);
     setRestartMethod("alternate");
+    playSound(leaveRoomSound);
   }
 
   //// Return

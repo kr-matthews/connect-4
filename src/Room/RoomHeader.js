@@ -20,7 +20,7 @@ function RoomHeader({
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(roomCode);
-    alert("Text copied to clipboard.");
+    alert("Room code " + roomCode + " copied to clipboard.");
   };
 
   // TODO: UI: improve Header design/css
