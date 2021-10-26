@@ -33,6 +33,7 @@ const themes = {
   dark: { type: "dark", background: "#121212", foreground: "#F5F5F5" },
 };
 const ThemeContext = createContext(themes.light);
+const SoundContext = createContext({ soundIsOn: false });
 
 //// Simple Helpers
 
@@ -91,58 +92,61 @@ function App() {
     setRoomCode(generateRoomCode());
     setIsOwner(true);
     setRestartMethod(restartMethodInput);
-    playSound(createRoomSound);
+    playSound(createRoomSound, soundIsOn);
   }
 
   function joinRoomHandler(roomCodeInput) {
     // TODO: check roomCode is valid
-    if (true) {
+    // TEMP: roomCodeInput validation
+    if (roomCodeInput !== "") {
       setRoomCode(roomCodeInput);
       setIsOwner(false);
-      playSound(joinRoomSound);
+      playSound(joinRoomSound, soundIsOn);
     }
   }
 
   function closeRoomHandler() {
     setRoomCode(null);
     setIsOwner(null);
-    playSound(closeRoomSound);
+    playSound(closeRoomSound, soundIsOn);
   }
 
   function leaveRoomHandler() {
     setRoomCode(null);
     setIsOwner(null);
     setRestartMethod("alternate");
-    playSound(leaveRoomSound);
+    playSound(leaveRoomSound, soundIsOn);
   }
 
   //// Return
 
   return (
     <ThemeContext.Provider value={theme}>
-      <GlobalStyle theme={theme} />
-      <Header>
-        <PlayerName name={name} setName={setName} />
-        <PlayerColour colour={colour} setColour={setColour} />
-        <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
-        <Mute soundIsOn={soundIsOn} toggleSound={toggleSound} />
-      </Header>
-      <h1>Connect 4 [WIP]</h1>
-      {roomCode ? (
-        <Room
-          player={{ name, colour }}
-          isOwner={isOwner}
-          roomCode={roomCode}
-          restartMethod={restartMethod}
-          closeRoomHandler={closeRoomHandler}
-          leaveRoomHandler={leaveRoomHandler}
-        />
-      ) : (
-        <Lobby>
-          <CreateRoom createRoomHandler={createRoomHandler} />
-          <JoinRoom joinRoomHandler={joinRoomHandler} />
-        </Lobby>
-      )}
+      <SoundContext.Provider value={{ soundIsOn }}>
+        <GlobalStyle theme={theme} />
+        <Header>
+          <PlayerName name={name} setName={setName} />
+          <PlayerColour colour={colour} setColour={setColour} />
+          <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
+          <Mute soundIsOn={soundIsOn} toggleSound={toggleSound} />
+        </Header>
+        <h1>Connect 4 [WIP]</h1>
+        {roomCode ? (
+          <Room
+            player={{ name, colour }}
+            isOwner={isOwner}
+            roomCode={roomCode}
+            restartMethod={restartMethod}
+            closeRoomHandler={closeRoomHandler}
+            leaveRoomHandler={leaveRoomHandler}
+          />
+        ) : (
+          <Lobby>
+            <CreateRoom createRoomHandler={createRoomHandler} />
+            <JoinRoom joinRoomHandler={joinRoomHandler} />
+          </Lobby>
+        )}
+      </SoundContext.Provider>
     </ThemeContext.Provider>
     // TODO: COMPONENT: add Links component
   );
@@ -150,4 +154,4 @@ function App() {
 
 export default App;
 
-export { ThemeContext };
+export { ThemeContext, SoundContext };

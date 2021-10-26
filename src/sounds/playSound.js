@@ -1,6 +1,8 @@
-function playSound(url) {
-  console.log(url); // TEMP:
-  new Audio(url).play();
+function playSound(url, soundIsOn = false) {
+  if (soundIsOn) {
+    console.log(url); // TEMP:
+    new Audio(url).play();
+  }
 }
 
 export { playSound };

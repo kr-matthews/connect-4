@@ -1,4 +1,6 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer, useContext } from "react";
+
+import { SoundContext } from "./../App.js";
 
 import { playSound } from "./../sounds/playSound.js";
 import { useGame } from "./../Game/useGame.js";
@@ -31,6 +33,8 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 
 // first player of first game is random if unspecified
 function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
+  const { soundIsOn } = useContext(SoundContext);
+
   //// States
 
   // other player's name and colour, once they join
@@ -44,6 +48,7 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
     resultReducer,
     initialResults
   );
+
   // the game custom hook
   const {
     board,
@@ -67,19 +72,19 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
       case "forfeit":
         if (winner === 0) {
           dispatchResult({ type: "win" });
-          playSound(winSound);
+          playSound(winSound, soundIsOn);
         } else if (winner === 1) {
           dispatchResult({ type: "lose" });
-          playSound(loseSound);
+          playSound(loseSound, soundIsOn);
         }
         break;
       case "draw":
         dispatchResult({ type: "draw" });
-        playSound(drawSound);
+        playSound(drawSound, soundIsOn);
         break;
       default:
     }
-  }, [gameStatus, winner]);
+  }, [gameStatus, winner, soundIsOn]);
 
   // if a player leaves, reset the W-D-L record
   useEffect(() => {
@@ -92,16 +97,16 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   // TODO: SOUND: problem: plays both sounds when opp joins and it's your turn
   useEffect(() => {
     if (playerCount === 1) {
-      playSound(playerLeaveSound);
+      playSound(playerLeaveSound, soundIsOn);
     } else {
-      playSound(playerJoinSound);
+      playSound(playerJoinSound, soundIsOn);
     }
-  }, [playerCount]);
+  }, [playerCount, soundIsOn]);
   useEffect(() => {
     if (toPlayNext === 0) {
-      playSound(yourTurnSound);
+      playSound(yourTurnSound, soundIsOn);
     }
-  }, [toPlayNext]);
+  }, [toPlayNext, soundIsOn]);
 
   //// Externally available functions
 
@@ -139,7 +144,7 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   function kickOpponentHandler() {
     // TEMP: kickOpponentHandler -- need to send out message
     setOpponent(null);
-    playSound(kickOpponentSound);
+    playSound(kickOpponentSound, soundIsOn);
   }
 
   //// Return
