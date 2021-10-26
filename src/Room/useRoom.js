@@ -64,6 +64,8 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
 
   //// Effects
 
+  // TODO: SOUND: PROBLEM: on un-mute, most recent side-effect sounds play again
+
   // at end of game, update the W-D-L tally and make sounds
   //  possibly these should be distinct effects?
   useEffect(() => {
@@ -94,7 +96,7 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   }, [playerCount]);
 
   // play sounds when it becomes your turn to play (opponent moves, or new game)
-  // TODO: SOUND: problem: plays both sounds when opp joins and it's your turn
+  // TODO: SOUND: PROBLEM: plays both sounds when opp joins and it's your turn
   useEffect(() => {
     if (playerCount === 1) {
       playSound(playerLeaveSound, soundIsOn);
@@ -142,12 +144,13 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   }
 
   function kickOpponentHandler() {
-    // TEMP: kickOpponentHandler -- need to send out message
     setOpponent(null);
     playSound(kickOpponentSound, soundIsOn);
   }
 
   //// Return
+
+  // TODO: NETWORK: the last four need to notify the network
 
   return {
     opponent,

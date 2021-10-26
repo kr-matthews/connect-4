@@ -277,7 +277,7 @@ it("useGame detects draw", () => {
 });
 
 // TODO: TEST: add checks on .winner to current tests
-// TODO: TEST: test for diagonal and anti-diagonal wins
-// TODO: TEST: test win on 42nd piece placed (ie filling up board but no draw)
-// TODO: TEST: test forfeit action
-// TODO: TEST: test undo action (if/when it is added)
+// TODO: TEST: for diagonal and anti-diagonal wins
+// TODO: TEST: win on 42nd piece placed (ie filling up board but no draw)
+// TODO: TEST: forfeit action
+// TODO: TEST: undo action (if/when it is added)

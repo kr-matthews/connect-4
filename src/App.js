@@ -37,12 +37,16 @@ const SoundContext = createContext({ soundIsOn: false });
 
 //// Simple Helpers
 
-function generateRoomCode() {
-  // TODO: HELPER: write generateRoomCode
-  //  check it's not already in use
+function generateUnusedRoomCode() {
+  // TODO: NEXT: write generateRoomCode
   //  and confirm codes are 4 chars (see JoinRoom.js)
-  // TEMP: generateRoomCode returns same code every time
-  return "KNKT";
+  // loop: generate 4-digit code, check whether it is in use, if not then use
+  return "KNKT"; // TEMP: generateRoomCode returns same code every time
+}
+
+function isRoomCodeInUse() {
+  // TODO: NETWORK: check network for this code
+  return false; // TEMP: always say room code doesn't exist
 }
 
 // unfortunately, colour inputs don't recognize names like "Red"
@@ -67,7 +71,6 @@ function App() {
   //// Player Attributes/Properties and Theme
 
   const [name, setName] = useLocalState("name", "Nameless");
-  // TODO: INIT VAL: select random colour as  default
   const [colour, setColour] = useLocalState("colour", getRandomColour());
 
   const [soundIsOn, setSoundIsOn] = useLocalState("sound", true);
@@ -89,19 +92,22 @@ function App() {
   function createRoomHandler(restartMethodInput) {
     // randomly generate room code (make sure it doesn't already exist)
     // take in restartMethod and pass to Room
-    setRoomCode(generateRoomCode());
+    setRoomCode(generateUnusedRoomCode());
     setIsOwner(true);
     setRestartMethod(restartMethodInput);
     playSound(createRoomSound, soundIsOn);
   }
 
+  // TODO: NETWORK: these three handlers need to notify the network
+
   function joinRoomHandler(roomCodeInput) {
-    // TODO: check roomCode is valid
-    // TEMP: roomCodeInput validation
-    if (roomCodeInput !== "") {
+    if (isRoomCodeInUse(roomCodeInput)) {
       setRoomCode(roomCodeInput);
       setIsOwner(false);
       playSound(joinRoomSound, soundIsOn);
+    } else {
+      // TODO: NEXT: failure message alert for joinRoomHandler
+      alert("Fail");
     }
   }
 
