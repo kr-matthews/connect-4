@@ -1,11 +1,8 @@
-function Mute({ soundIsOn, setSoundIsOn }) {
-  function toggleSoundIsOn() {
-    setSoundIsOn((soundIsOn) => !soundIsOn);
-  }
+function Mute({ soundIsOn, toggleSound }) {
   return (
     <>
-      Sound is{" "}
-      <button onClick={toggleSoundIsOn}>{soundIsOn ? "on" : "off"}</button>.
+      Sound is <button onClick={toggleSound}>{soundIsOn ? "on" : "off"}</button>
+      .
     </>
   );
 }

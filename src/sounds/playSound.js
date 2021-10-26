@@ -4,3 +4,5 @@ function playSound(url) {
 }
 
 export { playSound };
+
+// TODO: NEXT: don't play sounds when muted (via a Context?)

@@ -69,8 +69,10 @@ function App() {
   // TODO: INIT VAL: select random colour as  default
   const [colour, setColour] = useLocalState("colour", getRandomColour());
 
-  // TODO: NEXT: add mute button to options
-  const [soundIsOn, setSoundIsOn] = useState(true);
+  const [soundIsOn, setSoundIsOn] = useLocalState("sound", true);
+  function toggleSound() {
+    setSoundIsOn(!soundIsOn);
+  }
   const [theme, setTheme] = useLocalState("theme", themes.light);
   function toggleTheme() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
@@ -123,7 +125,7 @@ function App() {
         <PlayerName name={name} setName={setName} />
         <PlayerColour colour={colour} setColour={setColour} />
         <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
-        <Mute soundIsOn={soundIsOn} setSoundIsOn={setSoundIsOn} />
+        <Mute soundIsOn={soundIsOn} toggleSound={toggleSound} />
       </Header>
       <h1>Connect 4 [WIP]</h1>
       {roomCode ? (
