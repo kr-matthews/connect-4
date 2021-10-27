@@ -1,4 +1,13 @@
-import { useState, useReducer } from "react";
+import { useState, useEffect, useReducer, useContext } from "react";
+
+import { SoundContext } from "./../App.js";
+
+import { playSound } from "./../sounds/playSound.js";
+
+import yourTurnSound from "./../sounds/water_dropwav-6707.mp3";
+import winSound from "./../sounds/good-6081.mp3";
+import loseSound from "./../sounds/failure-drum-sound-effect-2mp3-7184.mp3";
+import drawSound from "./../sounds/mixkit-retro-game-notification-212.wav";
 
 //// Generic constants helpers
 
@@ -94,6 +103,8 @@ function piecesReducer(state, action) {
 function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
   //// States & Constants
 
+  const { soundIsOn } = useContext(SoundContext);
+
   // index of player to play first; only updates on reset
   const [toPlayFirst, setToPlayFirst] = useState(initialToPlayFirst);
   // who has forfeit (player index, or null)
@@ -139,6 +150,39 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
       : moveHistory.length === 0
       ? toPlayFirst
       : 1 - moveHistory[moveHistory.length - 1].player;
+
+  //// Effects
+
+  const [soundToPlay, setSoundToPlay] = useState(null);
+
+  // trigger win/lose sound effect
+  useEffect(() => {
+    if (winner === 0) {
+      setSoundToPlay(winSound);
+    } else if (winner === 1) {
+      setSoundToPlay(loseSound);
+    }
+  }, [winner]);
+  // trigger draw sound effect
+  useEffect(() => {
+    if (gameStatus === "draw") {
+      setSoundToPlay(drawSound);
+    }
+  }, [gameStatus]);
+  // trigger your turn sound effect
+  useEffect(() => {
+    if (toPlayNext === 0) {
+      setSoundToPlay(yourTurnSound);
+    }
+  }, [toPlayNext]);
+
+  // play triggered sound
+  useEffect(() => {
+    if (soundToPlay && soundIsOn) {
+      playSound(soundToPlay, true); // TEMP: NEXT: remove second param from def
+      setSoundToPlay(null);
+    }
+  }, [soundToPlay, soundIsOn]);
 
   //// Helpers
   // isWon and createHighlights share a lot of code :(

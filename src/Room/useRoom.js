@@ -1,17 +1,10 @@
-import { useState, useEffect, useReducer, useContext } from "react";
+import { useState, useEffect, useReducer } from "react";
 
-import { SoundContext } from "./../App.js";
-
-import { playSound } from "./../sounds/playSound.js";
 import { useGame } from "./../Game/useGame.js";
 
 import playerJoinSound from "./../sounds/chime-sound-7143.mp3";
 import playerLeaveSound from "./../sounds/notification-sound-7062.mp3";
 import kickOpponentSound from "./../sounds/fist-punch-or-kick-7171.mp3";
-import yourTurnSound from "./../sounds/water_dropwav-6707.mp3";
-import winSound from "./../sounds/good-6081.mp3";
-import loseSound from "./../sounds/failure-drum-sound-effect-2mp3-7184.mp3";
-import drawSound from "./../sounds/mixkit-retro-game-notification-212.wav";
 
 // TODO: TEST: create tests for useRoom hook
 
@@ -33,8 +26,6 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 
 // first player of first game is random if unspecified
 function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
-  const { soundIsOn } = useContext(SoundContext);
-
   //// States
 
   // other player's name and colour, once they join
@@ -64,8 +55,6 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
 
   //// Effects
 
-  // TODO: SOUND: PROBLEM: on un-mute, most recent side-effect sounds play again
-
   // at end of game, update the W-D-L tally and make sounds
   //  possibly these should be distinct effects?
   useEffect(() => {
@@ -74,19 +63,16 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
       case "forfeit":
         if (winner === 0) {
           dispatchResult({ type: "win" });
-          playSound(winSound, soundIsOn);
         } else if (winner === 1) {
           dispatchResult({ type: "lose" });
-          playSound(loseSound, soundIsOn);
         }
         break;
       case "draw":
         dispatchResult({ type: "draw" });
-        playSound(drawSound, soundIsOn);
         break;
       default:
     }
-  }, [gameStatus, winner, soundIsOn]);
+  }, [gameStatus, winner]);
 
   // if a player leaves, reset the W-D-L record
   useEffect(() => {
@@ -97,18 +83,18 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
 
   // play sounds when it becomes your turn to play (opponent moves, or new game)
   // TODO: SOUND: PROBLEM: plays both sounds when opp joins and it's your turn
+  // TODO: NEXT: SOUND: these are room-based, not game-based
   useEffect(() => {
     if (playerCount === 1) {
-      playSound(playerLeaveSound, soundIsOn);
+      // playSound(playerLeaveSound, soundIsOn);
     } else {
-      playSound(playerJoinSound, soundIsOn);
+      // playSound(playerJoinSound, soundIsOn);
     }
-  }, [playerCount, soundIsOn]);
+  }, [playerCount]);
   useEffect(() => {
     if (toPlayNext === 0) {
-      playSound(yourTurnSound, soundIsOn);
     }
-  }, [toPlayNext, soundIsOn]);
+  }, [toPlayNext]);
 
   //// Externally available functions
 
@@ -143,9 +129,10 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
     setWentFirst(toGoFirst);
   }
 
+  // TODO: NEXT: SOUND: this sound belongs with the other opp sounds above
   function kickOpponentHandler() {
     setOpponent(null);
-    playSound(kickOpponentSound, soundIsOn);
+    // playSound(kickOpponentSound, soundIsOn);
   }
 
   //// Return
