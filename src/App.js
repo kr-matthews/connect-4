@@ -12,8 +12,8 @@ import CreateRoom from "./Room/CreateRoom.js";
 import JoinRoom from "./Room/JoinRoom.js";
 import Room from "./Room/Room.js";
 
-import { playSound } from "./sounds/playSound.js";
 import { useLocalState } from "./useLocalState.js";
+import { useSound } from "./sounds/useSound.js";
 import { GlobalStyle } from "./GlobalStyle.js";
 
 import createRoomSound from "./sounds/success-1-6297.mp3";
@@ -33,7 +33,7 @@ const themes = {
   dark: { type: "dark", background: "#121212", foreground: "#F5F5F5" },
 };
 const ThemeContext = createContext(themes.light);
-const SoundContext = createContext({ soundIsOn: false });
+const SoundContext = createContext();
 
 //// Simple Helpers
 
@@ -82,6 +82,8 @@ function App() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
   }
 
+  const { setSoundToPlay } = useSound(soundIsOn);
+
   // TODO: NEXT: these 3 consts and 5 functions should probably be a hook?
   const [roomCode, setRoomCode] = useState(null);
   const [isOwner, setIsOwner] = useState(null);
@@ -95,7 +97,7 @@ function App() {
     setRoomCode(generateUnusedRoomCode());
     setIsOwner(true);
     setRestartMethod(restartMethodInput);
-    playSound(createRoomSound, soundIsOn);
+    setSoundToPlay(createRoomSound);
   }
 
   // TODO: NETWORK: these three handlers need to notify the network
@@ -104,7 +106,7 @@ function App() {
     if (isRoomCodeInUse(roomCodeInput)) {
       setRoomCode(roomCodeInput);
       setIsOwner(false);
-      playSound(joinRoomSound, soundIsOn);
+      setSoundToPlay(joinRoomSound);
     } else {
       // TODO: NEXT: failure message alert for joinRoomHandler
       alert("Fail");
@@ -114,21 +116,21 @@ function App() {
   function closeRoomHandler() {
     setRoomCode(null);
     setIsOwner(null);
-    playSound(closeRoomSound, soundIsOn);
+    setSoundToPlay(closeRoomSound);
   }
 
   function leaveRoomHandler() {
     setRoomCode(null);
     setIsOwner(null);
     setRestartMethod("alternate");
-    playSound(leaveRoomSound, soundIsOn);
+    setSoundToPlay(leaveRoomSound);
   }
 
   //// Return
 
   return (
     <ThemeContext.Provider value={theme}>
-      <SoundContext.Provider value={{ soundIsOn }}>
+      <SoundContext.Provider value={{ setSoundToPlay }}>
         <GlobalStyle theme={theme} />
         <Header>
           <PlayerName name={name} setName={setName} />

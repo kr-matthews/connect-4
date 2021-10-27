@@ -1,6 +1,8 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer, useContext } from "react";
 
 import { useGame } from "./../Game/useGame.js";
+
+import { SoundContext } from "./../App.js";
 
 import playerJoinSound from "./../sounds/chime-sound-7143.mp3";
 import playerLeaveSound from "./../sounds/notification-sound-7062.mp3";
@@ -29,7 +31,7 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   //// States
 
   // other player's name and colour, once they join
-  // TODO: HOOK: create custom hook to replace constant below?
+  // TODO: HOOK: create custom hook to replace opp constant below?
   // TEMP: opponent value in useRoom
   const [opponent, setOpponent] = useState({ name: "Bob", colour: "red" });
   // how many players are present
@@ -55,8 +57,9 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
 
   //// Effects
 
-  // at end of game, update the W-D-L tally and make sounds
-  //  possibly these should be distinct effects?
+  // W-D-L tally
+
+  // at end of game, update the W-D-L tally
   useEffect(() => {
     switch (gameStatus) {
       case "won":
@@ -81,20 +84,21 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
     }
   }, [playerCount]);
 
-  // play sounds when it becomes your turn to play (opponent moves, or new game)
-  // TODO: SOUND: PROBLEM: plays both sounds when opp joins and it's your turn
-  // TODO: NEXT: SOUND: these are room-based, not game-based
+  // Sounds
+
+  // TODO: SOUND: what if 2 are triggered? which gets priority?
+
+  const { setSoundToPlay } = useContext(SoundContext);
+
+  // play sounds when other player joins or leaves
   useEffect(() => {
     if (playerCount === 1) {
-      // playSound(playerLeaveSound, soundIsOn);
+      setSoundToPlay(playerLeaveSound);
     } else {
-      // playSound(playerJoinSound, soundIsOn);
+      setSoundToPlay(playerJoinSound);
     }
-  }, [playerCount]);
-  useEffect(() => {
-    if (toPlayNext === 0) {
-    }
-  }, [toPlayNext]);
+  }, [playerCount, setSoundToPlay]);
+  // see also kickOpponentHandler for kick sound
 
   //// Externally available functions
 
@@ -124,15 +128,14 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
         console.log("New Game click handler didn't match any case.");
         toGoFirst = 0;
     }
-    // call useGame's reset, update own state
+    // call useGame's reset, then update own state
     resetGame(toGoFirst);
     setWentFirst(toGoFirst);
   }
 
-  // TODO: NEXT: SOUND: this sound belongs with the other opp sounds above
   function kickOpponentHandler() {
     setOpponent(null);
-    // playSound(kickOpponentSound, soundIsOn);
+    setSoundToPlay(kickOpponentSound);
   }
 
   //// Return
