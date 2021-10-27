@@ -12,7 +12,10 @@ function PlayerName({ name, setName }) {
 
   // type name; update state
   function changeHandler(e) {
-    setName(e.target.value.trim());
+    // max valid length of 20
+    if (e.target.value.length <= 20) {
+      setName(e.target.value);
+    }
   }
 
   // save/submit via enter...
@@ -24,7 +27,7 @@ function PlayerName({ name, setName }) {
 
   // ... or by clicking anywhere outside (losing focus)
   function loseFocusHandler() {
-    name === "" && setName(defaultName);
+    name === "" ? setName(defaultName) : setName(name.trim());
     setIsEditing(false);
   }
 
