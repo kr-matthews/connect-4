@@ -26,7 +26,7 @@ import leaveRoomSound from "./sounds/notification-sound-7062.mp3";
 
 // TODO: LATER: add computer opponent as an option?
 
-//// Page Theme
+//// Contexts
 
 const themes = {
   light: { type: "light", background: "#F5F5F5", foreground: "#121212" },
@@ -38,15 +38,23 @@ const SoundContext = createContext();
 //// Simple Helpers
 
 function generateUnusedRoomCode() {
-  // TODO: NEXT: write generateRoomCode
-  //  and confirm codes are 4 chars (see JoinRoom.js)
+  // omit 0/O, 1/I/L just in case
+  const chars = "ABCDEFGHJKMNPQRSTUVXYZ23456789";
+
   // loop: generate 4-digit code, check whether it is in use, if not then use
-  return "KNKT"; // TEMP: generateRoomCode returns same code every time
+  let roomCode = "";
+  do {
+    roomCode = "";
+    for (let i = 0; i < 4; i++) {
+      roomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+  } while (isRoomCodeInUse(roomCode));
+  return roomCode;
 }
 
-function isRoomCodeInUse() {
+function isRoomCodeInUse(roomCode) {
   // TODO: NETWORK: check network for this code
-  return false; // TEMP: always say room code doesn't exist
+  return roomCode === "KNKT"; // TEMP: always say room code doesn't exist
 }
 
 // unfortunately, colour inputs don't recognize names like "Red"
@@ -68,20 +76,22 @@ function getRandomColour() {
 //// App
 
 function App() {
-  //// Player Attributes/Properties and Theme
+  // Player Properties
 
   const [name, setName] = useLocalState("name", "Nameless");
   const [colour, setColour] = useLocalState("colour", getRandomColour());
 
-  const [soundIsOn, setSoundIsOn] = useLocalState("sound", true);
-  function toggleSound() {
-    setSoundIsOn(!soundIsOn);
-  }
+  // Site Properties
+
   const [theme, setTheme] = useLocalState("theme", themes.light);
   function toggleTheme() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
   }
 
+  const [soundIsOn, setSoundIsOn] = useLocalState("sound", true);
+  function toggleSound() {
+    setSoundIsOn(!soundIsOn);
+  }
   const { setSoundToPlay } = useSound(soundIsOn);
 
   // TODO: NEXT: these 3 consts and 5 functions should probably be a hook?
@@ -108,8 +118,7 @@ function App() {
       setIsOwner(false);
       setSoundToPlay(joinRoomSound);
     } else {
-      // TODO: NEXT: failure message alert for joinRoomHandler
-      alert("Fail");
+      alert("No room with code " + roomCodeInput + " exists.");
     }
   }
 
