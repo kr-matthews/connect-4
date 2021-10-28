@@ -12,6 +12,8 @@ import CreateRoom from "./Room/CreateRoom.js";
 import JoinRoom from "./Room/JoinRoom.js";
 import Room from "./Room/Room.js";
 
+import Links from "./links/Links.js";
+
 import { GlobalStyle } from "./GlobalStyle.js";
 
 import { useLocalState } from "./Options/useLocalState.js";
@@ -111,9 +113,12 @@ function App() {
             <JoinRoom joinRoomHandler={joinRoomHandler} />
           </Lobby>
         )}
+        <Links
+          gitHubLink="https://github.com/kr-matthews/connect-4"
+          themeType={theme.type}
+        />
       </SoundContext.Provider>
     </ThemeContext.Provider>
-    // TODO: COMPONENT: add Links component
   );
 }
 
