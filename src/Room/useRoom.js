@@ -33,7 +33,7 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
   // other player's name and colour, once they join
   // TODO: HOOK: create custom hook to replace opp constant below?
   // TEMP: opponent value in useRoom
-  const [opponent, setOpponent] = useState({ name: "Bob", colour: "red" });
+  const [opponent, setOpponent] = useState({ name: "Bob", colour: "#FF0000" });
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
   // history of all games played

@@ -2,6 +2,8 @@ import { useContext } from "react";
 
 import { ThemeContext } from "./../App.js";
 
+import { oppositeColourOf } from "./../Colours.js";
+
 import "./board.css";
 
 function Board({ viewer, board, isViewersTurn, colours, moveHandler }) {
@@ -49,8 +51,9 @@ function Cell({ clickHandler, colour, isHighlight, isClickable }) {
   // colours/styles
   const { background, foreground } = useContext(ThemeContext);
   const backgroundColor = colour || background;
-  // TODO: LATER: COLOUR: make highlight opp colour of piece
-  const borderColor = isHighlight ? background : backgroundColor;
+  const borderColor = isHighlight
+    ? oppositeColourOf(backgroundColor)
+    : backgroundColor;
   const pieceStyle = { backgroundColor, borderColor };
 
   const cellClass = isClickable ? "clickable cell" : "cell";

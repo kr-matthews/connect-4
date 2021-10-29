@@ -20,6 +20,8 @@ import { useLocalState } from "./Options/useLocalState.js";
 import { useSound } from "./sounds/useSound.js";
 import { useRoomHandlers } from "./Room/useRoomHandlers.js";
 
+import { getRandomColour } from "./Colours.js";
+
 // TODO: LATER: option to add time limit to moves
 //  careful: game auto starts on second player join
 
@@ -35,22 +37,6 @@ const ThemeContext = createContext(themes.light);
 const SoundContext = createContext();
 
 //// Simple Helpers
-
-// unfortunately, colour inputs don't recognize names like "Red"
-const colours = [
-  "#FF0000", // Red
-  "#FF69B4", // HotPink
-  "#FF8C00", // DarkOrange
-  "#FFD700", // Gold
-  "#FF00FF", // Magenta
-  "#228B22", // ForestGreen
-  "#0000FF", // Blue
-  "#8B4513", // SaddleBrown
-  "#C0C0C0", // Silver
-];
-function getRandomColour() {
-  return colours[Math.floor(Math.random() * colours.length)];
-}
 
 //// App
 
