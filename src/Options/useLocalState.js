@@ -9,6 +9,10 @@ function useLocalState(key, initialValue) {
     setValue(newValue);
     localStorage.setItem(key, JSON.stringify(newValue));
   }
+  // if using the initialValue, save it into local storage now
+  if (savedValue === null) {
+    setLocalValue(value);
+  }
   return [value, setLocalValue];
 }
 
