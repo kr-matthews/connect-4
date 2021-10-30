@@ -295,7 +295,7 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
 
   //// Return
 
-  // TODO: MAYBE LATER: return an undo function
+  // TODO: LATER: maybe return an undo function
   return {
     board,
     gameStatus,
