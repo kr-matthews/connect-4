@@ -65,23 +65,19 @@ function useRoom(
 
   // at end of game, update the W-D-L tally
   useEffect(() => {
-    switch (gameStatus) {
-      case "won":
-      case "forfeit":
-        if (winner === 0) {
-          dispatchResult({ type: "win" });
-        } else if (winner === 1) {
-          dispatchResult({ type: "lose" });
-        }
-        break;
-      case "draw":
-        dispatchResult({ type: "draw" });
-        break;
-      default:
+    if (winner === 0) {
+      dispatchResult({ type: "win" });
+    } else if (winner === 1) {
+      dispatchResult({ type: "lose" });
     }
-  }, [gameStatus, winner]);
+  }, [winner]);
+  useEffect(() => {
+    if (gameStatus === "draw") {
+      dispatchResult({ type: "draw" });
+    }
+  }, [gameStatus]);
 
-  // if a player leaves, reset the W-D-L record
+  // if opponent leaves, reset the W-D-L record
   useEffect(() => {
     if (playerCount === 1) {
       dispatchResult({ type: "reset" });
