@@ -15,6 +15,7 @@ function Room({
   restartMethod,
   closeRoomHandler,
   leaveRoomHandler,
+  publishMessage,
 }) {
   //// Constants
 
@@ -29,7 +30,7 @@ function Room({
     forfeitHandler,
     newGameHandler,
     kickOpponentHandler,
-  } = useRoom(restartMethod);
+  } = useRoom(restartMethod, publishMessage);
 
   //// Return
 

@@ -1,5 +1,9 @@
 import { createContext } from "react";
 
+import PubNub from "pubnub";
+// import { PubNubProvider } from "pubnub-react";
+// import { usePubNub, usePubNub } from "pubnub-react";
+
 import Header from "./Options/Header.js";
 import Lobby from "./Options/Lobby.js";
 
@@ -38,9 +42,20 @@ const SoundContext = createContext();
 
 //// Simple Helpers
 
+function generateRandomUuid() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let uuid = "";
+  for (let i = 0; i < 64; i++) {
+    uuid += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return uuid;
+}
+
 //// App
 
 function App() {
+  //// States and setters/toggles
+
   // Player Properties
 
   const [name, setName] = useLocalState("name", "Nameless");
@@ -59,7 +74,19 @@ function App() {
   }
   const { setSoundToPlay } = useSound(soundIsOn);
 
-  // Room handlers
+  //// PubNub network setup
+  // TODO: break out into appropriate files once working
+
+  // constant identifier per user/device
+  const [uuid] = useLocalState("uuid", generateRandomUuid());
+  const pubnub = new PubNub({
+    // TEMP: demo keyset
+    publishKey: "pub-c-828ce20f-9155-461d-abdc-09137d403b12",
+    subscribeKey: "sub-c-037dabe2-0378-11ec-be1c-0664d1b72b66",
+    uuid,
+  });
+
+  //// Room handlers
 
   const {
     roomCode,
@@ -69,7 +96,14 @@ function App() {
     joinRoomHandler,
     closeRoomHandler,
     leaveRoomHandler,
-  } = useRoomHandlers(setSoundToPlay);
+  } = useRoomHandlers(setSoundToPlay, pubnub, name, colour);
+
+  //// network messaging setup
+
+  function publishMessage(message) {
+    pubnub.publish({ message: { ...message, uuid }, channel: roomCode });
+    console.log("Sent message of type " + message.type); // TEMP:
+  }
 
   //// Return
 
@@ -92,6 +126,7 @@ function App() {
             restartMethod={restartMethod}
             closeRoomHandler={closeRoomHandler}
             leaveRoomHandler={leaveRoomHandler}
+            publishMessage={publishMessage}
           />
         ) : (
           <Lobby>

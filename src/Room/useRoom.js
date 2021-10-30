@@ -27,7 +27,11 @@ function resultReducer(state, action) {
 const initialResults = { wins: 0, draws: 0, loses: 0 };
 
 // first player of first game is random if unspecified
-function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
+function useRoom(
+  restartMethod,
+  publishMessage,
+  toPlayFirst = Math.floor(Math.random() * 2)
+) {
   //// States
 
   // other player's name and colour, once they join
@@ -131,16 +135,26 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
     // call useGame's reset, then update own state
     resetGame(toGoFirst);
     setWentFirst(toGoFirst);
+    publishMessage({ type: "newGame", toGoFirst });
+  }
+
+  function moveHandler(col, player = toPlayNext) {
+    placePiece(col, player);
+    publishMessage({ type: "move", col });
+  }
+
+  function forfeitHandler(player) {
+    forfeit(player);
+    publishMessage({ type: "forfeit" });
   }
 
   function kickOpponentHandler() {
     setOpponent(null);
+    publishMessage({ type: "kick" });
     setSoundToPlay(kickOpponentSound);
   }
 
   //// Return
-
-  // TODO: NETWORK: the last four need to notify the network
 
   return {
     opponent,
@@ -149,8 +163,8 @@ function useRoom(restartMethod, toPlayFirst = Math.floor(Math.random() * 2)) {
     gameStatus,
     winner,
     toPlayNext,
-    moveHandler: placePiece,
-    forfeitHandler: forfeit,
+    moveHandler,
+    forfeitHandler,
     newGameHandler,
     kickOpponentHandler,
   };
