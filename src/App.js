@@ -1,6 +1,8 @@
 import { createContext } from "react";
 
 import PubNub from "pubnub";
+// pubnubKeys.js is listed in .gitignore, contains private keys
+import { subscribeKey, publishKey } from "./pubnubKeys.js";
 // import { PubNubProvider } from "pubnub-react";
 // import { usePubNub, usePubNub } from "pubnub-react";
 
@@ -30,6 +32,9 @@ import { getRandomColour } from "./Colours.js";
 //  careful: game auto starts on second player join
 
 // TODO: LATER: add computer opponent as an option?
+
+// TODO: NEXT: add listener for roomHandlers
+// TODO: NEXT: add listener for room
 
 //// Contexts
 
@@ -79,12 +84,8 @@ function App() {
 
   // constant identifier per user/device
   const [uuid] = useLocalState("uuid", generateRandomUuid());
-  const pubnub = new PubNub({
-    // TEMP: demo keyset
-    publishKey: "pub-c-828ce20f-9155-461d-abdc-09137d403b12",
-    subscribeKey: "sub-c-037dabe2-0378-11ec-be1c-0664d1b72b66",
-    uuid,
-  });
+  // NOTE: DEPLOY: currently uses demo keys
+  const pubnub = new PubNub({ publishKey, subscribeKey, uuid });
 
   //// Room handlers
 
