@@ -33,17 +33,21 @@ function RoomHeader({
           You are playing against{" "}
           <span style={{ color: opponent.colour }}>{opponent.name}</span>.
         </div>
-      ) : (
+      ) : isOwner ? (
         <div>Waiting for an opponent to join the room.</div>
+      ) : (
+        <div>Waiting for opponent information to be fetched.</div>
       )}
 
       {/* who owns the room, and the code */}
       {isOwner ? (
         <div>You created and are in control of this room.</div>
-      ) : (
+      ) : opponent ? (
         <div>
           You are in {opponent.name}'s room. They have control of the room.
         </div>
+      ) : (
+        <div>You do not have control of this room.</div>
       )}
       <div>
         The room code is <button onClick={copyToClipboard}>{roomCode}</button>.

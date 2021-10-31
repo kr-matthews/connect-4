@@ -28,16 +28,16 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 
 // first player of first game is random if unspecified
 function useRoom(
+  player,
   restartMethod,
   publishMessage,
   toPlayFirst = Math.floor(Math.random() * 2)
 ) {
   //// States
 
-  // other player's name and colour, once they join
-  // TODO: HOOK: create custom hook to replace opp constant below?
-  // TEMP: opponent value in useRoom
-  const [opponent, setOpponent] = useState({ name: "Bob", colour: "#FF0000" });
+  // other player's name and colour, once they join\
+  const [opponent, setOpponent] = useState(null);
+  // const [opponent, setOpponent] = useState({ name: "Bob", colour: "#FF0000" }); // TEMP:
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
   // history of all games played
@@ -58,6 +58,38 @@ function useRoom(
   } = useGame(toPlayFirst);
   // who started the current game (in case first player should alternate)
   const [wentFirst, setWentFirst] = useState(toPlayFirst);
+
+  //// Network
+
+  const opponentInfoMessageHandler = (message) => {
+    console.log("Handling opponent information: "); // TEMP:
+    console.log(message); // TEMP:
+    switch (message.type) {
+      case "join":
+        // add opponent (name and colour)
+        const { name, colour } = message;
+        setOpponent({ name, colour });
+        // send own information (name and colour) out
+        publishMessage({ ...player, type: "update" });
+        break;
+      case "update":
+      case "name":
+      case "colour":
+        // add name and colour
+        setOpponent((opp) => {
+          const name = message.name || opp.name;
+          const colour = message.colour || opp.colour;
+          return { name, colour };
+        });
+        break;
+      case "leave":
+        // remove opponent
+        setOpponent(null);
+        break;
+      default:
+        break;
+    }
+  };
 
   //// Effects
 
@@ -163,6 +195,7 @@ function useRoom(
     forfeitHandler,
     newGameHandler,
     kickOpponentHandler,
+    opponentInfoMessageHandler,
   };
 }
 

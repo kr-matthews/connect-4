@@ -1,10 +1,9 @@
-import { createContext } from "react";
+import { useMemo, createContext } from "react";
 
 import PubNub from "pubnub";
 // pubnubKeys.js is listed in .gitignore, contains private keys
 import { subscribeKey, publishKey } from "./pubnubKeys.js";
-// import { PubNubProvider } from "pubnub-react";
-// import { usePubNub, usePubNub } from "pubnub-react";
+import { PubNubProvider } from "pubnub-react";
 
 import Header from "./Options/Header.js";
 import Lobby from "./Options/Lobby.js";
@@ -33,8 +32,11 @@ import { getRandomColour } from "./Colours.js";
 
 // TODO: LATER: add computer opponent as an option?
 
-// TODO: NEXT: add listener for roomHandlers
-// TODO: NEXT: add listener for room
+// TODO: NEXT: add listener for room (moves, reset, forfeit)
+
+// TODO: NETWORK: setup useeffect cleanups for subscriptions (Room has leak)
+
+// TODO: NEXT: add notifications/alerts when removed from room (and why)
 
 //// Contexts
 
@@ -80,14 +82,36 @@ function App() {
   const { setSoundToPlay } = useSound(soundIsOn);
 
   //// PubNub network setup
-  // TODO: break out into appropriate files once working
+  // TODO: NETWORK: break out into appropriate files once working
 
   // constant identifier per user/device
   const [uuid] = useLocalState("uuid", generateRandomUuid());
   // NOTE: DEPLOY: currently uses demo keys
-  const pubnub = new PubNub({ publishKey, subscribeKey, uuid });
+  const pubnub = useMemo(() => new PubNub({ publishKey, subscribeKey, uuid }), [
+    uuid,
+  ]);
+
+  function publishName(name) {
+    if (roomCode) {
+      pubnub.publish({
+        message: { type: "name", name, uuid },
+        channel: roomCode,
+      });
+    }
+  }
+
+  function publishColour(colour) {
+    if (roomCode) {
+      pubnub.publish({
+        message: { type: "colour", colour, uuid },
+        channel: roomCode,
+      });
+    }
+  }
 
   //// Room handlers
+
+  const player = { name, colour, uuid };
 
   const {
     roomCode,
@@ -97,48 +121,50 @@ function App() {
     joinRoomHandler,
     closeRoomHandler,
     leaveRoomHandler,
-  } = useRoomHandlers(setSoundToPlay, pubnub, name, colour);
-
-  //// network messaging setup
-
-  function publishMessage(message) {
-    pubnub.publish({ message: { ...message, uuid }, channel: roomCode });
-    console.log("Sent message of type " + message.type); // TEMP:
-  }
+  } = useRoomHandlers(setSoundToPlay, pubnub, player);
 
   //// Return
 
   return (
     <ThemeContext.Provider value={theme}>
       <SoundContext.Provider value={{ setSoundToPlay }}>
-        <GlobalStyle theme={theme} />
-        <Header>
-          <PlayerName name={name} setName={setName} />
-          <PlayerColour colour={colour} setColour={setColour} />
-          <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
-          <Mute soundIsOn={soundIsOn} toggleSound={toggleSound} />
-        </Header>
-        <h1>Connect 4 [WIP]</h1>
-        {roomCode ? (
-          <Room
-            player={{ name, colour }}
-            isOwner={isOwner}
-            roomCode={roomCode}
-            restartMethod={restartMethod}
-            closeRoomHandler={closeRoomHandler}
-            leaveRoomHandler={leaveRoomHandler}
-            publishMessage={publishMessage}
+        <PubNubProvider client={pubnub}>
+          <GlobalStyle theme={theme} />
+          <Header>
+            <PlayerName
+              name={name}
+              setName={setName}
+              publishName={publishName}
+            />
+            <PlayerColour
+              colour={colour}
+              setColour={setColour}
+              publishColour={publishColour}
+            />
+            <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
+            <Mute soundIsOn={soundIsOn} toggleSound={toggleSound} />
+          </Header>
+          <h1>Connect 4 [WIP]</h1>
+          {roomCode ? (
+            <Room
+              player={{ name, colour, uuid }}
+              isOwner={isOwner}
+              roomCode={roomCode}
+              restartMethod={restartMethod}
+              closeRoomHandler={closeRoomHandler}
+              leaveRoomHandler={leaveRoomHandler}
+            />
+          ) : (
+            <Lobby>
+              <CreateRoom createRoomHandler={createRoomHandler} />
+              <JoinRoom joinRoomHandler={joinRoomHandler} />
+            </Lobby>
+          )}
+          <Links
+            gitHubLink="https://github.com/kr-matthews/connect-4"
+            themeType={theme.type}
           />
-        ) : (
-          <Lobby>
-            <CreateRoom createRoomHandler={createRoomHandler} />
-            <JoinRoom joinRoomHandler={joinRoomHandler} />
-          </Lobby>
-        )}
-        <Links
-          gitHubLink="https://github.com/kr-matthews/connect-4"
-          themeType={theme.type}
-        />
+        </PubNubProvider>
       </SoundContext.Provider>
     </ThemeContext.Provider>
   );

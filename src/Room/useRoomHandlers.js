@@ -1,20 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import createRoomSound from "./../sounds/success-1-6297.mp3";
 import closeRoomSound from "./../sounds/power-down-7103.mp3";
 import joinRoomSound from "./../sounds/good-6081.mp3";
 import leaveRoomSound from "./../sounds/notification-sound-7062.mp3";
 
-// helpers
-
-function useRoomHandlers(setSoundToPlay, pubnub, name, colour) {
+function useRoomHandlers(setSoundToPlay, pubnub, player) {
   //// States
 
   const [roomCode, setRoomCode] = useState(null);
   const [isOwner, setIsOwner] = useState(null);
   const [restartMethod, setRestartMethod] = useState("alternate");
 
-  //// pubnub network
+  //// in-coming network
+
+  // handle owner closing and kicking
+  const removedHandler = useCallback(
+    (message) => {
+      setRoomCode(null);
+      pubnub.unsubscribe({ channels: [roomCode] });
+    },
+    [pubnub, roomCode]
+  );
+
+  // hold most recent message about being removed from room (close or kick)
+  const [removedMessage, setRemovedMessage] = useState(null);
+  // check for messages about being removed from room
+  useEffect(() => {
+    console.log("PubNub updated."); // TEMP:
+    function messageHandler(event) {
+      switch (event.message.type) {
+        case "close":
+        case "kick":
+          console.log("Received opponent information.");
+          setRemovedMessage(event.message);
+          break;
+        default:
+          break;
+      }
+    }
+    pubnub.addListener({ message: messageHandler });
+  }, [pubnub]);
+  // handle most recent message about being removed from room
+  useEffect(() => {
+    if (removedMessage && removedMessage.uuid !== player.uuid) {
+      removedHandler();
+    }
+    setRemovedMessage(null);
+  }, [removedMessage, removedHandler, player.uuid]);
+
+  //// rooms and room codes
 
   function generateUnusedRoomCode() {
     // omit 0/O, 1/I/L just in case
@@ -56,6 +91,7 @@ function useRoomHandlers(setSoundToPlay, pubnub, name, colour) {
   }
 
   function joinRoomHandler(roomCodeInput) {
+    // TODO: NEXT: error on submitting "" (deal with elsewhere)
     pubnub
       .hereNow({ channels: [roomCodeInput] })
       .then((response) => {
@@ -73,9 +109,8 @@ function useRoomHandlers(setSoundToPlay, pubnub, name, colour) {
           setIsOwner(false);
           setSoundToPlay(joinRoomSound);
           // send details to opponent
-          console.log("Sending join: " + name + ", " + colour); // TEMP:
           pubnub.publish({
-            message: { type: "join", name, colour },
+            message: { ...player, type: "join" },
             channel: roomCodeInput,
           });
         } else {
@@ -92,7 +127,10 @@ function useRoomHandlers(setSoundToPlay, pubnub, name, colour) {
   function closeRoomHandler() {
     // send message
     console.log("Sending close"); // TEMP:
-    pubnub.publish({ message: { type: "close" }, channel: roomCode });
+    pubnub.publish({
+      message: { type: "close", uuid: player.uuid },
+      channel: roomCode,
+    });
     // ubsubscribe from pubnub channel
     console.log("Unsubscribing from " + roomCode); // TEMP:
     pubnub.unsubscribe({ channels: [roomCode] });
@@ -105,7 +143,10 @@ function useRoomHandlers(setSoundToPlay, pubnub, name, colour) {
   function leaveRoomHandler() {
     // send message
     console.log("Sending leave"); // TEMP:
-    pubnub.publish({ message: { type: "leave" }, channel: roomCode });
+    pubnub.publish({
+      message: { type: "leave", uuid: player.uuid },
+      channel: roomCode,
+    });
     // ubsubscribe from pubnub channel
     console.log("Unsubscribing from " + roomCode); // TEMP:
     pubnub.unsubscribe({ channels: [roomCode] });

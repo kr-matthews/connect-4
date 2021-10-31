@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const defaultName = "Nameless";
 
-function PlayerName({ name, setName }) {
+function PlayerName({ name, setName, publishName }) {
   const [isEditing, setIsEditing] = useState(false);
 
   // click name to edit it
@@ -27,7 +27,9 @@ function PlayerName({ name, setName }) {
 
   // ... or by clicking anywhere outside (losing focus)
   function loseFocusHandler() {
-    name === "" ? setName(defaultName) : setName(name.trim());
+    const newName = name === "" ? defaultName : name.trim();
+    setName(newName);
+    publishName(newName);
     setIsEditing(false);
   }
 
