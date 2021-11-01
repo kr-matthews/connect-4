@@ -7,6 +7,13 @@ function JoinRoom({ joinRoomHandler }) {
     setRoomCodeInput(e.target.value.toUpperCase().trim());
   }
 
+  function clickHandler(e) {
+    e.preventDefault();
+    if (roomCodeInput) {
+      joinRoomHandler(roomCodeInput);
+    }
+  }
+
   return (
     <div>
       <h3>Join a Room</h3>
@@ -21,14 +28,7 @@ function JoinRoom({ joinRoomHandler }) {
           placeholder="enter room code"
           onChange={changeHandler}
         />
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            joinRoomHandler(roomCodeInput);
-          }}
-        >
-          Join
-        </button>
+        <button onClick={clickHandler}>Join</button>
       </form>
     </div>
   );

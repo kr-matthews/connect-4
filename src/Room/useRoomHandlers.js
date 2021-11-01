@@ -94,7 +94,6 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
   }
 
   function joinRoomHandler(roomCodeInput) {
-    // TODO: NEXT: error on submitting "" (deal with elsewhere)
     pubnub
       .hereNow({ channels: [roomCodeInput] })
       .then((response) => {

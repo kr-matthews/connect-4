@@ -38,6 +38,8 @@ import { getRandomColour } from "./Colours.js";
 //  or probably when they join actually
 //  right now it just resets the W-D-L history
 
+// TODO: NEXT: don't send move message unless you are allowed to move
+
 // TODO: DEPLOY: KEYSET: revisit keyset privacy & github pages
 
 // TODO: ALERTS: make some alerts async? on leave/close/kick
