@@ -36,7 +36,7 @@ import { getRandomColour } from "./Colours.js";
 
 // TODO: NETWORK: setup useeffect cleanups for subscriptions (Room has leak)
 
-// TODO: NEXT: add notifications/alerts when removed from room (and why)
+// TODO: DEPLOY: KEYSET: revisit keyset privacy & github pages
 
 //// Contexts
 
@@ -91,6 +91,8 @@ function App() {
     uuid,
   ]);
 
+  const player = { name, colour, uuid };
+
   function publishName(name) {
     if (roomCode) {
       pubnub.publish({
@@ -110,8 +112,6 @@ function App() {
   }
 
   //// Room handlers
-
-  const player = { name, colour, uuid };
 
   const {
     roomCode,

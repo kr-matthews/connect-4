@@ -30,7 +30,6 @@ function Room({
         message: { ...message, uuid: player.uuid },
         channel: roomCode,
       });
-      console.log("Sent message of type " + message.type); // TEMP:
     },
     [player.uuid, pubnub, roomCode]
   );
@@ -59,7 +58,6 @@ function Room({
   const [opponentInfoMessage, setOpponentInfoMessage] = useState(null);
   // check for messages about opponent updates
   useEffect(() => {
-    console.log("PubNub updated."); // TEMP:
     function messageHandler(event) {
       switch (event.message.type) {
         case "join":
@@ -67,7 +65,6 @@ function Room({
         case "name":
         case "colour":
         case "leave":
-          console.log("Received opponent information.");
           setOpponentInfoMessage(event.message);
           break;
         default:

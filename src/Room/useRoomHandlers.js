@@ -19,6 +19,12 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
     (message) => {
       setRoomCode(null);
       pubnub.unsubscribe({ channels: [roomCode] });
+      if (message.type === "kick") {
+        alert("The owner of the room kicked you out.");
+      }
+      if (message.type === "close") {
+        alert("The owner of the room left and so the room has closed.");
+      }
     },
     [pubnub, roomCode]
   );
@@ -27,12 +33,10 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
   const [removedMessage, setRemovedMessage] = useState(null);
   // check for messages about being removed from room
   useEffect(() => {
-    console.log("PubNub updated."); // TEMP:
     function messageHandler(event) {
       switch (event.message.type) {
         case "close":
         case "kick":
-          console.log("Received opponent information.");
           setRemovedMessage(event.message);
           break;
         default:
@@ -44,7 +48,7 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
   // handle most recent message about being removed from room
   useEffect(() => {
     if (removedMessage && removedMessage.uuid !== player.uuid) {
-      removedHandler();
+      removedHandler(removedMessage);
     }
     setRemovedMessage(null);
   }, [removedMessage, removedHandler, player.uuid]);
@@ -79,7 +83,6 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
     // randomly generate room code (make sure it doesn't already exist)
     // take in restartMethod and pass to Room
     const generatedRoomCode = generateUnusedRoomCode();
-    console.log("Subscribing to " + generatedRoomCode); // TEMP:
     pubnub.subscribe({
       channels: [generatedRoomCode],
       withPresence: true,
@@ -99,7 +102,6 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
           alert("No room with code " + roomCodeInput + " currently exists.");
         } else if (response.totalOccupancy === 1) {
           // subscribe to room's channel
-          console.log("Subscribing to " + roomCodeInput); // TEMP:
           pubnub.subscribe({
             channels: [roomCodeInput],
             withPresence: true,
@@ -126,13 +128,11 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
 
   function closeRoomHandler() {
     // send message
-    console.log("Sending close"); // TEMP:
     pubnub.publish({
       message: { type: "close", uuid: player.uuid },
       channel: roomCode,
     });
     // ubsubscribe from pubnub channel
-    console.log("Unsubscribing from " + roomCode); // TEMP:
     pubnub.unsubscribe({ channels: [roomCode] });
     // update own states
     setRoomCode(null);
@@ -142,13 +142,11 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
 
   function leaveRoomHandler() {
     // send message
-    console.log("Sending leave"); // TEMP:
     pubnub.publish({
       message: { type: "leave", uuid: player.uuid },
       channel: roomCode,
     });
     // ubsubscribe from pubnub channel
-    console.log("Unsubscribing from " + roomCode); // TEMP:
     pubnub.unsubscribe({ channels: [roomCode] });
     // update own states
     setRoomCode(null);
