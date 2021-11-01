@@ -32,11 +32,15 @@ import { getRandomColour } from "./Colours.js";
 
 // TODO: LATER: add computer opponent as an option?
 
-// TODO: NEXT: add listener for room (moves, reset, forfeit)
-
 // TODO: NETWORK: setup useeffect cleanups for subscriptions (Room has leak)
 
+// TODO: NEXT: when opponent leaves, owner should reset room --
+//  or probably when they join actually
+//  right now it just resets the W-D-L history
+
 // TODO: DEPLOY: KEYSET: revisit keyset privacy & github pages
+
+// TODO: ALERTS: make some alerts async? on leave/close/kick
 
 //// Contexts
 

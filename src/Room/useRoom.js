@@ -133,8 +133,8 @@ function useRoom(
     publishMessage({ type: "newGame", toGoFirst });
   }
 
-  function moveHandler(col, player = toPlayNext) {
-    placePiece(col, player);
+  function moveHandler(col) {
+    placePiece(col, 0);
     publishMessage({ type: "move", col });
   }
 
@@ -152,6 +152,7 @@ function useRoom(
   // Network
 
   const opponentInfoMessageHandler = (message) => {
+    console.log("Doing an oppoennt.");
     switch (message.type) {
       case "join":
         // add opponent (name and colour)
@@ -180,6 +181,27 @@ function useRoom(
     }
   };
 
+  // TODO: these have 1 hard-coded, but above is generic though only used for 0
+  //  has repeated code kind of
+
+  const gameMessageHandler = (message) => {
+    switch (message.type) {
+      case "move":
+        placePiece(message.col, 1);
+        break;
+      case "forfeit":
+        forfeit(1);
+        break;
+      case "newGame":
+        // each player is 0 to themselves, so need to flip it
+        resetGame(1 - message.toGoFirst);
+        setWentFirst(1 - message.toGoFirst);
+        break;
+      default:
+        break;
+    }
+  };
+
   //// Return
 
   return {
@@ -194,6 +216,7 @@ function useRoom(
     newGameHandler,
     kickOpponentHandler,
     opponentInfoMessageHandler,
+    gameMessageHandler,
   };
 }
 

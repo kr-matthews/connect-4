@@ -48,6 +48,7 @@ function Room({
     newGameHandler,
     kickOpponentHandler,
     opponentInfoMessageHandler,
+    gameMessageHandler,
   } = useRoom(player, restartMethod, publishMessage);
 
   //// in-coming network
@@ -56,7 +57,9 @@ function Room({
 
   // hold most recent message about opponent changes
   const [opponentInfoMessage, setOpponentInfoMessage] = useState(null);
-  // check for messages about opponent updates
+  // hold most recent message about game
+  const [gameMessage, setGameMessage] = useState(null);
+  // check for messages about opponent updates and game
   useEffect(() => {
     function messageHandler(event) {
       switch (event.message.type) {
@@ -66,6 +69,11 @@ function Room({
         case "colour":
         case "leave":
           setOpponentInfoMessage(event.message);
+          break;
+        case "move":
+        case "forfeit":
+        case "newGame":
+          setGameMessage(event.message);
           break;
         default:
           break;
@@ -80,6 +88,13 @@ function Room({
     }
     setOpponentInfoMessage(null);
   }, [opponentInfoMessage, opponentInfoMessageHandler, player.uuid]);
+  // handle most recent message about game
+  useEffect(() => {
+    if (gameMessage && gameMessage.uuid !== player.uuid) {
+      gameMessageHandler(gameMessage);
+    }
+    setGameMessage(null);
+  }, [gameMessage, gameMessageHandler, player.uuid]);
 
   //// Return
 
