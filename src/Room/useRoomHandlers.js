@@ -43,7 +43,11 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
           break;
       }
     }
-    pubnub.addListener({ message: messageHandler });
+    const listener = { message: messageHandler };
+    pubnub.addListener(listener);
+    return function cleanup() {
+      pubnub.removeListener(listener);
+    };
   }, [pubnub]);
   // handle most recent message about being removed from room
   useEffect(() => {

@@ -32,13 +32,11 @@ import { getRandomColour } from "./Colours.js";
 
 // TODO: LATER: add computer opponent as an option?
 
-// TODO: NEXT: NETWORK: setup useeffect cleanups for subscriptions (Room has leak)
+// TODO: NEXT: NEXT: NETWORK: explore missing opp info and toPlayFirst messages
 
 // TODO: NEXT: NETWORK: don't send move message unless you are allowed to move
 
 // TODO: DEPLOY: KEYSET: revisit keyset privacy & github pages
-
-// TODO: NEXT: ALERTS: make some alerts async? on leave/close/kick
 
 //// Contexts
 
