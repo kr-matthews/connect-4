@@ -104,7 +104,7 @@ function useRoom(
   // when room owner starts a new game
   //  basically figure out who goes first and then call useGame's reset
   //  also update setWentFirst as may be needed for next such update
-  function newGameHandler(gameStatus) {
+  function newGameHandler() {
     let toGoFirst = null;
     // figure out who will go first
     switch (restartMethod) {
@@ -152,7 +152,6 @@ function useRoom(
   // Network
 
   const opponentInfoMessageHandler = (message) => {
-    console.log("Doing an oppoennt.");
     switch (message.type) {
       case "join":
         // add opponent (name and colour)
@@ -160,6 +159,11 @@ function useRoom(
         setOpponent({ name, colour });
         // send own information (name and colour) out
         publishMessage({ ...player, type: "update" });
+        // reset game
+        //  note that this will send out a message saying who goes first
+        newGameHandler();
+        // NOTE: to provide Start Game button instead of auto-starting game
+        //  on player join, change this (would require new gameStatus maybe)
         break;
       case "update":
       case "name":
@@ -175,6 +179,11 @@ function useRoom(
         // remove opponent
         setOpponent(null);
         alert("Your opponent left.");
+        // reset the game with arbitrary toPlayFirst
+        //  note that on new player join, game will be reset again anyway
+        //  but this prevents them potentially seeing old board state briefly
+        //  also supplying 1 prevents them from somehow being able to make moves
+        resetGame(1);
         break;
       default:
         break;

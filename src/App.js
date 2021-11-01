@@ -32,17 +32,13 @@ import { getRandomColour } from "./Colours.js";
 
 // TODO: LATER: add computer opponent as an option?
 
-// TODO: NETWORK: setup useeffect cleanups for subscriptions (Room has leak)
+// TODO: NEXT: NETWORK: setup useeffect cleanups for subscriptions (Room has leak)
 
-// TODO: NEXT: when opponent leaves, owner should reset room --
-//  or probably when they join actually
-//  right now it just resets the W-D-L history
-
-// TODO: NEXT: don't send move message unless you are allowed to move
+// TODO: NEXT: NETWORK: don't send move message unless you are allowed to move
 
 // TODO: DEPLOY: KEYSET: revisit keyset privacy & github pages
 
-// TODO: ALERTS: make some alerts async? on leave/close/kick
+// TODO: NEXT: ALERTS: make some alerts async? on leave/close/kick
 
 //// Contexts
 
@@ -89,6 +85,9 @@ function App() {
 
   //// PubNub network setup
   // TODO: NETWORK: break out into appropriate files once working
+  //  ideally, remove from App, since only want network in some situations
+  //  ie not if playing locally (2 players, or vs computer)
+  //  though local play isn't an option at this point
 
   // constant identifier per user/device
   const [uuid] = useLocalState("uuid", generateRandomUuid());

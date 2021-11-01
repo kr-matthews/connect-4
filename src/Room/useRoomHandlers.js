@@ -17,14 +17,14 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
   // handle owner closing and kicking
   const removedHandler = useCallback(
     (message) => {
-      setRoomCode(null);
-      pubnub.unsubscribe({ channels: [roomCode] });
       if (message.type === "kick") {
         alert("The owner of the room kicked you out.");
       }
       if (message.type === "close") {
         alert("The owner of the room left and so the room has closed.");
       }
+      pubnub.unsubscribe({ channels: [roomCode] });
+      setRoomCode(null);
     },
     [pubnub, roomCode]
   );
