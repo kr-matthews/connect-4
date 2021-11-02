@@ -59,7 +59,8 @@ function Room({
   const [opponentInfoMessage, setOpponentInfoMessage] = useState(null);
   // hold most recent message about game
   const [gameMessage, setGameMessage] = useState(null);
-  // check for messages about opponent updates and game
+
+  // check for messages about opponent updates
   useEffect(() => {
     function messageHandler(event) {
       switch (event.message.type) {
@@ -70,6 +71,20 @@ function Room({
         case "leave":
           setOpponentInfoMessage(event.message);
           break;
+        default:
+          break;
+      }
+    }
+    const listener = { message: messageHandler };
+    pubnub.addListener(listener);
+    return function cleanup() {
+      pubnub.removeListener(listener);
+    };
+  }, [pubnub]);
+  // check for messages about game
+  useEffect(() => {
+    function messageHandler(event) {
+      switch (event.message.type) {
         case "move":
         case "forfeit":
         case "newGame":
@@ -85,19 +100,28 @@ function Room({
       pubnub.removeListener(listener);
     };
   }, [pubnub]);
+
   // handle most recent message about opponent changes
   useEffect(() => {
     if (opponentInfoMessage && opponentInfoMessage.uuid !== player.uuid) {
       opponentInfoMessageHandler(opponentInfoMessage);
     }
-    setOpponentInfoMessage(null);
+    if (opponentInfoMessage) {
+      // without this check, might nullify a message which was set earlier in this re-render
+      setOpponentInfoMessage(null);
+    }
+    // could wrap opponentInfoMessageHandler (and recursive dependencies) in a callback
   }, [opponentInfoMessage, opponentInfoMessageHandler, player.uuid]);
   // handle most recent message about game
   useEffect(() => {
     if (gameMessage && gameMessage.uuid !== player.uuid) {
       gameMessageHandler(gameMessage);
     }
-    setGameMessage(null);
+    if (gameMessage) {
+      // without this check, might nullify a message which was set earlier in this re-render
+      setGameMessage(null);
+    }
+    // could wrap gameMessageHandler (and recursive dependencies) in a callback
   }, [gameMessage, gameMessageHandler, player.uuid]);
 
   //// Return

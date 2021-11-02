@@ -54,7 +54,9 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
     if (removedMessage && removedMessage.uuid !== player.uuid) {
       removedHandler(removedMessage);
     }
-    setRemovedMessage(null);
+    if (removedMessage) {
+      setRemovedMessage(null);
+    }
   }, [removedMessage, removedHandler, player.uuid]);
 
   //// rooms and room codes
