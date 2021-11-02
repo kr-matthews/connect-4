@@ -32,10 +32,6 @@ import { getRandomColour } from "./Colours.js";
 
 // TODO: LATER: add computer opponent as an option?
 
-// TODO: NEXT: NEXT: NETWORK: explore missing opp info and toPlayFirst messages
-
-// TODO: NEXT: NETWORK: don't send move message unless you are allowed to move
-
 // TODO: DEPLOY: KEYSET: revisit keyset privacy & github pages
 
 //// Contexts

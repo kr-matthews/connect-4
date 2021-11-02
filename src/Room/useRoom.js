@@ -134,8 +134,11 @@ function useRoom(
   }
 
   function moveHandler(col) {
-    placePiece(col, 0);
-    publishMessage({ type: "move", col });
+    // only act if it's your turn
+    if (toPlayNext === 0) {
+      placePiece(col, 0);
+      publishMessage({ type: "move", col });
+    }
   }
 
   function forfeitHandler(player) {
