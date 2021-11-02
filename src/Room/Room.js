@@ -53,13 +53,14 @@ function Room({
 
   //// in-coming network
 
-  // TODO: should this (and parts above) be inside one of the hooks?
+  // TODO: NETWORK: move code without explicit pubnub dependency to useRoom hook
 
   // hold most recent message about opponent changes
   const [opponentInfoMessage, setOpponentInfoMessage] = useState(null);
   // hold most recent message about game
   const [gameMessage, setGameMessage] = useState(null);
 
+  // TODO: NETWORK: replace with single listener side effect which adds to common queue
   // check for messages about opponent updates
   useEffect(() => {
     function messageHandler(event) {

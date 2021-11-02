@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 
-// TODO: THEME: PROBLEM: in dark mode on refresh, it transitions from light mode
+// TODO: PROBLEM: THEME: in dark mode on refresh, it transitions from light mode
 
 const GlobalStyle = createGlobalStyle`
   body {

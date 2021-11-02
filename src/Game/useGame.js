@@ -2,6 +2,8 @@ import { useState, useEffect, useReducer, useContext } from "react";
 
 import { SoundContext } from "./../App.js";
 
+// TODO: SOUND: remove context import and accept as parameter from useRoom
+
 import yourTurnSound from "./../sounds/water_dropwav-6707.mp3";
 import winSound from "./../sounds/good-6081.mp3";
 import loseSound from "./../sounds/failure-drum-sound-effect-2mp3-7184.mp3";
@@ -97,6 +99,12 @@ function piecesReducer(state, action) {
 }
 
 //// The actual hook
+
+// TODO: LATE_START: add gameStatus of "uninitialized" or something, so that game
+//  doesn't auto-start on 2nd player join
+// TODO: LATE_START: propagate new gameStatus up once added here
+
+// TODO: TIME_LIMIT: option to add time limit to turns (after new gameStatus above)
 
 function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
   //// States & Constants
@@ -295,7 +303,7 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
 
   //// Return
 
-  // TODO: LATER: maybe return an undo function
+  // TODO: LATER: UNDO: maybe return an undo function
   return {
     board,
     gameStatus,

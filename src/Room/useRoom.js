@@ -193,7 +193,7 @@ function useRoom(
     }
   };
 
-  // TODO: these have 1 hard-coded, but above is generic though only used for 0
+  // TODO: NEXT: these have 1 hard-coded, but above is generic though only used for 0
   //  has repeated code kind of
 
   const gameMessageHandler = (message) => {

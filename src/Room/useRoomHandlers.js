@@ -5,6 +5,8 @@ import closeRoomSound from "./../sounds/power-down-7103.mp3";
 import joinRoomSound from "./../sounds/good-6081.mp3";
 import leaveRoomSound from "./../sounds/notification-sound-7062.mp3";
 
+// TODO: NETWORK: review this file, compare to Room/useRoom, refactor as needed
+
 function useRoomHandlers(setSoundToPlay, pubnub, player) {
   //// States
 

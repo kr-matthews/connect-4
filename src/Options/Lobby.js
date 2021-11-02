@@ -1,5 +1,8 @@
 // TODO: UI: improve design/css of lobby (and sub-components)
 
+// TODO: LATER: MULTIPLAYER: add local 2-player as an option in Lobby
+// TODO: LATER: COMPUTER: add computer opponent as an option in Lobby
+
 function Lobby({ children }) {
   return (
     <>

@@ -27,11 +27,6 @@ import { useRoomHandlers } from "./Room/useRoomHandlers.js";
 
 import { getRandomColour } from "./Colours.js";
 
-// TODO: LATER: option to add time limit to moves
-//  careful: game auto starts on second player join
-
-// TODO: LATER: add computer opponent as an option?
-
 // TODO: DEPLOY: KEYSET: revisit keyset privacy & github pages
 
 //// Contexts
@@ -78,10 +73,7 @@ function App() {
   const { setSoundToPlay } = useSound(soundIsOn);
 
   //// PubNub network setup
-  // TODO: NETWORK: break out into appropriate files once working
-  //  ideally, remove from App, since only want network in some situations
-  //  ie not if playing locally (2 players, or vs computer)
-  //  though local play isn't an option at this point
+  // TODO: NETWORK: refactor network code as necessary
 
   // constant identifier per user/device
   const [uuid] = useLocalState("uuid", generateRandomUuid());
@@ -89,6 +81,8 @@ function App() {
   const pubnub = useMemo(() => new PubNub({ publishKey, subscribeKey, uuid }), [
     uuid,
   ]);
+
+  // TODO: NETWORK: publish name/colour updates belong in Room?
 
   const player = { name, colour, uuid };
 
