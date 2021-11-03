@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function CreateRoom({ createRoomHandler }) {
+function CreateRoom({ createRoom }) {
   const [restartMethodInput, setRestartMethodInput] = useState("alternate");
 
   function handleChange(e) {
@@ -35,7 +35,7 @@ function CreateRoom({ createRoomHandler }) {
         <button
           onClick={(e) => {
             e.preventDefault();
-            createRoomHandler(restartMethodInput);
+            createRoom(restartMethodInput);
           }}
         >
           Create

@@ -4,8 +4,8 @@ function GameFooter({
   gameStatus,
   winner,
   toPlayNext,
-  forfeitHandler,
-  newGameHandler,
+  forfeit,
+  startNewGame,
 }) {
   // to display to viewer
   function gameStatusMessage() {
@@ -37,9 +37,9 @@ function GameFooter({
 
       {/* buttons for forfeiting or restarting, as applicable */}
       {gameStatus === "ongoing" ? (
-        <button onClick={() => forfeitHandler(viewer)}>Forfeit</button>
+        <button onClick={() => forfeit()}>Forfeit</button>
       ) : (
-        isOwner && <button onClick={newGameHandler}>New Game</button>
+        isOwner && <button onClick={startNewGame}>New Game</button>
       )}
     </>
   );

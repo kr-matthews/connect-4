@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 
+// TODO: SOUND: use a queue, incase multiple sounds come in at once?
+
 function playSound(url) {
   new Audio(url).play();
 }

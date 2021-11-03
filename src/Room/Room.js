@@ -1,9 +1,11 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useContext } from "react";
 
 import RoomHeader from "./RoomHeader.js";
 import Game from "./../Game/Game.js";
 import Board from "./../Game/Board.js";
 import GameFooter from "./../Game/GameFooter.js";
+
+import { SoundContext } from "./../App.js";
 
 import { useRoom } from "./useRoom.js";
 
@@ -12,17 +14,21 @@ import { useRoom } from "./useRoom.js";
 
 function Room({
   player,
-  isOwner,
   roomCode,
-  closeRoomHandler,
-  leaveRoomHandler,
-  closeRoom,
+  isOwner,
+  initialRestartMethod,
+  cleanupRoom,
   pubnub,
 }) {
+  //// sounds
+
+  const { setSoundToPlay } = useContext(SoundContext);
+
   //// out-going network (via pubnub)
 
   const publishMessage = useCallback(
     (message) => {
+      console.log("Publishing " + message.type); // TEMP:
       pubnub.publish({
         message: { ...message, uuid: player.uuid },
         channel: roomCode,
@@ -36,32 +42,42 @@ function Room({
   const {
     opponent,
     resultHistory,
+    restartMethod,
     board,
     gameStatus,
     winner,
     toPlayNext,
-    moveHandler,
-    forfeitHandler,
-    newGameHandler,
-    kickOpponentHandler,
-    queueMessage,
-    restartMethod,
-  } = useRoom(player, publishMessage, closeRoom);
+    startNewGame,
+    makeMove,
+    forfeit,
+    kickOpponent,
+    queueIncomingMessage,
+    closeRoom,
+    leaveRoom,
+  } = useRoom(
+    player,
+    isOwner,
+    initialRestartMethod,
+    setSoundToPlay,
+    publishMessage,
+    cleanupRoom
+  );
 
   //// in-coming network (via pubnub)
 
   useEffect(() => {
+    console.log("Running listener side effect."); // TEMP:
     function handleMessage(event) {
       console.log("Queueing " + event.message.type); // TEMP:
-      queueMessage(event.message);
+      queueIncomingMessage(event.message);
     }
     const listener = { message: handleMessage };
     pubnub.addListener(listener);
     return function cleanupListener() {
       pubnub.removeListener(listener);
     };
-    // note that queueMessage never changes
-  }, [pubnub, queueMessage]);
+    // note that queueIncomingMessage never changes
+  }, [pubnub, queueIncomingMessage]);
 
   //// Return
 
@@ -74,9 +90,9 @@ function Room({
         opponent={opponent}
         restartMethod={restartMethod}
         resultHistory={resultHistory}
-        kickOpponentHandler={kickOpponentHandler}
-        closeRoomHandler={closeRoomHandler}
-        leaveRoomHandler={leaveRoomHandler}
+        kickOpponent={kickOpponent}
+        closeRoom={closeRoom}
+        leaveRoom={leaveRoom}
       />
 
       {opponent && (
@@ -86,7 +102,7 @@ function Room({
             board={board}
             isViewersTurn={0 === toPlayNext}
             colours={[player.colour, opponent.colour]}
-            moveHandler={moveHandler}
+            makeMove={makeMove}
           />
           <GameFooter
             viewer={0}
@@ -94,8 +110,8 @@ function Room({
             gameStatus={gameStatus}
             winner={winner}
             toPlayNext={toPlayNext}
-            forfeitHandler={forfeitHandler}
-            newGameHandler={newGameHandler}
+            forfeit={forfeit}
+            startNewGame={startNewGame}
           />
         </Game>
       )}

@@ -6,7 +6,7 @@ import { oppositeColourOf } from "./../Colours.js";
 
 import "./board.css";
 
-function Board({ viewer, board, isViewersTurn, colours, moveHandler }) {
+function Board({ viewer, board, isViewersTurn, colours, makeMove }) {
   const { foreground } = useContext(ThemeContext);
   const rows = board.length;
   let tableRows = [];
@@ -18,7 +18,7 @@ function Board({ viewer, board, isViewersTurn, colours, moveHandler }) {
         row={board[row]}
         viewer={viewer}
         isViewersTurn={isViewersTurn}
-        moveHandler={moveHandler}
+        makeMove={makeMove}
         colours={colours}
       />
     );
@@ -31,12 +31,12 @@ function Board({ viewer, board, isViewersTurn, colours, moveHandler }) {
   );
 }
 
-function Row({ row, viewer, isViewersTurn, moveHandler, colours }) {
+function Row({ row, viewer, isViewersTurn, makeMove, colours }) {
   let rowCells = row.map(({ player, isHighlight, colIsOpen }, col) => {
     return (
       <Cell
         key={col}
-        clickHandler={() => moveHandler(col, viewer)}
+        clickHandler={() => makeMove(col, viewer)}
         colour={colours[player]}
         isHighlight={isHighlight}
         isClickable={isViewersTurn && colIsOpen}

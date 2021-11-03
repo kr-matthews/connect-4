@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function JoinRoom({ joinRoomHandler }) {
+function JoinRoom({ joinRoom }) {
   const [roomCodeInput, setRoomCodeInput] = useState("");
 
   function changeHandler(e) {
@@ -10,7 +10,7 @@ function JoinRoom({ joinRoomHandler }) {
   function clickHandler(e) {
     e.preventDefault();
     if (roomCodeInput) {
-      joinRoomHandler(roomCodeInput);
+      joinRoom(roomCodeInput);
     }
   }
 

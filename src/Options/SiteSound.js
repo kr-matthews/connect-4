@@ -1,4 +1,4 @@
-function Mute({ soundIsOn, toggleSound }) {
+function SiteSound({ soundIsOn, toggleSound }) {
   return (
     <>
       Sound is <button onClick={toggleSound}>{soundIsOn ? "on" : "off"}</button>
@@ -7,4 +7,4 @@ function Mute({ soundIsOn, toggleSound }) {
   );
 }
 
-export default Mute;
+export default SiteSound;

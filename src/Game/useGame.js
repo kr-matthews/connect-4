@@ -1,13 +1,11 @@
-import { useState, useEffect, useReducer, useContext } from "react";
-
-import { SoundContext } from "./../App.js";
-
-// TODO: SOUND: remove context import and accept as parameter from useRoom
+import { useState, useEffect, useReducer } from "react";
 
 import yourTurnSound from "./../sounds/water_dropwav-6707.mp3";
 import winSound from "./../sounds/good-6081.mp3";
 import loseSound from "./../sounds/failure-drum-sound-effect-2mp3-7184.mp3";
 import drawSound from "./../sounds/mixkit-retro-game-notification-212.wav";
+
+// TODO: NEXT: initialize game in "waiting" mode
 
 //// Generic constants helpers
 
@@ -106,7 +104,13 @@ function piecesReducer(state, action) {
 
 // TODO: TIME_LIMIT: option to add time limit to turns (after new gameStatus above)
 
-function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
+function useGame(
+  initialToPlayFirst,
+  setSoundToPlay,
+  rows = 6,
+  cols = 7,
+  lineLen = 4
+) {
   //// States & Constants
 
   // index of player to play first; only updates on reset
@@ -156,8 +160,6 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
       : 1 - moveHistory[moveHistory.length - 1].player;
 
   //// Sounds
-
-  const { setSoundToPlay } = useContext(SoundContext);
 
   // trigger win/lose sound effect
   useEffect(() => {
@@ -297,10 +299,6 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
     }
   }
 
-  function forfeit(player) {
-    setForfeiter(player);
-  }
-
   //// Return
 
   // TODO: LATER: UNDO: maybe return an undo function
@@ -311,7 +309,7 @@ function useGame(initialToPlayFirst, rows = 6, cols = 7, lineLen = 4) {
     winner,
     resetGame,
     placePiece,
-    forfeit,
+    setForfeiter,
   };
 }
 

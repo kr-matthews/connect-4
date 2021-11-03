@@ -4,9 +4,9 @@ function RoomHeader({
   opponent,
   restartMethod,
   resultHistory,
-  kickOpponentHandler,
-  closeRoomHandler,
-  leaveRoomHandler,
+  kickOpponent,
+  closeRoom,
+  leaveRoom,
 }) {
   const restartMethodMessage =
     restartMethod === "random"
@@ -24,6 +24,8 @@ function RoomHeader({
   };
 
   // TODO: UI: improve Header design/css
+
+  // TODO: NEXT: fix display of restartMethod when undefined
 
   return (
     <>
@@ -68,12 +70,12 @@ function RoomHeader({
       {/* options to close/leave room or kick opponent, as applicable */}
       <div>
         {isOwner ? (
-          <button onClick={closeRoomHandler}>Close Room</button>
+          <button onClick={closeRoom}>Close Room</button>
         ) : (
-          <button onClick={leaveRoomHandler}>Leave Room</button>
+          <button onClick={leaveRoom}>Leave Room</button>
         )}
         {isOwner && opponent && (
-          <button onClick={kickOpponentHandler}>Kick Opponent</button>
+          <button onClick={kickOpponent}>Kick Opponent</button>
         )}
       </div>
     </>

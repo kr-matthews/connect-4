@@ -1,20 +1,18 @@
-import {
-  useState,
-  useEffect,
-  useReducer,
-  useCallback,
-  useContext,
-} from "react";
+import { useState, useEffect, useReducer, useCallback } from "react";
 
 import { useGame } from "./../Game/useGame.js";
 
-import { SoundContext } from "./../App.js";
-
+import createRoomSound from "./../sounds/success-1-6297.mp3";
+import joinRoomSound from "./../sounds/good-6081.mp3";
 import playerJoinSound from "./../sounds/chime-sound-7143.mp3";
 import playerLeaveSound from "./../sounds/notification-sound-7062.mp3";
 import kickOpponentSound from "./../sounds/fist-punch-or-kick-7171.mp3";
+import closeRoomSound from "./../sounds/power-down-7103.mp3";
+import leaveRoomSound from "./../sounds/notification-sound-7062.mp3";
 
 // TODO: TEST: create tests for useRoom hook
+
+//// Reducers
 
 function resultReducer(state, action) {
   switch (action.type) {
@@ -28,6 +26,7 @@ function resultReducer(state, action) {
   }
 }
 
+// used for both incoming and outgoing message queues
 function reduceMessageQueue(state, action) {
   const newState = [...state];
   switch (action.type) {
@@ -39,6 +38,7 @@ function reduceMessageQueue(state, action) {
       break;
     default:
       console.log("reduceMessageQueue: no match");
+      console.log(action); // TEMP:
       break;
   }
   return newState;
@@ -53,9 +53,11 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 
 function useRoom(
   player,
+  isOwner,
+  initialRestartMethod,
+  setSoundToPlay,
   publishMessage,
-  closeRoom,
-  initialRestartMethod = null,
+  cleanupRoom,
   // first player of first game is random if unspecified
   toPlayFirst = Math.floor(Math.random() * 2)
 ) {
@@ -84,20 +86,89 @@ function useRoom(
     winner,
     resetGame,
     placePiece,
-    forfeit,
-  } = useGame(toPlayFirst);
+    setForfeiter,
+  } = useGame(toPlayFirst, setSoundToPlay);
 
-  // message queue
-  const [messageQueue, dispatchMessageQueue] = useReducer(
+  // TODO: HOOK: NEXT: move useGame to Game.js (??)
+
+  // message queues
+  const [incomingMessageQueue, dispatchIncomingMessageQueue] = useReducer(
     reduceMessageQueue,
     []
   );
-  const queueMessage = useCallback((message) => {
-    dispatchMessageQueue({ type: "add", ...message });
+  const queueIncomingMessage = useCallback((message) => {
+    dispatchIncomingMessageQueue({ type: "add", message });
   }, []);
 
-  // console.log("Re-render."); // TEMP:
-  // console.log(JSON.parse(JSON.stringify(messageQueue))); // TEMP:
+  const [outgoingMessageQueue, dispatchOutgoingMessageQueue] = useReducer(
+    reduceMessageQueue,
+    []
+  );
+  const queueOutgoingMessage = useCallback((message) => {
+    dispatchOutgoingMessageQueue({ type: "add", message });
+  }, []);
+
+  //// Network
+
+  // incoming
+
+  // act on a message
+  function handleMessage(message) {
+    console.log("Handling " + message.type); // TEMP:
+    switch (message.type) {
+      case "restartMethod":
+        setRestartMethod(message.restartMethod);
+        break;
+      case "playerInfo":
+        setOpponent((opp) => {
+          const name = message.name || opp.name;
+          const colour = message.colour || opp.colour;
+          return { name, colour };
+        });
+        break;
+
+      // room is relative to player, so 1 means opponent and incoming indices
+      //  are flipped as they are from opponent's view
+      case "start":
+        resetGame(1 - message.toGoFirst);
+        setWentFirst(1 - message.toGoFirst);
+        break;
+      case "move":
+        placePiece(message.col, 1);
+        break;
+      case "forfeit":
+        setForfeiter(1);
+        break;
+
+      case "kick":
+        alert("The owner of the room kicked you out.");
+        cleanupRoom();
+        break;
+      case "close":
+        alert("The owner of the room left and so the room has closed.");
+        cleanupRoom();
+        break;
+
+      case "leave":
+        setOpponent(null);
+        alert("Your opponent left.");
+        resetGame(1); // TODO: reset with new "waiting" gameStatus or whatever
+        break;
+      default:
+        break;
+    }
+  }
+
+  // outgoing
+
+  // if there are outgoing messages, send the first one (oldest)
+  useEffect(() => {
+    console.log("Side effect for outgoing messages.");
+    if (outgoingMessageQueue.length > 0) {
+      publishMessage(outgoingMessageQueue[0]);
+      dispatchOutgoingMessageQueue({ type: "remove" });
+    }
+  });
 
   //// Effects
 
@@ -126,35 +197,69 @@ function useRoom(
 
   // Sounds
 
-  // TODO: SOUND: what if 2 are triggered? which gets priority?
-
-  const { setSoundToPlay } = useContext(SoundContext);
-
   // play sounds when other player joins or leaves
   useEffect(() => {
     if (playerCount === 1) {
+      // TODO: SOUND: don't play leave sounds on initial render
       setSoundToPlay(playerLeaveSound);
     } else {
       setSoundToPlay(playerJoinSound);
     }
   }, [playerCount, setSoundToPlay]);
-  // see also kickOpponentHandler for kick sound
 
-  //// Externally available functions
+  // play create/join sounds (should only run once, as both dependencies never change)
+  useEffect(() => {
+    if (isOwner) {
+      setSoundToPlay(createRoomSound);
+    } else {
+      setSoundToPlay(joinRoomSound);
+    }
+  }, [isOwner, setSoundToPlay]);
 
-  // when room owner starts a new game
-  //  basically figure out who goes first and then call useGame's reset
-  //  also update setWentFirst as may be needed for next such update
-  function newGameHandler() {
-    let toGoFirst = null;
+  // incoming messages
+
+  // if there are incoming messages, act on the first one (oldest)
+  useEffect(() => {
+    if (incomingMessageQueue.length > 0) {
+      if (incomingMessageQueue[0].uuid !== player.uuid) {
+        // don't act on your own messages
+        handleMessage(incomingMessageQueue[0]);
+      }
+      dispatchIncomingMessageQueue({ type: "remove" });
+    }
+  });
+
+  // outgoing messages
+
+  // send restartMethod when opponent joins your room (only playerCount changes)
+  useEffect(() => {
+    if (isOwner && playerCount === 2) {
+      queueOutgoingMessage({ type: "restartMethod", restartMethod });
+    }
+  }, [isOwner, queueOutgoingMessage, playerCount, restartMethod]);
+  // send player name/colour on update and on player join (and initial render)
+  useEffect(() => {
+    if (playerCount === 2 || !isOwner) {
+      queueOutgoingMessage({
+        type: "playerInfo",
+        name: player.name,
+        colour: player.colour,
+      });
+    }
+  }, [isOwner, queueOutgoingMessage, playerCount, player.name, player.colour]);
+
+  //// Externally available functions, for this player's actions
+
+  // for owner to use to start a new game
+  function startNewGame() {
     // figure out who will go first
+    let toGoFirst = null;
     switch (restartMethod) {
       case "random":
         toGoFirst = Math.floor(Math.random() * 2);
         break;
       case "alternate":
         toGoFirst = 1 - wentFirst;
-
         break;
       case "loser":
         // if it's a draw, keep the same player
@@ -168,13 +273,15 @@ function useRoom(
         console.log("New Game click handler didn't match any case.");
         toGoFirst = 0;
     }
-    // call useGame's reset, then update own state
+
+    // update own state
     resetGame(toGoFirst);
     setWentFirst(toGoFirst);
-    publishMessage({ type: "newGame", toGoFirst });
+    // send message to opponent
+    publishMessage({ type: "start", toGoFirst });
   }
 
-  function moveHandler(col) {
+  function makeMove(col) {
     // only act if it's your turn
     if (toPlayNext === 0) {
       placePiece(col, 0);
@@ -182,95 +289,29 @@ function useRoom(
     }
   }
 
-  function forfeitHandler(player) {
-    forfeit(player);
+  function forfeit() {
+    setForfeiter();
     publishMessage({ type: "forfeit" });
   }
 
-  function kickOpponentHandler() {
+  // TODO: LATER: add "permaKickOpponent" via uuid-check (not perfect)
+
+  function kickOpponent() {
     setOpponent(null);
     publishMessage({ type: "kick" });
     setSoundToPlay(kickOpponentSound);
   }
 
-  // Network
+  function closeRoom() {
+    publishMessage({ type: "close" });
+    cleanupRoom();
+    setSoundToPlay(closeRoomSound);
+  }
 
-  // if there are messages, act on the first one (oldest)
-  useEffect(() => {
-    if (messageQueue.length > 0) {
-      if (messageQueue[0].uuid !== player.uuid) {
-        // don't act on your own messages
-        console.log("Getting 1st: " + messageQueue[0].type); // TEMP:
-        handleMessage(messageQueue[0]);
-      }
-      console.log("Removing 1st: " + messageQueue[0].type); // TEMP:
-      dispatchMessageQueue({ type: "remove" });
-    }
-  });
-
-  // TODO: NEXT: these have 1 hard-coded, but above is generic though only used for 0
-  //  has repeated code kind of
-
-  // act on a message
-  function handleMessage(message) {
-    console.log("Handling " + message.type); // TEMP:
-    console.log(JSON.parse(JSON.stringify(message))); // TEMP:
-    switch (message.type) {
-      case "join":
-        // add opponent (name and colour)
-        const { name, colour } = message;
-        setOpponent({ name, colour });
-        // send own information (name and colour, + restartMethod) out
-        publishMessage({ ...player, type: "update", restartMethod });
-        // reset game -- note that this will send out a message saying who goes first
-        newGameHandler();
-        break;
-      case "update":
-      case "name":
-      case "colour":
-        // add name and colour
-        setOpponent((opp) => {
-          const name = message.name || opp.name;
-          const colour = message.colour || opp.colour;
-          return { name, colour };
-        });
-        // update restartMethod
-        if (message.type === "update") {
-          setRestartMethod(message.restartMethod);
-        }
-        break;
-      case "leave":
-        // remove opponent
-        setOpponent(null);
-        alert("Your opponent left.");
-        // reset the game with arbitrary toPlayFirst
-        //  note that on new player join, game will be reset again anyway
-        //  but this prevents them potentially seeing old board state briefly
-        //  also supplying 1 prevents them from somehow being able to make moves
-        resetGame(1);
-        break;
-      case "move":
-        placePiece(message.col, 1);
-        break;
-      case "forfeit":
-        forfeit(1);
-        break;
-      case "newGame":
-        // each player is 0 to themselves, so need to flip it
-        resetGame(1 - message.toGoFirst);
-        setWentFirst(1 - message.toGoFirst);
-        break;
-      case "kick":
-        alert("The owner of the room kicked you out.");
-        closeRoom();
-        break;
-      case "close":
-        alert("The owner of the room left and so the room has closed.");
-        closeRoom();
-        break;
-      default:
-        break;
-    }
+  function leaveRoom() {
+    publishMessage({ type: "leave" });
+    cleanupRoom();
+    setSoundToPlay(leaveRoomSound);
   }
 
   //// Return
@@ -278,16 +319,18 @@ function useRoom(
   return {
     opponent,
     resultHistory,
+    restartMethod,
     board,
     gameStatus,
     winner,
     toPlayNext,
-    moveHandler,
-    forfeitHandler,
-    newGameHandler,
-    kickOpponentHandler,
-    queueMessage,
-    restartMethod,
+    startNewGame,
+    makeMove,
+    forfeit,
+    kickOpponent,
+    queueIncomingMessage,
+    closeRoom,
+    leaveRoom,
   };
 }
 

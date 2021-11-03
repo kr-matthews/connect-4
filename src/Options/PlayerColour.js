@@ -1,8 +1,7 @@
-function PlayerColour({ colour, setColour, publishColour }) {
+function PlayerColour({ colour, setColour }) {
   function changeHandler(e) {
     const newColour = e.target.value;
     setColour(newColour);
-    publishColour(newColour);
   }
 
   return (
