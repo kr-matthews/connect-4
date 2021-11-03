@@ -1,9 +1,8 @@
-import { useMemo, createContext } from "react";
+import { useState, useMemo, createContext } from "react";
 
 import PubNub from "pubnub";
 // pubnubKeys.js is listed in .gitignore, contains private keys
 import { subscribeKey, publishKey } from "./pubnubKeys.js";
-import { PubNubProvider } from "pubnub-react";
 
 import Header from "./Options/Header.js";
 import Lobby from "./Options/Lobby.js";
@@ -28,6 +27,8 @@ import { useRoomHandlers } from "./Room/useRoomHandlers.js";
 import { getRandomColour } from "./Colours.js";
 
 // TODO: DEPLOY: KEYSET: revisit keyset privacy & github pages
+
+// TODO: NEXT: move restartMethod and setter to useRoom
 
 //// Contexts
 
@@ -72,6 +73,8 @@ function App() {
   }
   const { setSoundToPlay } = useSound(soundIsOn);
 
+  const [roomCode, setRoomCode] = useState(null);
+
   //// PubNub network setup
   // TODO: NETWORK: refactor network code as necessary
 
@@ -104,60 +107,58 @@ function App() {
     }
   }
 
+  function closeRoom() {
+    pubnub.unsubscribe({ channels: [roomCode] });
+    setRoomCode(null);
+  }
+
   //// Room handlers
 
   const {
-    roomCode,
     isOwner,
-    restartMethod,
     createRoomHandler,
     joinRoomHandler,
     closeRoomHandler,
     leaveRoomHandler,
-  } = useRoomHandlers(setSoundToPlay, pubnub, player);
+  } = useRoomHandlers(setSoundToPlay, roomCode, setRoomCode, pubnub, player);
 
   //// Return
 
   return (
     <ThemeContext.Provider value={theme}>
       <SoundContext.Provider value={{ setSoundToPlay }}>
-        <PubNubProvider client={pubnub}>
-          <GlobalStyle theme={theme} />
-          <Header>
-            <PlayerName
-              name={name}
-              setName={setName}
-              publishName={publishName}
-            />
-            <PlayerColour
-              colour={colour}
-              setColour={setColour}
-              publishColour={publishColour}
-            />
-            <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
-            <Mute soundIsOn={soundIsOn} toggleSound={toggleSound} />
-          </Header>
-          <h1>Connect 4 [WIP]</h1>
-          {roomCode ? (
-            <Room
-              player={{ name, colour, uuid }}
-              isOwner={isOwner}
-              roomCode={roomCode}
-              restartMethod={restartMethod}
-              closeRoomHandler={closeRoomHandler}
-              leaveRoomHandler={leaveRoomHandler}
-            />
-          ) : (
-            <Lobby>
-              <CreateRoom createRoomHandler={createRoomHandler} />
-              <JoinRoom joinRoomHandler={joinRoomHandler} />
-            </Lobby>
-          )}
-          <Links
-            gitHubLink="https://github.com/kr-matthews/connect-4"
-            themeType={theme.type}
+        <GlobalStyle theme={theme} />
+        <Header>
+          <PlayerName name={name} setName={setName} publishName={publishName} />
+          <PlayerColour
+            colour={colour}
+            setColour={setColour}
+            publishColour={publishColour}
           />
-        </PubNubProvider>
+          <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
+          <Mute soundIsOn={soundIsOn} toggleSound={toggleSound} />
+        </Header>
+        <h1>Connect 4 [WIP]</h1>
+        {roomCode ? (
+          <Room
+            player={{ name, colour, uuid }}
+            isOwner={isOwner}
+            roomCode={roomCode}
+            closeRoomHandler={closeRoomHandler}
+            leaveRoomHandler={leaveRoomHandler}
+            closeRoom={closeRoom}
+            pubnub={pubnub}
+          />
+        ) : (
+          <Lobby>
+            <CreateRoom createRoomHandler={createRoomHandler} />
+            <JoinRoom joinRoomHandler={joinRoomHandler} />
+          </Lobby>
+        )}
+        <Links
+          gitHubLink="https://github.com/kr-matthews/connect-4"
+          themeType={theme.type}
+        />
       </SoundContext.Provider>
     </ThemeContext.Provider>
   );

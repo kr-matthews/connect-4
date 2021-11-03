@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import { usePubNub } from "pubnub-react";
+import { useEffect, useCallback } from "react";
 
 import RoomHeader from "./RoomHeader.js";
 import Game from "./../Game/Game.js";
@@ -15,14 +14,12 @@ function Room({
   player,
   isOwner,
   roomCode,
-  restartMethod,
   closeRoomHandler,
   leaveRoomHandler,
+  closeRoom,
+  pubnub,
 }) {
-  // get pubnub object from PubNubProvider Context in App.js
-  const pubnub = usePubNub();
-
-  //// out-going network
+  //// out-going network (via pubnub)
 
   const publishMessage = useCallback(
     (message) => {
@@ -34,7 +31,7 @@ function Room({
     [player.uuid, pubnub, roomCode]
   );
 
-  //// useRoom hook
+  //// useRoom hook (agnostic of network choice)
 
   const {
     opponent,
@@ -47,83 +44,24 @@ function Room({
     forfeitHandler,
     newGameHandler,
     kickOpponentHandler,
-    opponentInfoMessageHandler,
-    gameMessageHandler,
-  } = useRoom(player, restartMethod, publishMessage);
+    queueMessage,
+    restartMethod,
+  } = useRoom(player, publishMessage, closeRoom);
 
-  //// in-coming network
+  //// in-coming network (via pubnub)
 
-  // TODO: NETWORK: move code without explicit pubnub dependency to useRoom hook
-
-  // hold most recent message about opponent changes
-  const [opponentInfoMessage, setOpponentInfoMessage] = useState(null);
-  // hold most recent message about game
-  const [gameMessage, setGameMessage] = useState(null);
-
-  // TODO: NETWORK: replace with single listener side effect which adds to common queue
-  // check for messages about opponent updates
   useEffect(() => {
-    function messageHandler(event) {
-      switch (event.message.type) {
-        case "join":
-        case "update":
-        case "name":
-        case "colour":
-        case "leave":
-          setOpponentInfoMessage(event.message);
-          break;
-        default:
-          break;
-      }
+    function handleMessage(event) {
+      console.log("Queueing " + event.message.type); // TEMP:
+      queueMessage(event.message);
     }
-    const listener = { message: messageHandler };
+    const listener = { message: handleMessage };
     pubnub.addListener(listener);
-    return function cleanup() {
+    return function cleanupListener() {
       pubnub.removeListener(listener);
     };
-  }, [pubnub]);
-  // check for messages about game
-  useEffect(() => {
-    function messageHandler(event) {
-      switch (event.message.type) {
-        case "move":
-        case "forfeit":
-        case "newGame":
-          setGameMessage(event.message);
-          break;
-        default:
-          break;
-      }
-    }
-    const listener = { message: messageHandler };
-    pubnub.addListener(listener);
-    return function cleanup() {
-      pubnub.removeListener(listener);
-    };
-  }, [pubnub]);
-
-  // handle most recent message about opponent changes
-  useEffect(() => {
-    if (opponentInfoMessage && opponentInfoMessage.uuid !== player.uuid) {
-      opponentInfoMessageHandler(opponentInfoMessage);
-    }
-    if (opponentInfoMessage) {
-      // without this check, might nullify a message which was set earlier in this re-render
-      setOpponentInfoMessage(null);
-    }
-    // could wrap opponentInfoMessageHandler (and recursive dependencies) in a callback
-  }, [opponentInfoMessage, opponentInfoMessageHandler, player.uuid]);
-  // handle most recent message about game
-  useEffect(() => {
-    if (gameMessage && gameMessage.uuid !== player.uuid) {
-      gameMessageHandler(gameMessage);
-    }
-    if (gameMessage) {
-      // without this check, might nullify a message which was set earlier in this re-render
-      setGameMessage(null);
-    }
-    // could wrap gameMessageHandler (and recursive dependencies) in a callback
-  }, [gameMessage, gameMessageHandler, player.uuid]);
+    // note that queueMessage never changes
+  }, [pubnub, queueMessage]);
 
   //// Return
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 
 import createRoomSound from "./../sounds/success-1-6297.mp3";
 import closeRoomSound from "./../sounds/power-down-7103.mp3";
@@ -7,59 +7,16 @@ import leaveRoomSound from "./../sounds/notification-sound-7062.mp3";
 
 // TODO: NETWORK: review this file, compare to Room/useRoom, refactor as needed
 
-function useRoomHandlers(setSoundToPlay, pubnub, player) {
+function useRoomHandlers(
+  setSoundToPlay,
+  roomCode,
+  setRoomCode,
+  pubnub,
+  player
+) {
   //// States
 
-  const [roomCode, setRoomCode] = useState(null);
   const [isOwner, setIsOwner] = useState(null);
-  const [restartMethod, setRestartMethod] = useState("alternate");
-
-  //// in-coming network
-
-  // handle owner closing and kicking
-  const removedHandler = useCallback(
-    (message) => {
-      if (message.type === "kick") {
-        alert("The owner of the room kicked you out.");
-      }
-      if (message.type === "close") {
-        alert("The owner of the room left and so the room has closed.");
-      }
-      pubnub.unsubscribe({ channels: [roomCode] });
-      setRoomCode(null);
-    },
-    [pubnub, roomCode]
-  );
-
-  // hold most recent message about being removed from room (close or kick)
-  const [removedMessage, setRemovedMessage] = useState(null);
-  // check for messages about being removed from room
-  useEffect(() => {
-    function messageHandler(event) {
-      switch (event.message.type) {
-        case "close":
-        case "kick":
-          setRemovedMessage(event.message);
-          break;
-        default:
-          break;
-      }
-    }
-    const listener = { message: messageHandler };
-    pubnub.addListener(listener);
-    return function cleanup() {
-      pubnub.removeListener(listener);
-    };
-  }, [pubnub]);
-  // handle most recent message about being removed from room
-  useEffect(() => {
-    if (removedMessage && removedMessage.uuid !== player.uuid) {
-      removedHandler(removedMessage);
-    }
-    if (removedMessage) {
-      setRemovedMessage(null);
-    }
-  }, [removedMessage, removedHandler, player.uuid]);
 
   //// rooms and room codes
 
@@ -97,7 +54,7 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
     });
     setRoomCode(generatedRoomCode);
     setIsOwner(true);
-    setRestartMethod(restartMethodInput);
+    // setRestartMethod(restartMethodInput); // TEMP: missing
     setSoundToPlay(createRoomSound);
   }
 
@@ -158,7 +115,7 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
     // update own states
     setRoomCode(null);
     setIsOwner(null);
-    setRestartMethod("alternate");
+    // setRestartMethod("alternate"); // TEMP: missing
     setSoundToPlay(leaveRoomSound);
   }
 
@@ -167,7 +124,6 @@ function useRoomHandlers(setSoundToPlay, pubnub, player) {
   return {
     roomCode,
     isOwner,
-    restartMethod,
     createRoomHandler,
     joinRoomHandler,
     closeRoomHandler,

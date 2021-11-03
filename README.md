@@ -1,5 +1,7 @@
 # Connect 4 [WIP]
 
+<!-- TODO: add note about pubNubKeys.js -->
+
 This is a single-page application for one human player to create or join a room and play connect 4 against an opponent (human over the internet, or local computer player) in that room.
 
 ## Play

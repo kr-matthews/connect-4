@@ -1,4 +1,10 @@
-import { useState, useEffect, useReducer, useContext } from "react";
+import {
+  useState,
+  useEffect,
+  useReducer,
+  useCallback,
+  useContext,
+} from "react";
 
 import { useGame } from "./../Game/useGame.js";
 
@@ -22,15 +28,35 @@ function resultReducer(state, action) {
   }
 }
 
+function reduceMessageQueue(state, action) {
+  const newState = [...state];
+  switch (action.type) {
+    case "add":
+      newState.push(action.message);
+      break;
+    case "remove":
+      newState.shift();
+      break;
+    default:
+      console.log("reduceMessageQueue: no match");
+      break;
+  }
+  return newState;
+}
+
 //// Helpers for reducers
 
 const initialResults = { wins: 0, draws: 0, loses: 0 };
 
-// first player of first game is random if unspecified
+//// useRoom custom hook
+// is independent of network (ie pubnub)
+
 function useRoom(
   player,
-  restartMethod,
   publishMessage,
+  closeRoom,
+  initialRestartMethod = null,
+  // first player of first game is random if unspecified
   toPlayFirst = Math.floor(Math.random() * 2)
 ) {
   //// States
@@ -44,6 +70,11 @@ function useRoom(
     resultReducer,
     initialResults
   );
+  // how to pick first player on new game
+  //  only for user's information if not owner
+  const [restartMethod, setRestartMethod] = useState(initialRestartMethod);
+  // who started the current game (in case first player should alternate)
+  const [wentFirst, setWentFirst] = useState(toPlayFirst);
 
   // the game custom hook
   const {
@@ -55,8 +86,18 @@ function useRoom(
     placePiece,
     forfeit,
   } = useGame(toPlayFirst);
-  // who started the current game (in case first player should alternate)
-  const [wentFirst, setWentFirst] = useState(toPlayFirst);
+
+  // message queue
+  const [messageQueue, dispatchMessageQueue] = useReducer(
+    reduceMessageQueue,
+    []
+  );
+  const queueMessage = useCallback((message) => {
+    dispatchMessageQueue({ type: "add", ...message });
+  }, []);
+
+  // console.log("Re-render."); // TEMP:
+  // console.log(JSON.parse(JSON.stringify(messageQueue))); // TEMP:
 
   //// Effects
 
@@ -154,19 +195,35 @@ function useRoom(
 
   // Network
 
-  const opponentInfoMessageHandler = (message) => {
+  // if there are messages, act on the first one (oldest)
+  useEffect(() => {
+    if (messageQueue.length > 0) {
+      if (messageQueue[0].uuid !== player.uuid) {
+        // don't act on your own messages
+        console.log("Getting 1st: " + messageQueue[0].type); // TEMP:
+        handleMessage(messageQueue[0]);
+      }
+      console.log("Removing 1st: " + messageQueue[0].type); // TEMP:
+      dispatchMessageQueue({ type: "remove" });
+    }
+  });
+
+  // TODO: NEXT: these have 1 hard-coded, but above is generic though only used for 0
+  //  has repeated code kind of
+
+  // act on a message
+  function handleMessage(message) {
+    console.log("Handling " + message.type); // TEMP:
+    console.log(JSON.parse(JSON.stringify(message))); // TEMP:
     switch (message.type) {
       case "join":
         // add opponent (name and colour)
         const { name, colour } = message;
         setOpponent({ name, colour });
-        // send own information (name and colour) out
-        publishMessage({ ...player, type: "update" });
-        // reset game
-        //  note that this will send out a message saying who goes first
+        // send own information (name and colour, + restartMethod) out
+        publishMessage({ ...player, type: "update", restartMethod });
+        // reset game -- note that this will send out a message saying who goes first
         newGameHandler();
-        // NOTE: to provide Start Game button instead of auto-starting game
-        //  on player join, change this (would require new gameStatus maybe)
         break;
       case "update":
       case "name":
@@ -177,6 +234,10 @@ function useRoom(
           const colour = message.colour || opp.colour;
           return { name, colour };
         });
+        // update restartMethod
+        if (message.type === "update") {
+          setRestartMethod(message.restartMethod);
+        }
         break;
       case "leave":
         // remove opponent
@@ -188,16 +249,6 @@ function useRoom(
         //  also supplying 1 prevents them from somehow being able to make moves
         resetGame(1);
         break;
-      default:
-        break;
-    }
-  };
-
-  // TODO: NEXT: these have 1 hard-coded, but above is generic though only used for 0
-  //  has repeated code kind of
-
-  const gameMessageHandler = (message) => {
-    switch (message.type) {
       case "move":
         placePiece(message.col, 1);
         break;
@@ -209,10 +260,18 @@ function useRoom(
         resetGame(1 - message.toGoFirst);
         setWentFirst(1 - message.toGoFirst);
         break;
+      case "kick":
+        alert("The owner of the room kicked you out.");
+        closeRoom();
+        break;
+      case "close":
+        alert("The owner of the room left and so the room has closed.");
+        closeRoom();
+        break;
       default:
         break;
     }
-  };
+  }
 
   //// Return
 
@@ -227,8 +286,8 @@ function useRoom(
     forfeitHandler,
     newGameHandler,
     kickOpponentHandler,
-    opponentInfoMessageHandler,
-    gameMessageHandler,
+    queueMessage,
+    restartMethod,
   };
 }
 
