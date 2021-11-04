@@ -37,8 +37,7 @@ function reduceMessageQueue(state, action) {
       newState.shift();
       break;
     default:
-      console.log("reduceMessageQueue: no match");
-      console.log(action); // TEMP:
+      console.log("Error: no match for reduceMessageQueue.");
       break;
   }
   return newState;
@@ -51,15 +50,15 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 //// useRoom custom hook
 // is independent of network (ie pubnub)
 
+// TODO: NEXT: pass view to useRoom and make it relative
+
 function useRoom(
   player,
   isOwner,
   initialRestartMethod,
   setSoundToPlay,
   publishMessage,
-  cleanupRoom,
-  // first player of first game is random if unspecified
-  toPlayFirst = Math.floor(Math.random() * 2)
+  cleanupRoom
 ) {
   //// States
 
@@ -75,8 +74,10 @@ function useRoom(
   // how to pick first player on new game
   //  only for user's information if not owner
   const [restartMethod, setRestartMethod] = useState(initialRestartMethod);
-  // who started the current game (in case first player should alternate)
-  const [wentFirst, setWentFirst] = useState(toPlayFirst);
+  // who start(s/ed) the current game -- first player of first game is random
+  const [toPlayFirst, setToPlayFirst] = useState(null);
+
+  // TODO: NEXT: confirm this is re-randomized on new opponent join
 
   // the game custom hook
   const {
@@ -89,7 +90,7 @@ function useRoom(
     setForfeiter,
   } = useGame(toPlayFirst, setSoundToPlay);
 
-  // TODO: HOOK: NEXT: move useGame to Game.js (??)
+  // TODO: HOOK: NEXT: NEXT: move useGame to Game.js (??)
 
   // message queues
   const [incomingMessageQueue, dispatchIncomingMessageQueue] = useReducer(
@@ -130,8 +131,8 @@ function useRoom(
       // room is relative to player, so 1 means opponent and incoming indices
       //  are flipped as they are from opponent's view
       case "start":
-        resetGame(1 - message.toGoFirst);
-        setWentFirst(1 - message.toGoFirst);
+        setToPlayFirst(1 - message.toPlayFirst);
+        resetGame();
         break;
       case "move":
         placePiece(message.col, 1);
@@ -150,11 +151,11 @@ function useRoom(
         break;
 
       case "leave":
-        setOpponent(null);
         alert("Your opponent left.");
-        resetGame(1); // TODO: reset with new "waiting" gameStatus or whatever
+        setOpponent(null); // this unmounts the Game component and useGame hook
         break;
       default:
+        console.log("Error: Unhandled message.");
         break;
     }
   }
@@ -171,6 +172,16 @@ function useRoom(
   });
 
   //// Effects
+
+  // first player
+
+  // randomize first player when opponent joins your room
+  useEffect(() => {
+    if (isOwner && playerCount === 2) {
+      setToPlayFirst(Math.floor(Math.random() * 2));
+    }
+    // only playerCount changes when isOwner
+  }, [isOwner, playerCount]);
 
   // W-D-L tally
 
@@ -231,11 +242,12 @@ function useRoom(
 
   // outgoing messages
 
-  // send restartMethod when opponent joins your room (only playerCount changes)
+  // send restartMethod when opponent joins your room
   useEffect(() => {
     if (isOwner && playerCount === 2) {
       queueOutgoingMessage({ type: "restartMethod", restartMethod });
     }
+    // only playerCount will change when isOwner
   }, [isOwner, queueOutgoingMessage, playerCount, restartMethod]);
   // send player name/colour on update and on player join (and initial render)
   useEffect(() => {
@@ -246,39 +258,39 @@ function useRoom(
         colour: player.colour,
       });
     }
+    // only playerCount and player will change
   }, [isOwner, queueOutgoingMessage, playerCount, player.name, player.colour]);
+  // send toPlayFirst when new game starts (only toPlayFirst/gameStatus change)
+  useEffect(() => {
+    if (isOwner && gameStatus === "ongoing") {
+      queueOutgoingMessage({ type: "start", toPlayFirst });
+    }
+    // toPlayFirst won't change while gameStatus is ongoing
+  }, [isOwner, queueOutgoingMessage, toPlayFirst, gameStatus]);
 
   //// Externally available functions, for this player's actions
 
   // for owner to use to start a new game
   function startNewGame() {
     // figure out who will go first
-    let toGoFirst = null;
-    switch (restartMethod) {
-      case "random":
-        toGoFirst = Math.floor(Math.random() * 2);
-        break;
-      case "alternate":
-        toGoFirst = 1 - wentFirst;
-        break;
-      case "loser":
-        // if it's a draw, keep the same player
-        toGoFirst = gameStatus === "draw" ? wentFirst : 1 - winner;
-        break;
-      case "winner":
-        // if it's a draw, keep the same player
-        toGoFirst = gameStatus === "draw" ? wentFirst : winner;
-        break;
-      default:
-        console.log("New Game click handler didn't match any case.");
-        toGoFirst = 0;
-    }
-
-    // update own state
-    resetGame(toGoFirst);
-    setWentFirst(toGoFirst);
-    // send message to opponent
-    publishMessage({ type: "start", toGoFirst });
+    setToPlayFirst((wentFirst) => {
+      switch (restartMethod) {
+        case "random":
+          return Math.floor(Math.random() * 2);
+        case "alternate":
+          return 1 - wentFirst;
+        case "loser":
+          // if it's a draw, keep the same player
+          return gameStatus === "draw" ? wentFirst : 1 - winner;
+        case "winner":
+          // if it's a draw, keep the same player
+          return gameStatus === "draw" ? wentFirst : winner;
+        default:
+          console.log("Error: New Game couldn't select first player properly.");
+          return 1 - wentFirst;
+      }
+    });
+    resetGame();
   }
 
   function makeMove(col) {
@@ -290,7 +302,7 @@ function useRoom(
   }
 
   function forfeit() {
-    setForfeiter();
+    setForfeiter(0);
     publishMessage({ type: "forfeit" });
   }
 

@@ -22,6 +22,8 @@ function GameFooter({
         return viewer === toPlayNext
           ? "It's your turn to drop a piece."
           : "Waiting for your opponent to play.";
+      case "waiting":
+        return "Game has not started yet.";
       default:
         return "Something has gone wrong. Apologies.";
     }

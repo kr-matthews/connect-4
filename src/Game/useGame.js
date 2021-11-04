@@ -5,8 +5,6 @@ import winSound from "./../sounds/good-6081.mp3";
 import loseSound from "./../sounds/failure-drum-sound-effect-2mp3-7184.mp3";
 import drawSound from "./../sounds/mixkit-retro-game-notification-212.wav";
 
-// TODO: NEXT: initialize game in "waiting" mode
-
 //// Generic constants helpers
 
 // the possible line directions from/to a fixed point
@@ -98,26 +96,18 @@ function piecesReducer(state, action) {
 
 //// The actual hook
 
-// TODO: LATE_START: add gameStatus of "uninitialized" or something, so that game
-//  doesn't auto-start on 2nd player join
-// TODO: LATE_START: propagate new gameStatus up once added here
-
 // TODO: TIME_LIMIT: option to add time limit to turns (after new gameStatus above)
 
-function useGame(
-  initialToPlayFirst,
-  setSoundToPlay,
-  rows = 6,
-  cols = 7,
-  lineLen = 4
-) {
+function useGame(toPlayFirst, setSoundToPlay, rows = 6, cols = 7, lineLen = 4) {
   //// States & Constants
 
-  // index of player to play first; only updates on reset
-  const [toPlayFirst, setToPlayFirst] = useState(initialToPlayFirst);
+  // waiting for first game to start?
+  const [waiting, setWaiting] = useState(true);
+
   // who has forfeit (player index, or null)
   const [forfeiter, setForfeiter] = useState(null);
   // stack (array) of {player, row, col}
+
   const [moveHistory, dispatchMoveHistory] = useReducer(moveHistoryReducer, []);
   // table of player indices/null; indicates which piece is there (if any)
   const [pieces, dispatchPieces] = useReducer(
@@ -131,10 +121,11 @@ function useGame(
     ? "draw" // found draw
     : "ongoing"; // didn't find draw
   // takes into account possible forfeit: ongoing, won, draw, or forfeit
-  const gameStatus =
-    forfeiter !== null // check for feifeit
-      ? "forfeit" // if so
-      : boardStatus; // otherwise, default to boardStatus
+  const gameStatus = waiting // waiting to start
+    ? "waiting"
+    : forfeiter !== null // check for feifeit
+    ? "forfeit" // if so
+    : boardStatus; // otherwise, default to boardStatus
   // index of winning player (via game play for via forfeit), or null
   const winner =
     gameStatus === "forfeit" // check for forfeit
@@ -144,6 +135,7 @@ function useGame(
       : moveHistory[moveHistory.length - 1].player; // if win, then most recent player won
   // table of booleans; indicates whether spot is highlighted in a win
   // (not using state and useEffect since it might make undo awkward?)
+
   const highlights = createHighlights();
   // matrix, row 0 at the bottom; each cell is an object
   const openColumns = checkOpenCols();
@@ -151,6 +143,7 @@ function useGame(
     [pieces, highlights, openColumns],
     ["player", "isHighlight", "colIsOpen"]
   );
+
   // index of player to play next move, or null if game is not ongoing
   const toPlayNext =
     gameStatus !== "ongoing"
@@ -280,16 +273,17 @@ function useGame(
   //// Externally accessible functions
 
   // given out to reset all states
-  function resetGame(player) {
-    setToPlayFirst(player);
+  function resetGame() {
+    setWaiting(false);
     setForfeiter(null);
+
     dispatchMoveHistory({ type: "reset" });
     // (use dispatch instead of useEffect since might make undo awkward?)
     dispatchPieces({ type: "reset", rows, cols });
   }
 
   // given out to allow component to (attempt to) place a piece
-  function placePiece(col, player = toPlayNext) {
+  function placePiece(col, player) {
     let row = findEmptyRow(col);
     // only proceed if move is valid
     if (gameStatus === "ongoing" && player === toPlayNext && row !== null) {
