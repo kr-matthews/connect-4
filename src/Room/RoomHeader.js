@@ -25,8 +25,6 @@ function RoomHeader({
 
   // TODO: UI: improve Header design/css
 
-  // TODO: NEXT: fix display of restartMethod when undefined
-
   return (
     <>
       {/* describe opponent, or say waiting for one */}
@@ -56,7 +54,7 @@ function RoomHeader({
       </div>
 
       {/* explain who goes first for new games */}
-      <div>{restartMethodMessage}</div>
+      {restartMethod && <div>{restartMethodMessage}</div>}
 
       {/* display W-D-L history against this opponent */}
       {opponent && (

@@ -11,7 +11,7 @@ import { useLobby } from "./useLobby.js";
 function Lobby({ setRoomCode, setIsOwner, setRestartMethod, pubnub }) {
   //// pubnub setup
 
-  // TODO: review use of promises/async
+  // TODO: ASYNC: review use of promises/async
   async function getRoomOccupancy(roomCode) {
     const room = await pubnub.hereNow({ channels: [roomCode] });
     return room.totalOccupancy;
