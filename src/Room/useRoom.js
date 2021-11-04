@@ -50,8 +50,6 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 //// useRoom custom hook
 // is independent of network (ie pubnub)
 
-// TODO: NEXT: pass view to useRoom and make it relative
-
 function useRoom(
   player,
   isOwner,
@@ -75,9 +73,7 @@ function useRoom(
   //  only for user's information if not owner
   const [restartMethod, setRestartMethod] = useState(initialRestartMethod);
   // who start(s/ed) the current game -- first player of first game is random
-  const [toPlayFirst, setToPlayFirst] = useState(null);
-
-  // TODO: NEXT: confirm this is re-randomized on new opponent join
+  const [toPlayFirst, setToPlayFirst] = useState(Math.floor(Math.random() * 2));
 
   // the game custom hook
   const {
@@ -86,11 +82,10 @@ function useRoom(
     toPlayNext,
     winner,
     resetGame,
+    startGame,
     placePiece,
     setForfeiter,
   } = useGame(toPlayFirst, setSoundToPlay);
-
-  // TODO: HOOK: NEXT: NEXT: move useGame to Game.js (??)
 
   // message queues
   const [incomingMessageQueue, dispatchIncomingMessageQueue] = useReducer(
@@ -131,8 +126,9 @@ function useRoom(
       // room is relative to player, so 1 means opponent and incoming indices
       //  are flipped as they are from opponent's view
       case "start":
-        setToPlayFirst(1 - message.toPlayFirst);
         resetGame();
+        setToPlayFirst(1 - message.toPlayFirst);
+        startGame();
         break;
       case "move":
         placePiece(message.col, 1);
@@ -152,7 +148,7 @@ function useRoom(
 
       case "leave":
         alert("Your opponent left.");
-        setOpponent(null); // this unmounts the Game component and useGame hook
+        resetRoom();
         break;
       default:
         console.log("Error: Unhandled message.");
@@ -172,16 +168,6 @@ function useRoom(
   });
 
   //// Effects
-
-  // first player
-
-  // randomize first player when opponent joins your room
-  useEffect(() => {
-    if (isOwner && playerCount === 2) {
-      setToPlayFirst(Math.floor(Math.random() * 2));
-    }
-    // only playerCount changes when isOwner
-  }, [isOwner, playerCount]);
 
   // W-D-L tally
 
@@ -268,10 +254,22 @@ function useRoom(
     // toPlayFirst won't change while gameStatus is ongoing
   }, [isOwner, queueOutgoingMessage, toPlayFirst, gameStatus]);
 
+  //// Helper functions
+
+  function resetRoom() {
+    setOpponent(null);
+    resetGame();
+    setToPlayFirst(Math.floor(Math.random() * 2));
+  }
+
+  // TODO: NEXT1: resetRoom doesn't get called if opponent leaves improperly
+  // TODO: NEXT2: so add cleanup function to Room to send out message
+
   //// Externally available functions, for this player's actions
 
   // for owner to use to start a new game
   function startNewGame() {
+    resetGame();
     // figure out who will go first
     setToPlayFirst((wentFirst) => {
       switch (restartMethod) {
@@ -290,7 +288,7 @@ function useRoom(
           return 1 - wentFirst;
       }
     });
-    resetGame();
+    startGame();
   }
 
   function makeMove(col) {
@@ -309,7 +307,7 @@ function useRoom(
   // TODO: LATER: add "permaKickOpponent" via uuid-check (not perfect)
 
   function kickOpponent() {
-    setOpponent(null);
+    resetRoom();
     publishMessage({ type: "kick" });
     setSoundToPlay(kickOpponentSound);
   }

@@ -31,6 +31,8 @@ function GameFooter({
 
   // TODO: UI: improve Footer design/css
 
+  // TODO: NEXT: reconsider gameFooter -> roomFooter, and usage of view
+
   //  displayed for viewer's point of view
   return (
     <>

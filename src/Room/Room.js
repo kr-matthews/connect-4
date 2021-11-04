@@ -81,6 +81,8 @@ function Room({
 
   //// Return
 
+  // TODO: NEXT: remove Game and have 3 children (RoomFooter)
+
   return (
     <>
       <h2>Room</h2>

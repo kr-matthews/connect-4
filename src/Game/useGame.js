@@ -274,12 +274,17 @@ function useGame(toPlayFirst, setSoundToPlay, rows = 6, cols = 7, lineLen = 4) {
 
   // given out to reset all states
   function resetGame() {
-    setWaiting(false);
+    setWaiting(true);
     setForfeiter(null);
 
     dispatchMoveHistory({ type: "reset" });
     // (use dispatch instead of useEffect since might make undo awkward?)
     dispatchPieces({ type: "reset", rows, cols });
+  }
+
+  // only does something if game was already reset
+  function startGame() {
+    setWaiting(false);
   }
 
   // given out to allow component to (attempt to) place a piece
@@ -302,6 +307,7 @@ function useGame(toPlayFirst, setSoundToPlay, rows = 6, cols = 7, lineLen = 4) {
     toPlayNext,
     winner,
     resetGame,
+    startGame,
     placePiece,
     setForfeiter,
   };
