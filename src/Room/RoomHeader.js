@@ -23,7 +23,7 @@ function RoomHeader({
     alert("Room code " + roomCode + " copied to clipboard.");
   };
 
-  // TODO: UI: improve Header design/css
+  // TODO: UI: improve Header design/css, reorganize into sub-components
 
   return (
     <>
@@ -36,7 +36,10 @@ function RoomHeader({
       ) : isOwner ? (
         <div>Waiting for an opponent to join the room.</div>
       ) : (
-        <div>Waiting for opponent information to be fetched.</div>
+        <div>
+          Waiting for opponent information to be fetched. If this message
+          persists, something has gone wrong.
+        </div>
       )}
 
       {/* who owns the room, and the code */}

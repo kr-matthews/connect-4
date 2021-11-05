@@ -23,7 +23,7 @@ function GameFooter({
           ? "It's your turn to drop a piece."
           : "Waiting for your opponent to play.";
       case "waiting":
-        return "Game has not started yet.";
+        return "The game has not started yet.";
       default:
         return "Something has gone wrong. Apologies.";
     }
@@ -31,8 +31,7 @@ function GameFooter({
 
   // TODO: UI: improve Footer design/css
 
-  // TODO: NEXT: reconsider gameFooter -> roomFooter, and usage of view
-  // TODO: add note about waiting for opp to start game when applicable
+  // TODO: LATER: reconsider gameFooter -> roomFooter, and usage of view
 
   //  displayed for viewer's point of view
   return (
@@ -43,8 +42,14 @@ function GameFooter({
       {/* buttons for forfeiting or restarting, as applicable */}
       {gameStatus === "ongoing" ? (
         <button onClick={() => forfeit()}>Forfeit</button>
+      ) : isOwner ? (
+        <button onClick={startNewGame}>New Game</button>
       ) : (
-        isOwner && <button onClick={startNewGame}>New Game</button>
+        <p>
+          Waiting for your opponent to start{" "}
+          {gameStatus === "waiting" ? "the " : "a new "}
+          game.
+        </p>
       )}
     </>
   );

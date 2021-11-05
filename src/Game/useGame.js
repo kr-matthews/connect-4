@@ -96,7 +96,7 @@ function piecesReducer(state, action) {
 
 //// The actual hook
 
-// TODO: TIME_LIMIT: option to add time limit to turns (after new gameStatus above)
+// TODO: TIME_LIMIT: option to add time limit to turns
 
 function useGame(toPlayFirst, setSoundToPlay, rows = 6, cols = 7, lineLen = 4) {
   //// States & Constants

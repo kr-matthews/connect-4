@@ -146,8 +146,10 @@ function useRoom(
         break;
 
       case "leave":
-        alert("Your opponent left.");
-        resetRoom();
+        if (playerCount === 2) {
+          alert("Your opponent left.");
+          resetRoom();
+        }
         break;
       default:
         console.log("Error: Unhandled message.");
@@ -169,7 +171,6 @@ function useRoom(
   // cleanup
 
   // on unmount of Room, send message and play sound
-  // NOTE: will send leave message when being kicked (fine, not ideal)
   // PROBLEM: won't run if browser window/tab is closed
   useEffect(() => {
     return function cleanup() {
@@ -209,7 +210,7 @@ function useRoom(
   // play sounds when other player joins or leaves
   useEffect(() => {
     if (isOwner && playerCount === 1) {
-      // TODO: SOUND: don't play leave sounds on initial render
+      // NOTE: this sound is overridden by createRoomSound on first rener (?)
       setSoundToPlay(playerLeaveSound);
     } else if (isOwner && playerCount === 2) {
       setSoundToPlay(playerJoinSound);

@@ -1,9 +1,8 @@
 import { useEffect, useCallback, useContext } from "react";
 
 import RoomHeader from "./RoomHeader.js";
-import Game from "./../Game/Game.js";
 import Board from "./../Game/Board.js";
-import GameFooter from "./../Game/GameFooter.js";
+import RoomFooter from "./RoomFooter.js";
 
 import { SoundContext } from "./../App.js";
 
@@ -64,6 +63,7 @@ function Room({
   //// in-coming network (via pubnub)
 
   // (un)subscribe to Room's channel
+  // PROBLEM: won't run if browser window/tab is closed
   useEffect(() => {
     pubnub.subscribe({
       channels: [roomCode],
@@ -76,6 +76,7 @@ function Room({
   }, [pubnub, roomCode, isOwner, publishMessage, setSoundToPlay]);
 
   // setup listener for messages
+  // PROBLEM: won't run if browser window/tab is closed
   useEffect(() => {
     function handleMessage(event) {
       queueIncomingMessage(event.message);
@@ -90,8 +91,6 @@ function Room({
 
   //// Return
 
-  // TODO: NEXT: remove Game and have 3 children (RoomFooter)
-
   return (
     <>
       <h2>Room</h2>
@@ -105,26 +104,25 @@ function Room({
         closeRoom={unmountRoom}
         leaveRoom={unmountRoom}
       />
-
       {opponent && (
-        <Game>
-          <Board
-            viewer={0}
-            board={board}
-            isViewersTurn={0 === toPlayNext}
-            colours={[player.colour, opponent.colour]}
-            makeMove={makeMove}
-          />
-          <GameFooter
-            viewer={0}
-            isOwner={isOwner}
-            gameStatus={gameStatus}
-            winner={winner}
-            toPlayNext={toPlayNext}
-            forfeit={forfeit}
-            startNewGame={startNewGame}
-          />
-        </Game>
+        <Board
+          viewer={0}
+          board={board}
+          isViewersTurn={0 === toPlayNext}
+          colours={[player.colour, opponent.colour]}
+          makeMove={makeMove}
+        />
+      )}
+      {opponent && (
+        <RoomFooter
+          viewer={0}
+          isOwner={isOwner}
+          gameStatus={gameStatus}
+          winner={winner}
+          toPlayNext={toPlayNext}
+          forfeit={forfeit}
+          startNewGame={startNewGame}
+        />
       )}
     </>
   );
