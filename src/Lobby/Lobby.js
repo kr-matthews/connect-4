@@ -17,22 +17,13 @@ function Lobby({ setRoomCode, setIsOwner, setRestartMethod, pubnub }) {
     return room.totalOccupancy;
   }
 
-  function prepareRoom(roomCode) {
-    console.log("Preparing room."); // TEMP:
-    pubnub.subscribe({
-      channels: [roomCode],
-      withPresence: true,
-    });
-  }
-
   //// useLobby hook, agnostic to chosen network
 
   const { createRoom, joinRoom } = useLobby(
     setRoomCode,
     setIsOwner,
     setRestartMethod,
-    getRoomOccupancy,
-    prepareRoom
+    getRoomOccupancy
   );
 
   //// Return

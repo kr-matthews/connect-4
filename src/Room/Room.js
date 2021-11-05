@@ -17,7 +17,7 @@ function Room({
   roomCode,
   isOwner,
   initialRestartMethod,
-  cleanupRoom,
+  unmountRoom,
   pubnub,
 }) {
   //// sounds
@@ -28,12 +28,12 @@ function Room({
 
   const publishMessage = useCallback(
     (message) => {
-      console.log("Publishing " + message.type); // TEMP:
       pubnub.publish({
         message: { ...message, uuid: player.uuid },
         channel: roomCode,
       });
     },
+    // none will change until Room unmounts
     [player.uuid, pubnub, roomCode]
   );
 
@@ -52,23 +52,32 @@ function Room({
     forfeit,
     kickOpponent,
     queueIncomingMessage,
-    closeRoom,
-    leaveRoom,
   } = useRoom(
     player,
     isOwner,
     initialRestartMethod,
     setSoundToPlay,
     publishMessage,
-    cleanupRoom
+    unmountRoom
   );
 
   //// in-coming network (via pubnub)
 
+  // (un)subscribe to Room's channel
   useEffect(() => {
-    console.log("Running listener side effect."); // TEMP:
+    pubnub.subscribe({
+      channels: [roomCode],
+      withPresence: true,
+    });
+    return function cleanupSubscription() {
+      pubnub.unsubscribe({ channels: [roomCode] });
+    };
+    // none will change while Room is mounted
+  }, [pubnub, roomCode, isOwner, publishMessage, setSoundToPlay]);
+
+  // setup listener for messages
+  useEffect(() => {
     function handleMessage(event) {
-      console.log("Queueing " + event.message.type); // TEMP:
       queueIncomingMessage(event.message);
     }
     const listener = { message: handleMessage };
@@ -76,7 +85,7 @@ function Room({
     return function cleanupListener() {
       pubnub.removeListener(listener);
     };
-    // note that queueIncomingMessage never changes
+    // note that neither of these ever change
   }, [pubnub, queueIncomingMessage]);
 
   //// Return
@@ -93,8 +102,8 @@ function Room({
         restartMethod={restartMethod}
         resultHistory={resultHistory}
         kickOpponent={kickOpponent}
-        closeRoom={closeRoom}
-        leaveRoom={leaveRoom}
+        closeRoom={unmountRoom}
+        leaveRoom={unmountRoom}
       />
 
       {opponent && (

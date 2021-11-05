@@ -74,6 +74,10 @@ function App() {
   const [isOwner, setIsOwner] = useState(null);
   const [restartMethod, setRestartMethod] = useState(null);
 
+  function unmountRoom() {
+    setRoomCode(null);
+  }
+
   //// PubNub network setup
   // NOTE: DEPLOY: currently uses demo keys
 
@@ -82,11 +86,6 @@ function App() {
   const pubnub = useMemo(() => new PubNub({ publishKey, subscribeKey, uuid }), [
     uuid,
   ]);
-
-  function cleanupRoom() {
-    pubnub.unsubscribe({ channels: [roomCode] });
-    setRoomCode(null);
-  }
 
   //// Return
 
@@ -107,7 +106,7 @@ function App() {
             roomCode={roomCode}
             isOwner={isOwner}
             initialRestartMethod={restartMethod}
-            cleanupRoom={cleanupRoom}
+            unmountRoom={unmountRoom}
             pubnub={pubnub}
           />
         ) : (

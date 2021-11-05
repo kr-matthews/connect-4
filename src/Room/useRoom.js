@@ -56,7 +56,7 @@ function useRoom(
   initialRestartMethod,
   setSoundToPlay,
   publishMessage,
-  cleanupRoom
+  unmountRoom
 ) {
   //// States
 
@@ -96,13 +96,13 @@ function useRoom(
     dispatchIncomingMessageQueue({ type: "add", message });
   }, []);
 
-  const [outgoingMessageQueue, dispatchOutgoingMessageQueue] = useReducer(
-    reduceMessageQueue,
-    []
-  );
-  const queueOutgoingMessage = useCallback((message) => {
-    dispatchOutgoingMessageQueue({ type: "add", message });
-  }, []);
+  // const [outgoingMessageQueue, dispatchOutgoingMessageQueue] = useReducer(
+  //   reduceMessageQueue,
+  //   []
+  // );
+  // const queueOutgoingMessage = useCallback((message) => {
+  //   dispatchOutgoingMessageQueue({ type: "add", message });
+  // }, []);
 
   //// Network
 
@@ -110,7 +110,6 @@ function useRoom(
 
   // act on a message
   function handleMessage(message) {
-    console.log("Handling " + message.type, message); // TEMP:
     switch (message.type) {
       case "restartMethod":
         setRestartMethod(message.restartMethod);
@@ -139,11 +138,11 @@ function useRoom(
 
       case "kick":
         alert("The owner of the room kicked you out.");
-        cleanupRoom();
+        unmountRoom();
         break;
       case "close":
         alert("The owner of the room left and so the room has closed.");
-        cleanupRoom();
+        unmountRoom();
         break;
 
       case "leave":
@@ -158,14 +157,27 @@ function useRoom(
 
   // outgoing
 
-  // if there are outgoing messages, send the first one (oldest)
+  // // if there are outgoing messages, send the first one (oldest)
+  // useEffect(() => {
+  //   if (outgoingMessageQueue.length > 0) {
+  //     publishMessage(outgoingMessageQueue[0]);
+  //     dispatchOutgoingMessageQueue({ type: "remove" });
+  //   }
+  //   // only the queue will change
+  // }, [outgoingMessageQueue, publishMessage]);
+
+  // cleanup
+
+  // on unmount of Room, send message and play sound
+  // NOTE: will send leave message when being kicked (fine, not ideal)
+  // PROBLEM: won't run if browser window/tab is closed
   useEffect(() => {
-    console.log("Side effect for outgoing messages.");
-    if (outgoingMessageQueue.length > 0) {
-      publishMessage(outgoingMessageQueue[0]);
-      dispatchOutgoingMessageQueue({ type: "remove" });
-    }
-  });
+    return function cleanup() {
+      publishMessage({ type: isOwner ? "close" : "leave" });
+      setSoundToPlay(isOwner ? closeRoomSound : leaveRoomSound);
+    };
+    // none of these will change while Room is mounted
+  }, [isOwner, publishMessage, setSoundToPlay]);
 
   //// Effects
 
@@ -231,28 +243,28 @@ function useRoom(
   // send restartMethod when opponent joins your room
   useEffect(() => {
     if (isOwner && playerCount === 2) {
-      queueOutgoingMessage({ type: "restartMethod", restartMethod });
+      publishMessage({ type: "restartMethod", restartMethod });
     }
     // only playerCount will change when isOwner
-  }, [isOwner, queueOutgoingMessage, playerCount, restartMethod]);
+  }, [isOwner, publishMessage, playerCount, restartMethod]);
   // send player name/colour on update and on player join (and initial render)
   useEffect(() => {
     if (playerCount === 2 || !isOwner) {
-      queueOutgoingMessage({
+      publishMessage({
         type: "playerInfo",
         name: player.name,
         colour: player.colour,
       });
     }
     // only playerCount and player will change
-  }, [isOwner, queueOutgoingMessage, playerCount, player.name, player.colour]);
+  }, [isOwner, publishMessage, playerCount, player.name, player.colour]);
   // send toPlayFirst when new game starts (only toPlayFirst/gameStatus change)
   useEffect(() => {
     if (isOwner && gameStatus === "ongoing") {
-      queueOutgoingMessage({ type: "start", toPlayFirst });
+      publishMessage({ type: "start", toPlayFirst });
     }
     // toPlayFirst won't change while gameStatus is ongoing
-  }, [isOwner, queueOutgoingMessage, toPlayFirst, gameStatus]);
+  }, [isOwner, publishMessage, toPlayFirst, gameStatus]);
 
   //// Helper functions
 
@@ -262,9 +274,6 @@ function useRoom(
     resetGame();
     setToPlayFirst(Math.floor(Math.random() * 2));
   }
-
-  // TODO: NEXT1: resetRoom doesn't get called if opponent leaves improperly
-  // TODO: NEXT2: so add cleanup function to Room to send out message
 
   //// Externally available functions, for this player's actions
 
@@ -313,21 +322,9 @@ function useRoom(
   // TODO: LATER: add "permaKickOpponent" via uuid-check (not perfect)
 
   function kickOpponent() {
-    resetRoom();
     publishMessage({ type: "kick" });
+    resetRoom();
     setSoundToPlay(kickOpponentSound);
-  }
-
-  function closeRoom() {
-    publishMessage({ type: "close" });
-    cleanupRoom();
-    setSoundToPlay(closeRoomSound);
-  }
-
-  function leaveRoom() {
-    publishMessage({ type: "leave" });
-    cleanupRoom();
-    setSoundToPlay(leaveRoomSound);
   }
 
   //// Return
@@ -345,8 +342,6 @@ function useRoom(
     forfeit,
     kickOpponent,
     queueIncomingMessage,
-    closeRoom,
-    leaveRoom,
   };
 }
 

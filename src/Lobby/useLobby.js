@@ -1,10 +1,4 @@
-function useLobby(
-  setRoomCode,
-  setIsOwner,
-  setRestartMethod,
-  getRoomOccupancy,
-  prepareRoom
-) {
+function useLobby(setRoomCode, setIsOwner, setRestartMethod, getRoomOccupancy) {
   //// Helpers
 
   function generateUnusedRoomCode() {
@@ -32,8 +26,6 @@ function useLobby(
   function createRoom(restartMethod) {
     // randomly generate room code (make sure it doesn't already exist)
     const generatedRoomCode = generateUnusedRoomCode();
-    // setup channel for messages
-    prepareRoom(generatedRoomCode);
     // set parameters for room
     setIsOwner(true);
     setRestartMethod(restartMethod);
@@ -45,8 +37,6 @@ function useLobby(
     if (roomOccupancy === 0) {
       alert("No room with code " + roomCode + " currently exists.");
     } else if (roomOccupancy === 1) {
-      // setup channel for messages
-      prepareRoom(roomCode);
       // set parameters for room -- will receive restartMethod via message later
       setIsOwner(false);
       setRestartMethod(null);
