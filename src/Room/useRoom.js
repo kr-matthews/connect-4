@@ -320,7 +320,7 @@ function useRoom(
     publishMessage({ type: "forfeit" });
   }
 
-  // TODO: LATER: add "permaKickOpponent" via uuid-check (not perfect)
+  // TODO: LATER: PERMAKICK: add via uuid-check (not perfect)
 
   function kickOpponent() {
     publishMessage({ type: "kick" });

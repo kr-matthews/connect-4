@@ -23,8 +23,6 @@ import { useSound } from "./sounds/useSound.js";
 
 import { getRandomColour } from "./Colours.js";
 
-// TODO: DEPLOY: KEYSET: revisit keyset privacy & github pages
-
 //// Contexts
 
 const themes = {

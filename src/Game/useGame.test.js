@@ -5,7 +5,7 @@ import { useGame } from "./useGame.js";
 // NOTE: hook used to return moveHistory, so those were commented out
 
 // TODO: TEST: useGame: expand coverage of custom hook tests:
-//  add checks to current tests for winner, start game
+//  add checks to current tests for winner, start game, highlights in board, ...
 //  add tests for setForfeiter
 //  add tests for diagonal and anti-diagonal wins
 //  add tests for win on 42nd piece placed (ie filling up board but no draw)
@@ -260,7 +260,6 @@ it("useGame detects vertical win", () => {
 });
 
 it("useGame detects draw", () => {
-  // TODO: TEST: check nothing gets highlighted
   for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
     const { result } = renderHook(() => useGame(initialPlayer));
 

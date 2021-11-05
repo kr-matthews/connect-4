@@ -5,13 +5,13 @@ import { useLobby } from "./useLobby.js";
 
 // TODO: UI: improve design/css of lobby (and sub-components)
 
-// TODO: LATER: MULTIPLAYER: add local 2-player as an option in Lobby
-// TODO: LATER: COMPUTER: add computer opponent as an option in Lobby
+// TODO: NEXT: MULTIPLAYER: add local 2-player as an option in Lobby
+// TODO: NEXT: COMPUTER: add computer opponent as an option in Lobby
 
 function Lobby({ setRoomCode, setIsOwner, setRestartMethod, pubnub }) {
   //// pubnub setup
 
-  // TODO: ASYNC: review use of promises/async
+  // TODO: NEXT: ASYNC: review use of promises/async
   async function getRoomOccupancy(roomCode) {
     const room = await pubnub.hereNow({ channels: [roomCode] });
     return room.totalOccupancy;

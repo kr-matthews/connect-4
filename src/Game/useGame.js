@@ -96,7 +96,7 @@ function piecesReducer(state, action) {
 
 //// The actual hook
 
-// TODO: TIME_LIMIT: option to add time limit to turns
+// TODO: LATER: TIME_LIMIT: option to add time limit to turns
 
 function useGame(
   toPlayFirst,
@@ -228,7 +228,7 @@ function useGame(
     return false;
   }
 
-  // TODO: LATER: MAYBE: highlight most recent piece? would be easy
+  // TODO: MAYBE: HIGHLIGHT: highlight most recent piece? would be easy
 
   // highlight winning locations
   function createHighlights() {
@@ -310,7 +310,7 @@ function useGame(
 
   //// Return
 
-  // TODO: LATER: UNDO: maybe return an undo function
+  // TODO: MAYBE: UNDO: return an undo function
   return {
     board,
     gameStatus,
