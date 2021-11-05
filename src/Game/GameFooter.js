@@ -32,6 +32,7 @@ function GameFooter({
   // TODO: UI: improve Footer design/css
 
   // TODO: NEXT: reconsider gameFooter -> roomFooter, and usage of view
+  // TODO: add note about waiting for opp to start game when applicable
 
   //  displayed for viewer's point of view
   return (

@@ -110,7 +110,7 @@ function useRoom(
 
   // act on a message
   function handleMessage(message) {
-    console.log("Handling " + message.type); // TEMP:
+    console.log("Handling " + message.type, message); // TEMP:
     switch (message.type) {
       case "restartMethod":
         setRestartMethod(message.restartMethod);
@@ -196,13 +196,13 @@ function useRoom(
 
   // play sounds when other player joins or leaves
   useEffect(() => {
-    if (playerCount === 1) {
+    if (isOwner && playerCount === 1) {
       // TODO: SOUND: don't play leave sounds on initial render
       setSoundToPlay(playerLeaveSound);
-    } else {
+    } else if (isOwner && playerCount === 2) {
       setSoundToPlay(playerJoinSound);
     }
-  }, [playerCount, setSoundToPlay]);
+  }, [isOwner, playerCount, setSoundToPlay]);
 
   // play create/join sounds (should only run once, as both dependencies never change)
   useEffect(() => {
@@ -256,6 +256,7 @@ function useRoom(
 
   //// Helper functions
 
+  // will only be called by owner
   function resetRoom() {
     setOpponent(null);
     resetGame();
@@ -269,25 +270,30 @@ function useRoom(
 
   // for owner to use to start a new game
   function startNewGame() {
+    if (gameStatus !== "waiting") {
+      // if it's a rematch then figure out who will go first
+      //  otherwise, toPlayFirst is already correct
+      setToPlayFirst((wentFirst) => {
+        switch (restartMethod) {
+          case "random":
+            return Math.floor(Math.random() * 2);
+          case "alternate":
+            return 1 - wentFirst;
+          case "loser":
+            // if it's a draw, keep the same player
+            return gameStatus === "draw" ? wentFirst : 1 - winner;
+          case "winner":
+            // if it's a draw, keep the same player
+            return gameStatus === "draw" ? wentFirst : winner;
+          default:
+            console.log(
+              "Error: New Game couldn't select first player properly."
+            );
+            return 1 - wentFirst;
+        }
+      });
+    }
     resetGame();
-    // figure out who will go first
-    setToPlayFirst((wentFirst) => {
-      switch (restartMethod) {
-        case "random":
-          return Math.floor(Math.random() * 2);
-        case "alternate":
-          return 1 - wentFirst;
-        case "loser":
-          // if it's a draw, keep the same player
-          return gameStatus === "draw" ? wentFirst : 1 - winner;
-        case "winner":
-          // if it's a draw, keep the same player
-          return gameStatus === "draw" ? wentFirst : winner;
-        default:
-          console.log("Error: New Game couldn't select first player properly.");
-          return 1 - wentFirst;
-      }
-    });
     startGame();
   }
 
