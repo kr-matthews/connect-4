@@ -98,7 +98,15 @@ function piecesReducer(state, action) {
 
 // TODO: TIME_LIMIT: option to add time limit to turns
 
-function useGame(toPlayFirst, setSoundToPlay, rows = 6, cols = 7, lineLen = 4) {
+function useGame(
+  toPlayFirst,
+  setSoundToPlay = (_) => {
+    return;
+  },
+  rows = 6,
+  cols = 7,
+  lineLen = 4
+) {
   //// States & Constants
 
   // waiting for first game to start?
@@ -219,6 +227,8 @@ function useGame(toPlayFirst, setSoundToPlay, rows = 6, cols = 7, lineLen = 4) {
     }
     return false;
   }
+
+  // TODO: LATER: MAYBE: highlight most recent piece? would be easy
 
   // highlight winning locations
   function createHighlights() {

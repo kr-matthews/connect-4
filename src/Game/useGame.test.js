@@ -4,14 +4,16 @@ import { useGame } from "./useGame.js";
 
 // NOTE: hook used to return moveHistory, so those were commented out
 
-// TODO: NEXT: TEST: PROBLEM: SoundContext introduction broke useGame tests
+// TODO: TEST: useGame: expand coverage of custom hook tests:
+//  add checks to current tests for winner, start game
+//  add tests for setForfeiter
+//  add tests for diagonal and anti-diagonal wins
+//  add tests for win on 42nd piece placed (ie filling up board but no draw)
+//  add tests for undo action (if/when it is added)
 
 // helpers
 
 function validStates(states) {
-  // only returns the expected consts and functions
-  expect(Object.keys(states)).toHaveLength(7);
-
   // test each of them
   expect(states).toHaveProperty("board");
   expect(states.board).toHaveLength(6);
@@ -29,7 +31,9 @@ function validStates(states) {
   });
 
   expect(states).toHaveProperty("gameStatus");
-  expect(["ongoing", "won", "draw", "forfeit"]).toContain(states.gameStatus);
+  expect(["waiting", "ongoing", "won", "draw", "forfeit"]).toContain(
+    states.gameStatus
+  );
 
   expect(states).toHaveProperty("toPlayNext");
   expect([0, 1, null]).toContain(states.toPlayNext);
@@ -57,6 +61,7 @@ function validStates(states) {
   expect(
     states.gameStatus === "ongoing" ||
       states.gameStatus === "draw" ||
+      states.gameStatus === "waiting" ||
       states.winner !== null
   ).toBe(true);
 
@@ -77,8 +82,8 @@ function validStates(states) {
   expect(states).toHaveProperty("placePiece");
   expect(states.placePiece).toBeFunction;
 
-  expect(states).toHaveProperty("forfeit");
-  expect(states.forfeit).toBeFunction;
+  expect(states).toHaveProperty("setForfeiter");
+  expect(states.setForfeiter).toBeFunction;
 }
 
 function isEmpty(board) {
@@ -90,9 +95,9 @@ function isEmpty(board) {
   });
 }
 
-function isInitialState(states, player) {
-  expect(states.gameStatus).toBe("ongoing");
-  expect(states.toPlayNext).toBe(player);
+function isInitialState(states) {
+  expect(states.gameStatus).toBe("waiting");
+  expect(states.toPlayNext).toBe(null);
   isEmpty(states.board);
   // expect(states.moveHistory).toEqual([]);
 }
@@ -104,7 +109,7 @@ it("useGame initial states valid", () => {
     const { result } = renderHook(() => useGame(initialPlayer));
 
     validStates(result.current);
-    isInitialState(result.current, initialPlayer);
+    isInitialState(result.current);
   }
 });
 
@@ -112,13 +117,13 @@ it("useGame states remain valid after (redundant) reset", () => {
   for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
     const { result } = renderHook(() => useGame(initialPlayer));
 
-    act(() => result.current.resetGame(0));
+    act(() => result.current.resetGame());
     validStates(result.current);
-    isInitialState(result.current, 0);
+    isInitialState(result.current);
 
-    act(() => result.current.resetGame(1));
+    act(() => result.current.resetGame());
     validStates(result.current);
-    isInitialState(result.current, 1);
+    isInitialState(result.current);
   }
 });
 
@@ -127,6 +132,9 @@ it("useGame states remain valid after playing first piece", () => {
     for (let col = 0; col < 7; col++) {
       const { result } = renderHook(() => useGame(initialPlayer));
 
+      expect(result.current.gameStatus).toBe("waiting");
+      // start game
+      act(() => result.current.startGame());
       // place piece in column col
       act(() => result.current.placePiece(col, result.current.toPlayNext));
       validStates(result.current);
@@ -149,6 +157,8 @@ it("useGame states remain valid bewteen/after 3 moves then reset", () => {
     for (let col = 0; col < 7; col++) {
       const { result } = renderHook(() => useGame(initialPlayer));
 
+      // start game
+      act(() => result.current.startGame());
       // place piece in column col
       act(() => result.current.placePiece(col, result.current.toPlayNext));
       validStates(result.current);
@@ -180,9 +190,9 @@ it("useGame states remain valid bewteen/after 3 moves then reset", () => {
       });
 
       // reset board
-      act(() => result.current.resetGame(1 - initialPlayer));
+      act(() => result.current.resetGame());
       validStates(result.current);
-      isInitialState(result.current, 1 - initialPlayer);
+      isInitialState(result.current);
     }
   }
 });
@@ -194,6 +204,8 @@ it("useGame detects horizontal win", () => {
     // - - 1 1 1 - -
     // - - 0 0 0 0 -    <- bottom row
 
+    // start game
+    act(() => result.current.startGame());
     for (let i = 4; i < 11; i++) {
       act(() =>
         result.current.placePiece(Math.floor(i / 2), result.current.toPlayNext)
@@ -220,7 +232,13 @@ it("useGame detects vertical win", () => {
       // - - - - 1 0 -
       // 0 - - - 1 0 -    <- bottom row
 
-      act(() => result.current.placePiece((col + 3) % 7), initialPlayer);
+      // start game
+      act(() => result.current.startGame());
+
+      // place off-set piece
+      act(() => result.current.placePiece((col + 3) % 7, initialPlayer));
+
+      // build verticals
       for (let i = 0; i < 7; i++) {
         act(() =>
           result.current.placePiece(
@@ -253,6 +271,9 @@ it("useGame detects draw", () => {
     // 1 0 1 0 1 0 0
     // 1 0 1 0 1 0 1    <- bottom row
 
+    // start game
+    act(() => result.current.startGame());
+
     for (let k = 0; k < 3; k++) {
       // do columns 2 * k and 2 * k + 1
       for (let j = 0; j < 2; j++) {
@@ -277,9 +298,3 @@ it("useGame detects draw", () => {
     expect(result.current.gameStatus).toBe("draw");
   }
 });
-
-// TODO: TEST: add checks on .winner to current tests
-// TODO: TEST: for diagonal and anti-diagonal wins
-// TODO: TEST: win on 42nd piece placed (ie filling up board but no draw)
-// TODO: TEST: forfeit action
-// TODO: TEST: undo action (if/when it is added)

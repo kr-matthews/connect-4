@@ -10,7 +10,7 @@ import kickOpponentSound from "./../sounds/fist-punch-or-kick-7171.mp3";
 import closeRoomSound from "./../sounds/power-down-7103.mp3";
 import leaveRoomSound from "./../sounds/notification-sound-7062.mp3";
 
-// TODO: TEST: create tests for useRoom hook
+// TODO: TEST: useRoom: create tests for custom hook
 
 //// Reducers
 

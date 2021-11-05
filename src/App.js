@@ -99,7 +99,7 @@ function App() {
           <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
           <SiteSound soundIsOn={soundIsOn} toggleSound={toggleSound} />
         </Header>
-        <h1>Connect 4 [WIP]</h1>
+        <h1>Connect 4</h1>
         {roomCode ? (
           <Room
             player={{ name, colour, uuid }}
