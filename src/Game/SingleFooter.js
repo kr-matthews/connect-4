@@ -41,11 +41,10 @@ function SingleFooter({
 
       {/* buttons for forfeiting or restarting, as applicable */}
       {gameStatus === "ongoing" ? (
-        <button onClick={() => forfeit()}>Forfeit</button>
+        <button onClick={forfeit}>Forfeit</button>
       ) : isOwner ? (
         hasChoice ? (
           <>
-            {" "}
             <button onClick={() => startNewGame(viewer)}>
               New Game: Go First
             </button>

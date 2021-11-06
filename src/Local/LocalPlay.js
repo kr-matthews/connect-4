@@ -52,8 +52,10 @@ function LocalPlay({ player, opponent, unmountLocal }) {
         makeMove={makeMove}
       />
       <DoubleFooter
+        names={[player.name, opponent.name]}
         gameStatus={gameStatus}
         winner={winner}
+        toPlayNext={toPlayNext}
         forfeit={forfeit}
         startNewGame={startNewGame}
       />

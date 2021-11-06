@@ -62,6 +62,8 @@ function useRoom(
 ) {
   //// States
 
+  // TODO: encapsulate resultHistory for use in other settings
+
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
   // history of all games played
