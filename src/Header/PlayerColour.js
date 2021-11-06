@@ -1,14 +1,18 @@
-function PlayerColour({ colour, setColour }) {
+function PlayerColour({ editable, colour, setColour }) {
   function changeHandler(e) {
     const newColour = e.target.value;
     setColour(newColour);
   }
 
   return (
-    <>
-      Your piece colour is{" "}
-      <input type="color" value={colour} onChange={changeHandler} />.
-    </>
+    <div>
+      Piece Colour:{" "}
+      {editable ? (
+        <input type="color" value={colour} onChange={changeHandler} />
+      ) : (
+        <input type="color" disabled value={colour} />
+      )}
+    </div>
   );
 }
 

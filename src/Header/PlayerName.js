@@ -5,7 +5,7 @@ import { useState } from "react";
 
 const defaultName = "Nameless";
 
-function PlayerName({ name, setName }) {
+function PlayerName({ editable, name, setName }) {
   const [isEditing, setIsEditing] = useState(false);
 
   // click name to edit it
@@ -36,8 +36,8 @@ function PlayerName({ name, setName }) {
   }
 
   return (
-    <>
-      Your name is{" "}
+    <div>
+      Name:{" "}
       {isEditing ? (
         <input
           autoFocus
@@ -48,11 +48,12 @@ function PlayerName({ name, setName }) {
           onKeyDown={keyDownHandler}
           onBlur={loseFocusHandler}
         />
-      ) : (
+      ) : editable ? (
         <button onClick={clickHandler}>{name}</button>
+      ) : (
+        name
       )}
-      .
-    </>
+    </div>
   );
 }
 

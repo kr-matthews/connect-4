@@ -53,6 +53,8 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 function useRoom(
   player,
   isOwner,
+  opponent,
+  setOpponent,
   initialRestartMethod,
   setSoundToPlay,
   publishMessage,
@@ -63,8 +65,6 @@ function useRoom(
   // TODO: NEXT: move (set)opponent to App to allow for use in local play
   //  also allows for symmetric display of player info (user and opponent)
 
-  // other player's name and colour, once they join\
-  const [opponent, setOpponent] = useState(null);
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
   // history of all games played
@@ -334,7 +334,6 @@ function useRoom(
   //// Return
 
   return {
-    opponent,
     resultHistory,
     restartMethod,
     board,

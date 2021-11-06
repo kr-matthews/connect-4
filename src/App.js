@@ -7,6 +7,7 @@ import PubNub from "pubnub";
 import { subscribeKey, publishKey } from "./pubnubKeys.js";
 
 import Header from "./Header/Header.js";
+import PlayerInfo from "./Header/PlayerInfo.js";
 import PlayerName from "./Header/PlayerName.js";
 import PlayerColour from "./Header/PlayerColour.js";
 import SiteTheme from "./Header/SiteTheme.js";
@@ -67,7 +68,21 @@ function App() {
   const [name, setName] = useLocalState("name", "Nameless");
   const [colour, setColour] = useLocalState("colour", getRandomColour());
 
-  // settings for initializing room
+  // Opponent Properties
+
+  // other player's name and colour, once they join\
+  const [opponent, setOpponent] = useState(null);
+  function modifyOpponent(key, val) {
+    setOpponent((prev) => {
+      if (prev) {
+        const copy = { ...prev };
+        copy[key] = val;
+        return copy;
+      }
+    });
+  }
+
+  // room params, shared between lobby and room
 
   const [roomCode, setRoomCode] = useState(null);
   const [isOwner, setIsOwner] = useState(null);
@@ -78,7 +93,6 @@ function App() {
   }
 
   //// PubNub network setup
-  // NOTE: DEPLOY: currently uses demo keys
 
   // constant identifier per user/device
   const [uuid] = useLocalState("uuid", generateRandomUuid());
@@ -92,18 +106,45 @@ function App() {
     <ThemeContext.Provider value={theme}>
       <SoundContext.Provider value={{ setSoundToPlay }}>
         <GlobalStyle theme={theme} />
+
         <Header>
-          <PlayerName name={name} setName={setName} />
-          <PlayerColour colour={colour} setColour={setColour} />
+          <PlayerInfo self={true}>
+            <PlayerName editable={true} name={name} setName={setName} />
+            <PlayerColour
+              editable={true}
+              colour={colour}
+              setColour={setColour}
+            />
+          </PlayerInfo>
+
           <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
           <SiteSound soundIsOn={soundIsOn} toggleSound={toggleSound} />
+
+          {opponent && (
+            <PlayerInfo self={false}>
+              <PlayerName
+                editable={false}
+                name={opponent.name}
+                setName={(name) => modifyOpponent("name", name)}
+              />
+              <PlayerColour
+                editable={false}
+                colour={opponent.colour}
+                setName={(colour) => modifyOpponent("color", colour)}
+              />
+            </PlayerInfo>
+          )}
         </Header>
+
         <h1>Connect 4</h1>
+
         {roomCode ? (
           <Room
-            player={{ name, colour, uuid }}
             roomCode={roomCode}
+            player={{ name, colour, uuid }}
             isOwner={isOwner}
+            opponent={opponent}
+            setOpponent={setOpponent}
             initialRestartMethod={restartMethod}
             unmountRoom={unmountRoom}
             pubnub={pubnub}

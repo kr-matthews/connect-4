@@ -12,9 +12,11 @@ import { useRoom } from "./useRoom.js";
 //  each player has their own instantiation of the 'shared' room
 
 function Room({
-  player,
   roomCode,
+  player,
   isOwner,
+  opponent,
+  setOpponent,
   initialRestartMethod,
   unmountRoom,
   pubnub,
@@ -39,7 +41,6 @@ function Room({
   //// useRoom hook (agnostic of network choice)
 
   const {
-    opponent,
     resultHistory,
     restartMethod,
     board,
@@ -54,6 +55,8 @@ function Room({
   } = useRoom(
     player,
     isOwner,
+    opponent,
+    setOpponent,
     initialRestartMethod,
     setSoundToPlay,
     publishMessage,
