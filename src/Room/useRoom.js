@@ -62,9 +62,6 @@ function useRoom(
 ) {
   //// States
 
-  // TODO: NEXT: move (set)opponent to App to allow for use in local play
-  //  also allows for symmetric display of player info (user and opponent)
-
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
   // history of all games played

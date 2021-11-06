@@ -15,6 +15,8 @@ import SiteSound from "./Header/SiteSound.js";
 
 import Lobby from "./Lobby/Lobby.js";
 import Room from "./Room/Room.js";
+import LocalPlay from "./Local/LocalPlay.js";
+import ComputerPlay from "./Local/ComputerPlay.js";
 
 import Links from "./links/Links.js";
 
@@ -82,20 +84,30 @@ function App() {
     });
   }
 
-  // room params, shared between lobby and room
+  // indicator for which type of gameplay is being used
+
+  // indicates online, local, or computer (or null if in lobby)
+  const [playType, setPlayType] = useState(null);
+
+  // exit whatever mode of play you're in
+  function resetAll() {
+    // exit & clear opponent
+    setPlayType(null);
+    setOpponent(null);
+    // cleanup room, if applicable
+    setRoomCode(null);
+    setIsOwner(null);
+    setRestartMethod(null);
+  }
+  // room and network params, shared between lobby and room
 
   const [roomCode, setRoomCode] = useState(null);
   const [isOwner, setIsOwner] = useState(null);
   const [restartMethod, setRestartMethod] = useState(null);
 
-  function unmountRoom() {
-    setRoomCode(null);
-  }
-
-  //// PubNub network setup
-
   // constant identifier per user/device
   const [uuid] = useLocalState("uuid", generateRandomUuid());
+  // pubnub network
   const pubnub = useMemo(() => new PubNub({ publishKey, subscribeKey, uuid }), [
     uuid,
   ]);
@@ -106,6 +118,8 @@ function App() {
     <ThemeContext.Provider value={theme}>
       <SoundContext.Provider value={{ setSoundToPlay }}>
         <GlobalStyle theme={theme} />
+
+        <h1>Connect 4</h1>
 
         <Header>
           <PlayerInfo self={true}>
@@ -136,9 +150,7 @@ function App() {
           )}
         </Header>
 
-        <h1>Connect 4</h1>
-
-        {roomCode ? (
+        {playType === "online" ? (
           <Room
             roomCode={roomCode}
             player={{ name, colour, uuid }}
@@ -146,11 +158,16 @@ function App() {
             opponent={opponent}
             setOpponent={setOpponent}
             initialRestartMethod={restartMethod}
-            unmountRoom={unmountRoom}
+            unmountRoom={resetAll}
             pubnub={pubnub}
           />
+        ) : playType === "local" ? (
+          <LocalPlay unmountLocal={resetAll} />
+        ) : playType === "computer" ? (
+          <ComputerPlay unmountComputer={resetAll} />
         ) : (
           <Lobby
+            setPlayType={setPlayType}
             setRoomCode={setRoomCode}
             setIsOwner={setIsOwner}
             setRestartMethod={setRestartMethod}

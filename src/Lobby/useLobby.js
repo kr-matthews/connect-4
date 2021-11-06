@@ -1,4 +1,10 @@
-function useLobby(setRoomCode, setIsOwner, setRestartMethod, getRoomOccupancy) {
+function useLobby(
+  setPlayType,
+  setRoomCode,
+  setIsOwner,
+  setRestartMethod,
+  getRoomOccupancy
+) {
   //// Helpers
 
   function generateUnusedRoomCode() {
@@ -30,6 +36,7 @@ function useLobby(setRoomCode, setIsOwner, setRestartMethod, getRoomOccupancy) {
     setIsOwner(true);
     setRestartMethod(restartMethod);
     setRoomCode(generatedRoomCode);
+    setPlayType("online");
   }
 
   async function joinRoom(roomCode) {
@@ -41,6 +48,7 @@ function useLobby(setRoomCode, setIsOwner, setRestartMethod, getRoomOccupancy) {
       setIsOwner(false);
       setRestartMethod(null);
       setRoomCode(roomCode);
+      setPlayType("online");
     } else {
       alert("The room with code " + roomCode + " already has two players.");
     }
@@ -48,12 +56,12 @@ function useLobby(setRoomCode, setIsOwner, setRestartMethod, getRoomOccupancy) {
 
   function playLocally() {
     // TODO: NEXT: define playLocally
-    alert("Sorry, this isn't ready yet.");
+    setPlayType("local");
   }
 
   function playComputer() {
     // TODO: NEXT: define playComputer
-    alert("Sorry, this isn't ready yet.");
+    setPlayType("computer");
   }
 
   //// Return

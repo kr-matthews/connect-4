@@ -1,8 +1,5 @@
 import { useState } from "react";
 
-// TODO: NEXT: redo PlayerName & PlayerColour to allow re-use for opponent
-//  including local and computer play
-
 const defaultName = "Nameless";
 
 function PlayerName({ editable, name, setName }) {

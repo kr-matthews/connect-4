@@ -1,7 +1,7 @@
 function PlayerInfo({ children, self }) {
   return (
     <>
-      <h2>{self ? "You" : "Opponent"}</h2>
+      <h3>{self ? "You" : "Opponent"}</h3>
       {children}
     </>
   );

@@ -8,7 +8,13 @@ import { useLobby } from "./useLobby.js";
 
 // TODO: UI: improve design/css of lobby (and sub-components)
 
-function Lobby({ setRoomCode, setIsOwner, setRestartMethod, pubnub }) {
+function Lobby({
+  setPlayType,
+  setRoomCode,
+  setIsOwner,
+  setRestartMethod,
+  pubnub,
+}) {
   //// pubnub setup
 
   // TODO: NEXT: ASYNC: review use of promises/async
@@ -20,6 +26,7 @@ function Lobby({ setRoomCode, setIsOwner, setRestartMethod, pubnub }) {
   //// useLobby hook, agnostic to chosen network
 
   const { createRoom, joinRoom, playLocally, playComputer } = useLobby(
+    setPlayType,
     setRoomCode,
     setIsOwner,
     setRestartMethod,
