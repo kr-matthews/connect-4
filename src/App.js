@@ -1,17 +1,18 @@
 import { useState, useMemo, createContext } from "react";
 
+// TODO: NEXT: NETWORK: deal with potential failures of pubnub
+
 import PubNub from "pubnub";
 // pubnubKeys.js is listed in .gitignore, contains private keys
 import { subscribeKey, publishKey } from "./pubnubKeys.js";
 
-import Header from "./Options/Header.js";
+import Header from "./Header/Header.js";
+import PlayerName from "./Header/PlayerName.js";
+import PlayerColour from "./Header/PlayerColour.js";
+import SiteTheme from "./Header/SiteTheme.js";
+import SiteSound from "./Header/SiteSound.js";
+
 import Lobby from "./Lobby/Lobby.js";
-
-import PlayerName from "./Options/PlayerName.js";
-import PlayerColour from "./Options/PlayerColour.js";
-import SiteTheme from "./Options/SiteTheme.js";
-import SiteSound from "./Options/SiteSound.js";
-
 import Room from "./Room/Room.js";
 
 import Links from "./links/Links.js";

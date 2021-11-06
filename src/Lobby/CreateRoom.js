@@ -7,9 +7,14 @@ function CreateRoom({ createRoom }) {
     setRestartMethodInput(e.target.value);
   }
 
+  function handleClick(e) {
+    e.preventDefault();
+    createRoom(restartMethodInput);
+  }
+
   return (
     <div>
-      <h3>Create a Room</h3>
+      <h3>Create an Online Room</h3>
       <p>
         Once created, you will be given a room code which you can share with a
         friend to join.
@@ -32,14 +37,7 @@ function CreateRoom({ createRoom }) {
             </label>
           );
         })}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            createRoom(restartMethodInput);
-          }}
-        >
-          Create
-        </button>
+        <button onClick={handleClick}>Create Room</button>
       </form>
     </div>
   );

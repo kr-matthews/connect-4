@@ -46,11 +46,23 @@ function useLobby(setRoomCode, setIsOwner, setRestartMethod, getRoomOccupancy) {
     }
   }
 
+  function playLocally() {
+    // TODO: NEXT: define playLocally
+    alert("Sorry, this isn't ready yet.");
+  }
+
+  function playComputer() {
+    // TODO: NEXT: define playComputer
+    alert("Sorry, this isn't ready yet.");
+  }
+
   //// Return
 
   return {
     createRoom,
     joinRoom,
+    playLocally,
+    playComputer,
   };
 }
 

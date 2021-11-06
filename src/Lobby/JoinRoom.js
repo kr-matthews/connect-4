@@ -16,10 +16,10 @@ function JoinRoom({ joinRoom }) {
 
   return (
     <div>
-      <h3>Join a Room</h3>
+      <h3>Join an Online Room</h3>
       <p>
-        If someone else has given you a code, use that code to join their room.
-        Codes are 4 characters.
+        If someone else has given you a room code, use that code to join their
+        room. Room codes are 4 characters.
       </p>
       <form>
         <input
@@ -28,7 +28,7 @@ function JoinRoom({ joinRoom }) {
           placeholder="enter room code"
           onChange={changeHandler}
         />
-        <button onClick={clickHandler}>Join</button>
+        <button onClick={clickHandler}>Join Room</button>
       </form>
     </div>
   );

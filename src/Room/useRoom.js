@@ -60,6 +60,9 @@ function useRoom(
 ) {
   //// States
 
+  // TODO: NEXT: move (set)opponent to App to allow for use in local play
+  //  also allows for symmetric display of player info (user and opponent)
+
   // other player's name and colour, once they join\
   const [opponent, setOpponent] = useState(null);
   // how many players are present
