@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 
 import ComputerHeader from "./ComputerHeader.js";
 import Board from "./../Game/Board.js";
-import ComputerFooter from "./ComputerFooter.js";
+import SingleFooter from "./../Game/SingleFooter.js";
 
 import { SoundContext } from "./../App.js";
 
@@ -51,11 +51,16 @@ function ComputerPlay({ player, opponent, unmountComputer }) {
         colours={[player.colour, opponent.colour]}
         makeMove={makeMove}
       />
-      <ComputerFooter
+      TEMP: computer player doesn't exist yet
+      <SingleFooter
+        viewer={0}
+        isOwner={true}
         gameStatus={gameStatus}
         winner={winner}
+        toPlayNext={toPlayNext}
         forfeit={forfeit}
         startNewGame={startNewGame}
+        hasChoice={true}
       />
     </>
   );

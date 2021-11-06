@@ -1,4 +1,4 @@
-function GameFooter({
+function SingleFooter({
   viewer,
   isOwner,
   gameStatus,
@@ -6,6 +6,7 @@ function GameFooter({
   toPlayNext,
   forfeit,
   startNewGame,
+  hasChoice,
 }) {
   // to display to viewer
   function gameStatusMessage() {
@@ -25,13 +26,12 @@ function GameFooter({
       case "waiting":
         return "The game has not started yet.";
       default:
+        console.log("Error: ", gameStatus);
         return "Something has gone wrong. Apologies.";
     }
   }
 
   // TODO: UI: improve Footer design/css
-
-  // TODO: LATER: reconsider gameFooter -> roomFooter, and usage of view
 
   //  displayed for viewer's point of view
   return (
@@ -43,7 +43,19 @@ function GameFooter({
       {gameStatus === "ongoing" ? (
         <button onClick={() => forfeit()}>Forfeit</button>
       ) : isOwner ? (
-        <button onClick={startNewGame}>New Game</button>
+        hasChoice ? (
+          <>
+            {" "}
+            <button onClick={() => startNewGame(viewer)}>
+              New Game: Go First
+            </button>
+            <button onClick={() => startNewGame(1 - viewer)}>
+              New Game: Go Second
+            </button>
+          </>
+        ) : (
+          <button onClick={startNewGame}>New Game</button>
+        )
       ) : (
         <p>
           Waiting for your opponent to start{" "}
@@ -55,4 +67,4 @@ function GameFooter({
   );
 }
 
-export default GameFooter;
+export default SingleFooter;

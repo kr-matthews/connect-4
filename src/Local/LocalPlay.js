@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 
 import LocalHeader from "./LocalHeader.js";
 import Board from "./../Game/Board.js";
-import LocalFooter from "./LocalFooter.js";
+import DoubleFooter from "./../Game/DoubleFooter.js";
 
 import { SoundContext } from "./../App.js";
 
@@ -51,7 +51,7 @@ function LocalPlay({ player, opponent, unmountLocal }) {
         colours={[player.colour, opponent.colour]}
         makeMove={makeMove}
       />
-      <LocalFooter
+      <DoubleFooter
         gameStatus={gameStatus}
         winner={winner}
         forfeit={forfeit}

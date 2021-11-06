@@ -2,7 +2,7 @@ import { useEffect, useCallback, useContext } from "react";
 
 import RoomHeader from "./RoomHeader.js";
 import Board from "./../Game/Board.js";
-import RoomFooter from "./RoomFooter.js";
+import SingleFooter from "./../Game/SingleFooter.js";
 
 import { SoundContext } from "./../App.js";
 
@@ -116,7 +116,7 @@ function Room({
         />
       )}
       {opponent && (
-        <RoomFooter
+        <SingleFooter
           viewer={0}
           isOwner={isOwner}
           gameStatus={gameStatus}
@@ -124,6 +124,7 @@ function Room({
           toPlayNext={toPlayNext}
           forfeit={forfeit}
           startNewGame={startNewGame}
+          hasChoice={false}
         />
       )}
     </>
