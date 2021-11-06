@@ -1,21 +1,18 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 
 import LocalHeader from "./LocalHeader.js";
 import Board from "./../Game/Board.js";
 import DoubleFooter from "./../Game/DoubleFooter.js";
 
-import { SoundContext } from "./../App.js";
-
 import { useGame } from "./../Game/useGame.js";
 
 function LocalPlay({ player, opponent, unmountLocal }) {
-  // Sound
-  const { setSoundToPlay } = useContext(SoundContext);
-
   // first player
   const [toPlayFirst, setToPlayFirst] = useState(null);
 
-  // the game custom hook
+  // TODO: SOUND: revisit -- doesn't work well for local play
+
+  // the game custom hook (no sound used)
   const {
     board,
     gameStatus,
@@ -25,7 +22,7 @@ function LocalPlay({ player, opponent, unmountLocal }) {
     startGame,
     placePiece,
     setForfeiter,
-  } = useGame(toPlayFirst, setSoundToPlay);
+  } = useGame(toPlayFirst);
 
   function makeMove(col) {
     placePiece(col, toPlayNext);
