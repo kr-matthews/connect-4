@@ -1,4 +1,7 @@
+import { getRandomColour } from "./../Colours.js";
+
 function useLobby(
+  setOpponent,
   setPlayType,
   setRoomCode,
   setIsOwner,
@@ -39,6 +42,8 @@ function useLobby(
     setPlayType("online");
   }
 
+  // TODO: NEXT: ASYNC: review use of promises/async
+
   async function joinRoom(roomCode) {
     const roomOccupancy = await getRoomOccupancy(roomCode);
     if (roomOccupancy === 0) {
@@ -55,12 +60,16 @@ function useLobby(
   }
 
   function playLocally() {
-    // TODO: NEXT: define playLocally
+    // setup opponent (is null til now)
+    setOpponent({ name: "Player II", colour: getRandomColour() });
+    // mount component
     setPlayType("local");
   }
 
   function playComputer() {
-    // TODO: NEXT: define playComputer
+    // setup opponent (is null til now)
+    setOpponent({ name: "Computron 5000", colour: getRandomColour() });
+    // mount component
     setPlayType("computer");
   }
 

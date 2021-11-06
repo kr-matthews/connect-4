@@ -1,8 +1,62 @@
-function LocalPlay({ unmountLocal }) {
+import { useState, useContext } from "react";
+
+import LocalHeader from "./LocalHeader.js";
+import Board from "./../Game/Board.js";
+import LocalFooter from "./LocalFooter.js";
+
+import { SoundContext } from "./../App.js";
+
+import { useGame } from "./../Game/useGame.js";
+
+function LocalPlay({ player, opponent, unmountLocal }) {
+  // Sound
+  const { setSoundToPlay } = useContext(SoundContext);
+
+  // first player
+  const [toPlayFirst, setToPlayFirst] = useState(null);
+
+  // the game custom hook
+  const {
+    board,
+    gameStatus,
+    toPlayNext,
+    winner,
+    resetGame,
+    startGame,
+    placePiece,
+    setForfeiter,
+  } = useGame(toPlayFirst, setSoundToPlay);
+
+  function makeMove(col) {
+    placePiece(col, toPlayNext);
+  }
+
+  function forfeit(player) {
+    setForfeiter(player);
+  }
+
+  function startNewGame(player) {
+    setToPlayFirst(player);
+    resetGame();
+    startGame();
+  }
+
   return (
     <>
-      <p>WIP</p>
-      <button onClick={unmountLocal}>Return to Lobby</button>
+      <LocalHeader unmountLocal={unmountLocal} />
+      <Board
+        viewer={toPlayNext || toPlayFirst}
+        board={board}
+        isViewersTurn={toPlayNext !== null}
+        colours={[player.colour, opponent.colour]}
+        makeMove={makeMove}
+      />
+      <LocalFooter
+        gameStatus={gameStatus}
+        winner={winner}
+        forfeit={forfeit}
+        startNewGame={startNewGame}
+      />
     </>
   );
 }

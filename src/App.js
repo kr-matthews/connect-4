@@ -137,14 +137,14 @@ function App() {
           {opponent && (
             <PlayerInfo self={false}>
               <PlayerName
-                editable={false}
+                editable={playType === "local"}
                 name={opponent.name}
                 setName={(name) => modifyOpponent("name", name)}
               />
               <PlayerColour
-                editable={false}
+                editable={playType === "local" || playType === "computer"}
                 colour={opponent.colour}
-                setName={(colour) => modifyOpponent("color", colour)}
+                setColour={(colour) => modifyOpponent("colour", colour)}
               />
             </PlayerInfo>
           )}
@@ -162,11 +162,16 @@ function App() {
             pubnub={pubnub}
           />
         ) : playType === "local" ? (
-          <LocalPlay unmountLocal={resetAll} />
+          <LocalPlay
+            player={{ name, colour }}
+            opponent={opponent}
+            unmountLocal={resetAll}
+          />
         ) : playType === "computer" ? (
           <ComputerPlay unmountComputer={resetAll} />
         ) : (
           <Lobby
+            setOpponent={setOpponent}
             setPlayType={setPlayType}
             setRoomCode={setRoomCode}
             setIsOwner={setIsOwner}

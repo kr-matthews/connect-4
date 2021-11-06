@@ -9,6 +9,7 @@ import { useLobby } from "./useLobby.js";
 // TODO: UI: improve design/css of lobby (and sub-components)
 
 function Lobby({
+  setOpponent,
   setPlayType,
   setRoomCode,
   setIsOwner,
@@ -26,6 +27,7 @@ function Lobby({
   //// useLobby hook, agnostic to chosen network
 
   const { createRoom, joinRoom, playLocally, playComputer } = useLobby(
+    setOpponent,
     setPlayType,
     setRoomCode,
     setIsOwner,
