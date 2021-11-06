@@ -168,7 +168,11 @@ function App() {
             unmountLocal={resetAll}
           />
         ) : playType === "computer" ? (
-          <ComputerPlay unmountComputer={resetAll} />
+          <ComputerPlay
+            player={{ name, colour }}
+            opponent={opponent}
+            unmountComputer={resetAll}
+          />
         ) : (
           <Lobby
             setOpponent={setOpponent}

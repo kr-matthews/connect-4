@@ -96,7 +96,6 @@ function Room({
 
   return (
     <>
-      <h2>Room</h2>
       <RoomHeader
         roomCode={roomCode}
         isOwner={isOwner}

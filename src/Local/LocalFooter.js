@@ -1,4 +1,4 @@
-function LocalFooter() {
+function LocalFooter({ gameStatus, winner, forfeit, startNewGame }) {
   // TODO: NEXT: can this share with RoomFooter ??
   return (
     <>

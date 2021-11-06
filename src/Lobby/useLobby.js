@@ -68,7 +68,7 @@ function useLobby(
 
   function playComputer() {
     // setup opponent (is null til now)
-    setOpponent({ name: "Computron 5000", colour: getRandomColour() });
+    setOpponent({ name: "Computron 40 5000", colour: getRandomColour() });
     // mount component
     setPlayType("computer");
   }
