@@ -1,9 +1,4 @@
-import { useState, useEffect, useReducer } from "react";
-
-import yourTurnSound from "./../sounds/water_dropwav-6707.mp3";
-import winSound from "./../sounds/good-6081.mp3";
-import loseSound from "./../sounds/failure-drum-sound-effect-2mp3-7184.mp3";
-import drawSound from "./../sounds/mixkit-retro-game-notification-212.wav";
+import { useState, useReducer } from "react";
 
 //// Generic constants helpers
 
@@ -97,14 +92,7 @@ function piecesReducer(state, action) {
 
 // TODO: LATER: TIME_LIMIT: option to add time limit to turns
 
-function useGame(
-  setSoundToPlay = (_) => {
-    return;
-  },
-  rows = 6,
-  cols = 7,
-  lineLen = 4
-) {
+function useGame(rows = 6, cols = 7, lineLen = 4) {
   //// States & Constants
 
   // who goes first
@@ -160,29 +148,6 @@ function useGame(
       : moveHistory.length === 0
       ? toPlayFirst
       : 1 - moveHistory[moveHistory.length - 1].player;
-
-  //// Sounds
-
-  // trigger win/lose sound effect
-  useEffect(() => {
-    if (winner === 0) {
-      setSoundToPlay(winSound);
-    } else if (winner === 1) {
-      setSoundToPlay(loseSound);
-    }
-  }, [winner, setSoundToPlay]);
-  // trigger draw sound effect
-  useEffect(() => {
-    if (gameStatus === "draw") {
-      setSoundToPlay(drawSound);
-    }
-  }, [gameStatus, setSoundToPlay]);
-  // trigger your turn sound effect
-  useEffect(() => {
-    if (toPlayNext === 0) {
-      setSoundToPlay(yourTurnSound);
-    }
-  }, [toPlayNext, setSoundToPlay]);
 
   //// Helpers
   // isWon and createHighlights share a lot of code :(

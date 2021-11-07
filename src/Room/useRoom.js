@@ -49,6 +49,7 @@ function useRoom(
   //// States
 
   // how many players are present
+  // TODO: NEXT: replace with boolean hasOpponent
   const playerCount = opponent === null ? 1 : 2;
 
   // the game custom hook
@@ -62,7 +63,7 @@ function useRoom(
     startGame,
     placePiece,
     setForfeiter,
-  } = useGame(setSoundToPlay);
+  } = useGame();
 
   // history of all games played
   const { resultHistory, resetResults } = useResults(gameStatus, winner);

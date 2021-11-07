@@ -6,8 +6,6 @@ import { useGame } from "./../Game/useGame.js";
 import { useResults } from "./../Game/useResults.js";
 
 function LocalPlay({ player, opponent, unmountLocal }) {
-  // TODO: NEXT: SOUND: revisit -- doesn't work well for local play
-
   // the game custom hook (no sound used)
   const {
     board,
