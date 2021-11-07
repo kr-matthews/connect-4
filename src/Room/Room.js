@@ -100,7 +100,7 @@ function Room({
       <RoomHeader
         roomCode={roomCode}
         isOwner={isOwner}
-        opponent={opponent}
+        hasOpponent={opponent !== null}
         restartMethod={restartMethod}
         resultHistory={resultHistory}
         kickOpponent={kickOpponent}

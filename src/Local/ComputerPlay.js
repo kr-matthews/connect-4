@@ -7,6 +7,7 @@ import SingleFooter from "./../Game/SingleFooter.js";
 import { SoundContext } from "./../App.js";
 
 import { useGame } from "./../Game/useGame.js";
+import { useResults } from "./../Game/useResults.js";
 
 function ComputerPlay({ player, opponent, unmountComputer }) {
   // Sound
@@ -26,6 +27,12 @@ function ComputerPlay({ player, opponent, unmountComputer }) {
     placePiece,
     setForfeiter,
   } = useGame(toPlayFirst, setSoundToPlay);
+
+  // keep track of result history
+
+  const { resultHistory, resetResults } = useResults(gameStatus, winner);
+
+  // functions for sub-components
 
   function makeMove(col) {
     placePiece(col, 0);

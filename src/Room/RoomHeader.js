@@ -1,7 +1,7 @@
 function RoomHeader({
   roomCode,
   isOwner,
-  opponent,
+  hasOpponent,
   restartMethod,
   resultHistory,
   kickOpponent,
@@ -28,7 +28,7 @@ function RoomHeader({
 
   return (
     <>
-      {opponent ? (
+      {hasOpponent ? (
         /* who is in control */
         isOwner ? (
           <div>You created and are in control of this room.</div>
@@ -52,7 +52,7 @@ function RoomHeader({
       {restartMethod && <div>{restartMethodMessage}</div>}
 
       {/* display W-D-L history against this opponent */}
-      {opponent && (
+      {hasOpponent && (
         <div>
           <span>Wins: {resultHistory.wins} -- </span>
           <span>Draws: {resultHistory.draws} -- </span>
@@ -67,7 +67,7 @@ function RoomHeader({
         ) : (
           <button onClick={leaveRoom}>Leave Room</button>
         )}
-        {isOwner && opponent && (
+        {isOwner && hasOpponent && (
           <button onClick={kickOpponent}>Kick Opponent</button>
         )}
       </div>
