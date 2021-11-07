@@ -49,9 +49,8 @@ function useRoom(
 ) {
   //// States
 
-  // how many players are present
-  // TODO: NEXT: replace with boolean hasOpponent
-  const playerCount = opponent === null ? 1 : 2;
+  // is an opponent present?
+  const hasOpponent = opponent !== null;
 
   // the game custom hook
   const {
@@ -128,7 +127,7 @@ function useRoom(
         break;
 
       case "leave":
-        if (playerCount === 2) {
+        if (hasOpponent) {
           alert("Your opponent left.");
           resetRoom();
         }
@@ -168,23 +167,23 @@ function useRoom(
 
   // if opponent leaves, reset
   useEffect(() => {
-    if (playerCount === 1) {
+    if (!hasOpponent) {
       resetResults();
     }
     // resetResults never changes
-  }, [playerCount, resetResults]);
+  }, [hasOpponent, resetResults]);
 
   // Sounds
 
   // play sounds when other player joins or leaves
   useEffect(() => {
-    if (isOwner && playerCount === 1) {
+    if (isOwner && !hasOpponent) {
       // NOTE: this sound is overridden by createRoomSound on first rener (?)
       setSoundToPlay(playerLeaveSound);
-    } else if (isOwner && playerCount === 2) {
+    } else if (isOwner && hasOpponent) {
       setSoundToPlay(playerJoinSound);
     }
-  }, [isOwner, playerCount, setSoundToPlay]);
+  }, [isOwner, hasOpponent, setSoundToPlay]);
 
   // play create/join sounds (should only run once, as both dependencies never change)
   useEffect(() => {
@@ -212,22 +211,22 @@ function useRoom(
 
   // send restartMethod when opponent joins your room
   useEffect(() => {
-    if (isOwner && playerCount === 2) {
+    if (isOwner && hasOpponent) {
       publishMessage({ type: "restartMethod", restartMethod });
     }
-    // only playerCount will change when isOwner
-  }, [isOwner, publishMessage, playerCount, restartMethod]);
+    // only hasOpponent will change when isOwner
+  }, [isOwner, publishMessage, hasOpponent, restartMethod]);
   // send player name/colour on update and on player join (and initial render)
   useEffect(() => {
-    if (playerCount === 2 || !isOwner) {
+    if (hasOpponent || !isOwner) {
       publishMessage({
         type: "playerInfo",
         name: player.name,
         colour: player.colour,
       });
     }
-    // only playerCount and player will change
-  }, [isOwner, publishMessage, playerCount, player.name, player.colour]);
+    // only hasOpponent and player will change
+  }, [isOwner, publishMessage, hasOpponent, player.name, player.colour]);
   // send toPlayFirst when new game starts (only toPlayFirst/gameStatus change)
   useEffect(() => {
     if (isOwner && gameStatus === "ongoing") {
