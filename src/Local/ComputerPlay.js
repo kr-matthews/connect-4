@@ -9,6 +9,8 @@ import { SoundContext } from "./../App.js";
 import { useGame } from "./../Game/useGame.js";
 import { useResults } from "./../Game/useResults.js";
 
+// TODO: REUSE: this is extremely similar to ./LocalPlay.js
+
 function ComputerPlay({ player, opponent, unmountComputer }) {
   // Sound
   const { setSoundToPlay } = useContext(SoundContext);
@@ -29,8 +31,7 @@ function ComputerPlay({ player, opponent, unmountComputer }) {
   } = useGame(toPlayFirst, setSoundToPlay);
 
   // keep track of result history
-
-  const { resultHistory, resetResults } = useResults(gameStatus, winner);
+  const { resultHistory } = useResults(gameStatus, winner);
 
   // functions for sub-components
 
@@ -50,7 +51,10 @@ function ComputerPlay({ player, opponent, unmountComputer }) {
 
   return (
     <>
-      <ComputerHeader unmountLocal={unmountComputer} />
+      <ComputerHeader
+        resultHistory={resultHistory}
+        unmountComputer={unmountComputer}
+      />
       <Board
         viewer={0}
         board={board}

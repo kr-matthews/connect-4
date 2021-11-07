@@ -1,3 +1,5 @@
+import Results from "./../Game/Results.js";
+
 function RoomHeader({
   roomCode,
   isOwner,
@@ -51,15 +53,6 @@ function RoomHeader({
       {/* explain who goes first for new games */}
       {restartMethod && <div>{restartMethodMessage}</div>}
 
-      {/* display W-D-L history against this opponent */}
-      {hasOpponent && (
-        <div>
-          <span>Wins: {resultHistory.wins} -- </span>
-          <span>Draws: {resultHistory.draws} -- </span>
-          <span>Loses: {resultHistory.loses}</span>
-        </div>
-      )}
-
       {/* options to close/leave room or kick opponent, as applicable */}
       <div>
         {isOwner ? (
@@ -71,6 +64,14 @@ function RoomHeader({
           <button onClick={kickOpponent}>Kick Opponent</button>
         )}
       </div>
+
+      {/* display W-D-L history against this opponent */}
+      {hasOpponent && (
+        <Results
+          resultHistory={resultHistory}
+          headings={["Wins", "Draws", "Loses"]}
+        />
+      )}
     </>
   );
 }

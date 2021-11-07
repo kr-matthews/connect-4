@@ -48,8 +48,6 @@ function useRoom(
 ) {
   //// States
 
-  // TODO: NEXT: encapsulate resultHistory for use in other settings
-
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
   // who start(s/ed) the current game -- first player of first game is random

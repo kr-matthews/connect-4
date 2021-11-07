@@ -5,12 +5,13 @@ import Board from "./../Game/Board.js";
 import DoubleFooter from "./../Game/DoubleFooter.js";
 
 import { useGame } from "./../Game/useGame.js";
+import { useResults } from "./../Game/useResults.js";
 
 function LocalPlay({ player, opponent, unmountLocal }) {
   // first player
   const [toPlayFirst, setToPlayFirst] = useState(null);
 
-  // TODO: SOUND: revisit -- doesn't work well for local play
+  // TODO: NEXT: SOUND: revisit -- doesn't work well for local play
 
   // the game custom hook (no sound used)
   const {
@@ -23,6 +24,11 @@ function LocalPlay({ player, opponent, unmountLocal }) {
     placePiece,
     setForfeiter,
   } = useGame(toPlayFirst);
+
+  // keep track of result history
+  const { resultHistory } = useResults(gameStatus, winner);
+
+  // functions to pass to sub-components
 
   function makeMove(col) {
     placePiece(col, toPlayNext);
@@ -40,7 +46,11 @@ function LocalPlay({ player, opponent, unmountLocal }) {
 
   return (
     <>
-      <LocalHeader unmountLocal={unmountLocal} />
+      <LocalHeader
+        resultHistory={resultHistory}
+        names={[player.name, opponent.name]}
+        unmountLocal={unmountLocal}
+      />
       <Board
         viewer={toPlayNext || toPlayFirst}
         board={board}
