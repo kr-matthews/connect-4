@@ -7,7 +7,7 @@ import drawSound from "./../sounds/mixkit-retro-game-notification-212.wav";
 
 import { SoundContext } from "./../App.js";
 
-function useGameSoundEffects({ gameStatus, toPlayNext, winner }) {
+function useGameSoundEffects(isMultiView, gameStatus, toPlayNext, winner) {
   //// Sound
 
   const { setSoundToPlay } = useContext(SoundContext);
@@ -19,9 +19,9 @@ function useGameSoundEffects({ gameStatus, toPlayNext, winner }) {
     if (winner === 0) {
       setSoundToPlay(winSound);
     } else if (winner === 1) {
-      setSoundToPlay(loseSound);
+      setSoundToPlay(isMultiView ? winSound : loseSound);
     }
-  }, [winner, setSoundToPlay]);
+  }, [winner, setSoundToPlay, isMultiView]);
 
   // trigger draw sound effect
   useEffect(() => {
@@ -32,10 +32,10 @@ function useGameSoundEffects({ gameStatus, toPlayNext, winner }) {
 
   // trigger your turn sound effect
   useEffect(() => {
-    if (toPlayNext === 0) {
+    if (toPlayNext === 0 && !isMultiView) {
       setSoundToPlay(yourTurnSound);
     }
-  }, [toPlayNext, setSoundToPlay]);
+  }, [toPlayNext, setSoundToPlay, isMultiView]);
 }
 
 export { useGameSoundEffects };

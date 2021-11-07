@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useCallback } from "react";
 
 import { useGame } from "./../Game/useGame.js";
+import { useGameSoundEffects } from "./../Game/useGameSoundEffects.js";
 import { useResults } from "./../Game/useResults.js";
 
 import createRoomSound from "./../sounds/success-1-6297.mp3";
@@ -64,6 +65,8 @@ function useRoom(
     placePiece,
     setForfeiter,
   } = useGame();
+
+  useGameSoundEffects(false, gameStatus, toPlayNext, winner);
 
   // history of all games played
   const { resultHistory, resetResults } = useResults(gameStatus, winner);

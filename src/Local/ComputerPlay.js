@@ -3,6 +3,7 @@ import Board from "./../Game/Board.js";
 import SingleFooter from "./../Game/SingleFooter.js";
 
 import { useGame } from "./../Game/useGame.js";
+import { useGameSoundEffects } from "./../Game/useGameSoundEffects.js";
 import { useResults } from "./../Game/useResults.js";
 
 // TODO: REUSE: this is extremely similar to ./LocalPlay.js
@@ -18,6 +19,8 @@ function ComputerPlay({ player, opponent, unmountComputer }) {
     placePiece,
     setForfeiter,
   } = useGame();
+
+  useGameSoundEffects(false, gameStatus, toPlayNext, winner);
 
   // keep track of result history
   const { resultHistory } = useResults(gameStatus, winner);

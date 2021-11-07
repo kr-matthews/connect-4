@@ -3,6 +3,7 @@ import Board from "./../Game/Board.js";
 import DoubleFooter from "./../Game/DoubleFooter.js";
 
 import { useGame } from "./../Game/useGame.js";
+import { useGameSoundEffects } from "./../Game/useGameSoundEffects.js";
 import { useResults } from "./../Game/useResults.js";
 
 function LocalPlay({ player, opponent, unmountLocal }) {
@@ -16,6 +17,8 @@ function LocalPlay({ player, opponent, unmountLocal }) {
     placePiece,
     setForfeiter,
   } = useGame();
+
+  useGameSoundEffects(true, gameStatus, toPlayNext, winner);
 
   // keep track of result history
   const { resultHistory } = useResults(gameStatus, winner);
