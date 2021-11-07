@@ -157,7 +157,8 @@ function App() {
             isOwner={isOwner}
             opponent={opponent}
             setOpponent={setOpponent}
-            initialRestartMethod={restartMethod}
+            restartMethod={restartMethod}
+            setRestartMethod={setRestartMethod}
             unmountRoom={resetAll}
             pubnub={pubnub}
           />

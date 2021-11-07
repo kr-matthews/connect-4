@@ -17,7 +17,8 @@ function Room({
   isOwner,
   opponent,
   setOpponent,
-  initialRestartMethod,
+  restartMethod,
+  setRestartMethod,
   unmountRoom,
   pubnub,
 }) {
@@ -42,7 +43,6 @@ function Room({
 
   const {
     resultHistory,
-    restartMethod,
     board,
     gameStatus,
     winner,
@@ -57,7 +57,8 @@ function Room({
     isOwner,
     opponent,
     setOpponent,
-    initialRestartMethod,
+    restartMethod,
+    setRestartMethod,
     setSoundToPlay,
     publishMessage,
     unmountRoom

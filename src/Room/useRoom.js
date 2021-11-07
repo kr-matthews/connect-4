@@ -55,14 +55,15 @@ function useRoom(
   isOwner,
   opponent,
   setOpponent,
-  initialRestartMethod,
+  restartMethod,
+  setRestartMethod,
   setSoundToPlay,
   publishMessage,
   unmountRoom
 ) {
   //// States
 
-  // TODO: encapsulate resultHistory for use in other settings
+  // TODO: NEXT: encapsulate resultHistory for use in other settings
 
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
@@ -71,9 +72,6 @@ function useRoom(
     resultReducer,
     initialResults
   );
-  // how to pick first player on new game
-  //  only for user's information if not owner
-  const [restartMethod, setRestartMethod] = useState(initialRestartMethod);
   // who start(s/ed) the current game -- first player of first game is random
   const [toPlayFirst, setToPlayFirst] = useState(Math.floor(Math.random() * 2));
 
@@ -334,7 +332,6 @@ function useRoom(
 
   return {
     resultHistory,
-    restartMethod,
     board,
     gameStatus,
     winner,
