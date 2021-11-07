@@ -1,6 +1,7 @@
 import { useState, useEffect, useReducer, useCallback } from "react";
 
 import { useGame } from "./../Game/useGame.js";
+import { useResults } from "./../Game/useResults.js";
 
 import createRoomSound from "./../sounds/success-1-6297.mp3";
 import joinRoomSound from "./../sounds/good-6081.mp3";
@@ -13,18 +14,6 @@ import leaveRoomSound from "./../sounds/notification-sound-7062.mp3";
 // TODO: TEST: useRoom: create tests for custom hook
 
 //// Reducers
-
-function resultReducer(state, action) {
-  switch (action.type) {
-    case "reset":
-      return initialResults;
-    default:
-      // win, draw, or lose
-      let newState = { ...state };
-      newState[action.type + "s"] += 1;
-      return newState;
-  }
-}
 
 // used for both incoming and outgoing message queues
 function reduceMessageQueue(state, action) {
@@ -42,10 +31,6 @@ function reduceMessageQueue(state, action) {
   }
   return newState;
 }
-
-//// Helpers for reducers
-
-const initialResults = { wins: 0, draws: 0, loses: 0 };
 
 //// useRoom custom hook
 // is independent of network (ie pubnub)
@@ -67,11 +52,6 @@ function useRoom(
 
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
-  // history of all games played
-  const [resultHistory, dispatchResult] = useReducer(
-    resultReducer,
-    initialResults
-  );
   // who start(s/ed) the current game -- first player of first game is random
   const [toPlayFirst, setToPlayFirst] = useState(Math.floor(Math.random() * 2));
 
@@ -86,6 +66,9 @@ function useRoom(
     placePiece,
     setForfeiter,
   } = useGame(toPlayFirst, setSoundToPlay);
+
+  // history of all games played
+  const { resultHistory } = useResults(gameStatus, winner, playerCount);
 
   // message queues
   const [incomingMessageQueue, dispatchIncomingMessageQueue] = useReducer(
@@ -181,29 +164,6 @@ function useRoom(
   }, [isOwner, publishMessage, setSoundToPlay]);
 
   //// Effects
-
-  // W-D-L tally
-
-  // at end of game, update the W-D-L tally
-  useEffect(() => {
-    if (winner === 0) {
-      dispatchResult({ type: "win" });
-    } else if (winner === 1) {
-      dispatchResult({ type: "lose" });
-    }
-  }, [winner]);
-  useEffect(() => {
-    if (gameStatus === "draw") {
-      dispatchResult({ type: "draw" });
-    }
-  }, [gameStatus]);
-
-  // if opponent leaves, reset the W-D-L record
-  useEffect(() => {
-    if (playerCount === 1) {
-      dispatchResult({ type: "reset" });
-    }
-  }, [playerCount]);
 
   // Sounds
 
