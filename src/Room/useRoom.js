@@ -68,7 +68,7 @@ function useRoom(
   } = useGame(toPlayFirst, setSoundToPlay);
 
   // history of all games played
-  const { resultHistory } = useResults(gameStatus, winner, playerCount);
+  const { resultHistory, resetResults } = useResults(gameStatus, winner);
 
   // message queues
   const [incomingMessageQueue, dispatchIncomingMessageQueue] = useReducer(
@@ -164,6 +164,16 @@ function useRoom(
   }, [isOwner, publishMessage, setSoundToPlay]);
 
   //// Effects
+
+  // result history (increments are done in the hook)
+
+  // if opponent leaves, reset
+  useEffect(() => {
+    if (playerCount === 1) {
+      resetResults();
+    }
+    // resetResults never changes
+  }, [playerCount, resetResults]);
 
   // Sounds
 

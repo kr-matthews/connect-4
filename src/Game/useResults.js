@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useCallback } from "react";
 
 //// Reducers & initial states
 
@@ -18,7 +18,7 @@ const initialResults = { wins: 0, draws: 0, loses: 0 };
 
 //// Hook
 
-function useResults(gameStatus, winner, playerCount = 2) {
+function useResults(gameStatus, winner) {
   const [resultHistory, dispatchResult] = useReducer(
     resultReducer,
     initialResults
@@ -40,14 +40,15 @@ function useResults(gameStatus, winner, playerCount = 2) {
     }
   }, [gameStatus]);
 
-  // if opponent leaves, reset the W-D-L record
-  useEffect(() => {
-    if (playerCount === 1) {
-      dispatchResult({ type: "reset" });
-    }
-  }, [playerCount]);
+  //// Functions
 
-  return { resultHistory };
+  const resetResults = useCallback(() => {
+    dispatchResult({ type: "reset" });
+  }, []);
+
+  //// Return
+
+  return { resultHistory, resetResults };
 }
 
 export { useResults };
