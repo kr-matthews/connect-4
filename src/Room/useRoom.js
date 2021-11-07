@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer, useCallback } from "react";
+import { useEffect, useReducer, useCallback } from "react";
 
 import { useGame } from "./../Game/useGame.js";
 import { useResults } from "./../Game/useResults.js";
@@ -50,20 +50,19 @@ function useRoom(
 
   // how many players are present
   const playerCount = opponent === null ? 1 : 2;
-  // who start(s/ed) the current game -- first player of first game is random
-  const [toPlayFirst, setToPlayFirst] = useState(Math.floor(Math.random() * 2));
 
   // the game custom hook
   const {
     board,
     gameStatus,
+    toPlayFirst,
     toPlayNext,
     winner,
     resetGame,
     startGame,
     placePiece,
     setForfeiter,
-  } = useGame(toPlayFirst, setSoundToPlay);
+  } = useGame(setSoundToPlay);
 
   // history of all games played
   const { resultHistory, resetResults } = useResults(gameStatus, winner);
@@ -106,9 +105,7 @@ function useRoom(
       // room is relative to player, so 1 means opponent and incoming indices
       //  are flipped as they are from opponent's view
       case "start":
-        resetGame();
-        setToPlayFirst(1 - message.toPlayFirst);
-        startGame();
+        startGame(1 - message.toPlayFirst);
         break;
       case "move":
         placePiece(message.col, 1);
@@ -133,7 +130,7 @@ function useRoom(
         }
         break;
       default:
-        console.log("Error: Unhandled message.");
+        console.log("Error: Unhandled message.", message);
         break;
     }
   }
@@ -233,6 +230,7 @@ function useRoom(
       publishMessage({ type: "start", toPlayFirst });
     }
     // toPlayFirst won't change while gameStatus is ongoing
+    // isOwner and publishMessage won't change within the Room
   }, [isOwner, publishMessage, toPlayFirst, gameStatus]);
 
   //// Helper functions
@@ -241,38 +239,12 @@ function useRoom(
   function resetRoom() {
     setOpponent(null);
     resetGame();
-    setToPlayFirst(Math.floor(Math.random() * 2));
   }
 
   //// Externally available functions, for this player's actions
 
-  // for owner to use to start a new game
   function startNewGame() {
-    if (gameStatus !== "waiting") {
-      // if it's a rematch then figure out who will go first
-      //  otherwise, toPlayFirst is already correct
-      setToPlayFirst((wentFirst) => {
-        switch (restartMethod) {
-          case "random":
-            return Math.floor(Math.random() * 2);
-          case "alternate":
-            return 1 - wentFirst;
-          case "loser":
-            // if it's a draw, keep the same player
-            return gameStatus === "draw" ? wentFirst : 1 - winner;
-          case "winner":
-            // if it's a draw, keep the same player
-            return gameStatus === "draw" ? wentFirst : winner;
-          default:
-            console.log(
-              "Error: New Game couldn't select first player properly."
-            );
-            return 1 - wentFirst;
-        }
-      });
-    }
-    resetGame();
-    startGame();
+    startGame(restartMethod);
   }
 
   function makeMove(col) {

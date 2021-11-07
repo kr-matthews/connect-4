@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import LocalHeader from "./LocalHeader.js";
 import Board from "./../Game/Board.js";
 import DoubleFooter from "./../Game/DoubleFooter.js";
@@ -8,9 +6,6 @@ import { useGame } from "./../Game/useGame.js";
 import { useResults } from "./../Game/useResults.js";
 
 function LocalPlay({ player, opponent, unmountLocal }) {
-  // first player
-  const [toPlayFirst, setToPlayFirst] = useState(null);
-
   // TODO: NEXT: SOUND: revisit -- doesn't work well for local play
 
   // the game custom hook (no sound used)
@@ -19,11 +14,10 @@ function LocalPlay({ player, opponent, unmountLocal }) {
     gameStatus,
     toPlayNext,
     winner,
-    resetGame,
     startGame,
     placePiece,
     setForfeiter,
-  } = useGame(toPlayFirst);
+  } = useGame();
 
   // keep track of result history
   const { resultHistory } = useResults(gameStatus, winner);
@@ -34,16 +28,6 @@ function LocalPlay({ player, opponent, unmountLocal }) {
     placePiece(col, toPlayNext);
   }
 
-  function forfeit(player) {
-    setForfeiter(player);
-  }
-
-  function startNewGame(player) {
-    setToPlayFirst(player);
-    resetGame();
-    startGame();
-  }
-
   return (
     <>
       <LocalHeader
@@ -52,7 +36,7 @@ function LocalPlay({ player, opponent, unmountLocal }) {
         unmountLocal={unmountLocal}
       />
       <Board
-        viewer={toPlayNext || toPlayFirst}
+        viewer={toPlayNext}
         board={board}
         isViewersTurn={toPlayNext !== null}
         colours={[player.colour, opponent.colour]}
@@ -63,8 +47,8 @@ function LocalPlay({ player, opponent, unmountLocal }) {
         gameStatus={gameStatus}
         winner={winner}
         toPlayNext={toPlayNext}
-        forfeit={forfeit}
-        startNewGame={startNewGame}
+        forfeit={setForfeiter}
+        startNewGame={startGame}
       />
     </>
   );

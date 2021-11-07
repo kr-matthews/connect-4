@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useContext } from "react";
 
 import ComputerHeader from "./ComputerHeader.js";
 import Board from "./../Game/Board.js";
@@ -15,20 +15,16 @@ function ComputerPlay({ player, opponent, unmountComputer }) {
   // Sound
   const { setSoundToPlay } = useContext(SoundContext);
 
-  // first player
-  const [toPlayFirst, setToPlayFirst] = useState(null);
-
   // the game custom hook
   const {
     board,
     gameStatus,
     toPlayNext,
     winner,
-    resetGame,
     startGame,
     placePiece,
     setForfeiter,
-  } = useGame(toPlayFirst, setSoundToPlay);
+  } = useGame(setSoundToPlay);
 
   // keep track of result history
   const { resultHistory } = useResults(gameStatus, winner);
@@ -41,12 +37,6 @@ function ComputerPlay({ player, opponent, unmountComputer }) {
 
   function forfeit(player) {
     setForfeiter(0);
-  }
-
-  function startNewGame(player) {
-    setToPlayFirst(player);
-    resetGame();
-    startGame();
   }
 
   return (
@@ -70,7 +60,7 @@ function ComputerPlay({ player, opponent, unmountComputer }) {
         winner={winner}
         toPlayNext={toPlayNext}
         forfeit={forfeit}
-        startNewGame={startNewGame}
+        startNewGame={startGame}
         hasChoice={true}
       />
     </>
