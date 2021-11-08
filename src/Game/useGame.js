@@ -64,7 +64,7 @@ function moveHistoryReducer(state, action) {
         return newState;
       }
     default:
-      console.log("Error: moveHistoryReducer didn't match any case.", action);
+      console.error("moveHistoryReducer didn't match any case.", action);
       return state;
   }
 }
@@ -83,7 +83,7 @@ function piecesReducer(state, action) {
       newState[action.row][action.col] = null;
       return newState;
     default:
-      console.log("Error: peicesReducer didn't match any case.", action);
+      console.error("peicesReducer didn't match any case.", action);
       return state;
   }
 }
@@ -286,7 +286,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
         case 1:
           return 1;
         default:
-          console.log("Error: couldn't select first player.", option);
+          console.error("Couldn't select first player.", option);
           return 0;
       }
     });

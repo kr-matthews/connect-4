@@ -22,7 +22,7 @@ function DoubleFooter({
       case "waiting":
         return "The game has not started yet.";
       default:
-        console.log("Error: ", gameStatus);
+        console.error("Error: ", gameStatus);
         return "Something has gone wrong. Apologies.";
     }
   }
