@@ -10,39 +10,45 @@ function useLobby(
 ) {
   //// Helpers
 
-  function generateUnusedRoomCode() {
+  async function generateUnusedRoomCode() {
     // omit 0/O, 1/I/L just in case
     const chars = "ABCDEFGHJKMNPQRSTUVXYZ23456789";
 
     // loop: generate 4-digit code, check whether it is in use, if not then use
     let roomCode = "";
+    let occupancy = -1;
     do {
       roomCode = "";
       for (let i = 0; i < 4; i++) {
         roomCode += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-    } while (isRoomCodeInUse(roomCode));
+      occupancy = await getRoomOccupancy(roomCode);
+    } while (occupancy > 0);
 
+    if (occupancy === -1) {
+      // couldn't connect to network
+      return null;
+    }
+
+    // otherwise occupancy is 0
     return roomCode;
-  }
-
-  function isRoomCodeInUse(roomCode) {
-    return getRoomOccupancy(roomCode) > 0;
   }
 
   //// Externally accessible handlers
 
-  function createRoom(restartMethod) {
+  async function createRoom(restartMethod) {
     // randomly generate room code (make sure it doesn't already exist)
-    const generatedRoomCode = generateUnusedRoomCode();
-    // set parameters for room
-    setIsOwner(true);
-    setRestartMethod(restartMethod);
-    setRoomCode(generatedRoomCode);
-    setPlayType("online");
+    const generatedRoomCode = await generateUnusedRoomCode();
+    if (generatedRoomCode) {
+      // set parameters for room
+      setIsOwner(true);
+      setRestartMethod(restartMethod);
+      setRoomCode(generatedRoomCode);
+      setPlayType("online");
+    } else {
+      alert("Could not create room.");
+    }
   }
-
-  // TODO: NEXT: ASYNC: review use of promises/async
 
   async function joinRoom(roomCode) {
     const roomOccupancy = await getRoomOccupancy(roomCode);
@@ -54,8 +60,10 @@ function useLobby(
       setRestartMethod(null);
       setRoomCode(roomCode);
       setPlayType("online");
-    } else {
+    } else if (roomOccupancy === 2) {
       alert("The room with code " + roomCode + " already has two players.");
+    } else {
+      alert("Could not join Room.");
     }
   }
 

@@ -30,10 +30,18 @@ function Room({
 
   const publishMessage = useCallback(
     (message) => {
-      pubnub.publish({
-        message: { ...message, uuid: player.uuid },
-        channel: roomCode,
-      });
+      try {
+        pubnub.publish({
+          message: { ...message, uuid: player.uuid },
+          channel: roomCode,
+        });
+      } catch {
+        alert(
+          "Could not send " +
+            message.type +
+            " message to opponent.\nYou may be out of sync with your opponent. Consider closing the room and creating a new one."
+        );
+      }
     },
     // none will change until Room unmounts
     [player.uuid, pubnub, roomCode]
@@ -69,15 +77,20 @@ function Room({
   // (un)subscribe to Room's channel
   // PROBLEM: won't run if browser window/tab is closed
   useEffect(() => {
-    pubnub.subscribe({
-      channels: [roomCode],
-      withPresence: true,
-    });
-    return function cleanupSubscription() {
-      pubnub.unsubscribe({ channels: [roomCode] });
-    };
+    try {
+      pubnub.subscribe({
+        channels: [roomCode],
+        withPresence: true,
+      });
+      return function cleanupSubscription() {
+        pubnub.unsubscribe({ channels: [roomCode] });
+      };
+    } catch {
+      alert("Could not listen for messages from opponent. Closing room.");
+      unmountRoom();
+    }
     // none will change while Room is mounted
-  }, [pubnub, roomCode, isOwner, publishMessage, setSoundToPlay]);
+  }, [pubnub, roomCode, isOwner, publishMessage, setSoundToPlay, unmountRoom]);
 
   // setup listener for messages
   // PROBLEM: won't run if browser window/tab is closed
@@ -86,12 +99,17 @@ function Room({
       queueIncomingMessage(event.message);
     }
     const listener = { message: handleMessage };
-    pubnub.addListener(listener);
-    return function cleanupListener() {
-      pubnub.removeListener(listener);
-    };
+    try {
+      pubnub.addListener(listener);
+      return function cleanupListener() {
+        pubnub.removeListener(listener);
+      };
+    } catch {
+      alert("Could not listen for messages from opponent. Closing room.");
+      unmountRoom();
+    }
     // note that neither of these ever change
-  }, [pubnub, queueIncomingMessage]);
+  }, [pubnub, queueIncomingMessage, unmountRoom]);
 
   //// Return
 

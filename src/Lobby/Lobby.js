@@ -6,6 +6,9 @@ import CreateSinglePlayer from "./CreateSinglePlayer.js";
 
 import { useLobby } from "./useLobby.js";
 
+const checkOccupancyFailMessage =
+  "Could not successfully check room occupancy. May not be connected to the network.";
+
 // TODO: UI: improve design/css of lobby (and sub-components)
 
 function Lobby({
@@ -18,10 +21,14 @@ function Lobby({
 }) {
   //// pubnub setup
 
-  // TODO: NEXT: ASYNC: review use of promises/async
   async function getRoomOccupancy(roomCode) {
-    const room = await pubnub.hereNow({ channels: [roomCode] });
-    return room.totalOccupancy;
+    try {
+      const room = await pubnub.hereNow({ channels: [roomCode] });
+      return room.totalOccupancy;
+    } catch {
+      alert(checkOccupancyFailMessage);
+      return -1;
+    }
   }
 
   //// useLobby hook, agnostic to chosen network

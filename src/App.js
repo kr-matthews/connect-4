@@ -1,4 +1,4 @@
-import { useState, useMemo, createContext } from "react";
+import { useState, useMemo, useCallback, createContext } from "react";
 
 // TODO: NEXT: NETWORK: deal with potential failures of pubnub
 
@@ -90,7 +90,7 @@ function App() {
   const [playType, setPlayType] = useState(null);
 
   // exit whatever mode of play you're in
-  function resetAll() {
+  const resetAll = useCallback(() => {
     // exit & clear opponent
     setPlayType(null);
     setOpponent(null);
@@ -98,7 +98,7 @@ function App() {
     setRoomCode(null);
     setIsOwner(null);
     setRestartMethod(null);
-  }
+  }, []);
   // room and network params, shared between lobby and room
 
   const [roomCode, setRoomCode] = useState(null);
