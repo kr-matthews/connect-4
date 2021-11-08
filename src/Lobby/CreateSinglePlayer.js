@@ -6,7 +6,7 @@ function CreateSinglePlayer({ playComputer }) {
 
   return (
     <div>
-      <h3>Play Computer Locally</h3>
+      <h3>Play Computer</h3>
       <p>
         If you don't have anyone to play against, there is a computer opponent
         available.

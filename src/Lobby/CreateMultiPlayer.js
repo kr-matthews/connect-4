@@ -6,7 +6,7 @@ function CreateMultiPlayer({ playLocally }) {
 
   return (
     <div>
-      <h3>Play Multi-Player Locally</h3>
+      <h3>Local Multi-Player</h3>
       <p>
         If you have someone using the same screen as you, play against them
         locally.
