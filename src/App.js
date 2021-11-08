@@ -1,7 +1,5 @@
 import { useState, useMemo, useCallback, createContext } from "react";
 
-// TODO: NEXT: NETWORK: deal with potential failures of pubnub
-
 import PubNub from "pubnub";
 // pubnubKeys.js is listed in .gitignore, contains private keys
 import { subscribeKey, publishKey } from "./pubnubKeys.js";

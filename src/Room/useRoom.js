@@ -27,7 +27,7 @@ function reduceMessageQueue(state, action) {
       newState.shift();
       break;
     default:
-      console.log("Error: no match for reduceMessageQueue.");
+      console.error("No match for reduceMessageQueue.", action);
       break;
   }
   return newState;
@@ -133,7 +133,7 @@ function useRoom(
         }
         break;
       default:
-        console.log("Error: Unhandled message.", message);
+        console.error("Unhandled message.", message);
         break;
     }
   }

@@ -25,9 +25,10 @@ function Lobby({
     try {
       const room = await pubnub.hereNow({ channels: [roomCode] });
       return room.totalOccupancy;
-    } catch {
+    } catch (error) {
       alert(checkOccupancyFailMessage);
-      return -1;
+      console.error("Couldn't get room occupancy.", error);
+      throw error;
     }
   }
 

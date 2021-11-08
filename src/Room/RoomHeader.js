@@ -1,5 +1,7 @@
 import Results from "./../Game/Results.js";
 
+// TODO: NETWORK: add a "confirm my connection" button?
+
 function RoomHeader({
   roomCode,
   isOwner,
