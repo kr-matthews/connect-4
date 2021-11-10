@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useContext } from "react";
+import { useEffect, useContext } from "react";
 
 import RoomHeader from "./RoomHeader.js";
 import Board from "./../Game/Board.js";
@@ -10,8 +10,6 @@ import { useRoom } from "./useRoom.js";
 
 // the room is seen from the current player's view
 //  each player has their own instantiation of the 'shared' room
-
-// TODO: NEXT: LEAK: memory leak in Room, review subscriptions and async tasks around unmounts
 
 function Room({
   roomCode,
@@ -28,29 +26,7 @@ function Room({
 
   const { setSoundToPlay } = useContext(SoundContext);
 
-  //// out-going network (via pubnub)
-
-  const publishMessage = useCallback(
-    async (message) => {
-      try {
-        await pubnub.publish({
-          message: { ...message, uuid: player.uuid },
-          channel: roomCode,
-        });
-      } catch (error) {
-        console.error("Couldn't publish message.", error);
-        alert(
-          "Could not send '" +
-            message.type +
-            "' message to opponent.\nYou may be out of sync with your opponent.\nConsider closing the room and creating a new one, if you haven't already."
-        );
-      }
-    },
-    // none will change until Room unmounts
-    [player.uuid, pubnub, roomCode]
-  );
-
-  //// useRoom hook (agnostic of network choice)
+  //// useRoom hook
 
   const {
     resultHistory,
@@ -64,6 +40,8 @@ function Room({
     kickOpponent,
     queueIncomingMessage,
   } = useRoom(
+    pubnub,
+    roomCode,
     player,
     isOwner,
     opponent,
@@ -71,13 +49,16 @@ function Room({
     restartMethod,
     setRestartMethod,
     setSoundToPlay,
-    publishMessage,
     unmountRoom
   );
 
   //// in-coming network (via pubnub)
 
-  // (un)subscribe to Room's channel
+  // PROBLEM: TODO: NEXT: Room doesn't always seem to unsubscribe
+  // "no-ops" on unmounted components sometimes happen
+  // and rooms sometimes think 2 people are present after player 2 leaves
+
+  // (un)subscribe to/from Room's channel
   // PROBLEM: won't run if browser window/tab is closed
   useEffect(() => {
     // would call subscribe directly, but can't do so for async functions
@@ -87,9 +68,6 @@ function Room({
           channels: [roomCode],
           withPresence: true,
         });
-        return function cleanupSubscription() {
-          pubnub.unsubscribe({ channels: [roomCode] });
-        };
       } catch (error) {
         console.error("Couldn't subscribe.", error);
         alert("Could not listen for messages from opponent. Closing room.");
@@ -97,9 +75,17 @@ function Room({
       }
     }
 
-    return subscribe();
+    subscribe();
+    // QUESTION: shouldn't this only be returned if subscription was successful?
+    return function unsubscribe() {
+      try {
+        pubnub.unsubscribe({ channels: [roomCode] });
+      } catch (error) {
+        console.error("Couldn't unsubscribe.", error);
+      }
+    };
     // none will change while Room is mounted
-  }, [pubnub, roomCode, isOwner, publishMessage, setSoundToPlay, unmountRoom]);
+  }, [pubnub, roomCode, unmountRoom]);
 
   // setup listener for messages
   // PROBLEM: won't run if browser window/tab is closed

@@ -111,6 +111,9 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     piecesReducer,
     emptyTable(rows, cols, null)
   );
+  // previous move
+  const prevMove =
+    moveHistory.length === 0 ? null : moveHistory[moveHistory.length - 1];
   // based purely on the board (not forfeit); ongoing, won, or draw
   const boardStatus = isWon() // check the board for a win
     ? "won" // found win
@@ -310,6 +313,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   return {
     board,
     gameStatus,
+    prevMove,
     toPlayFirst,
     toPlayNext,
     winner,

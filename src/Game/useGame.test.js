@@ -2,6 +2,8 @@ import { renderHook, act } from "@testing-library/react-hooks";
 
 import { useGame } from "./useGame.js";
 
+// TODO: NEXT: tests broke a while ago when useGame was refactored
+
 // NOTE: hook used to return moveHistory, so those were commented out
 
 // TODO: TEST: useGame: expand coverage of custom hook tests:

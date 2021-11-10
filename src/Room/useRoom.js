@@ -2,6 +2,7 @@ import { useEffect, useReducer, useCallback } from "react";
 
 import { useGame } from "./../Game/useGame.js";
 import { useGameSoundEffects } from "./../Game/useGameSoundEffects.js";
+import { useSendMessages } from "./useSendMessages.js";
 import { useResults } from "./../Game/useResults.js";
 
 import createRoomSound from "./../sounds/success-1-6297.mp3";
@@ -13,6 +14,8 @@ import closeRoomSound from "./../sounds/power-down-7103.mp3";
 import leaveRoomSound from "./../sounds/notification-sound-7062.mp3";
 
 // TODO: TEST: useRoom: create tests for custom hook
+
+// TODO: NEXT: move sounds into custom hook
 
 //// Reducers
 
@@ -37,6 +40,8 @@ function reduceMessageQueue(state, action) {
 // is independent of network (ie pubnub)
 
 function useRoom(
+  network,
+  roomCode,
   player,
   isOwner,
   opponent,
@@ -44,18 +49,16 @@ function useRoom(
   restartMethod,
   setRestartMethod,
   setSoundToPlay,
-  publishMessage,
   unmountRoom
 ) {
-  //// States
-
   // is an opponent present?
   const hasOpponent = opponent !== null;
 
-  // the game custom hook
+  //// custom hooks
   const {
     board,
     gameStatus,
+    prevMove,
     toPlayFirst,
     toPlayNext,
     winner,
@@ -66,6 +69,19 @@ function useRoom(
   } = useGame();
 
   useGameSoundEffects(false, gameStatus, toPlayNext, winner);
+
+  useSendMessages(
+    network,
+    roomCode,
+    player,
+    isOwner,
+    hasOpponent,
+    gameStatus,
+    prevMove,
+    toPlayFirst,
+    winner,
+    restartMethod
+  );
 
   // history of all games played
   const { resultHistory, resetResults } = useResults(gameStatus, winner);
@@ -138,28 +154,16 @@ function useRoom(
     }
   }
 
-  // outgoing
-
-  // // if there are outgoing messages, send the first one (oldest)
-  // useEffect(() => {
-  //   if (outgoingMessageQueue.length > 0) {
-  //     publishMessage(outgoingMessageQueue[0]);
-  //     dispatchOutgoingMessageQueue({ type: "remove" });
-  //   }
-  //   // only the queue will change
-  // }, [outgoingMessageQueue, publishMessage]);
-
   // cleanup
 
-  // on unmount of Room, send message and play sound
+  // on unmount of Room, play sound
   // PROBLEM: won't run if browser window/tab is closed
   useEffect(() => {
     return function cleanup() {
-      publishMessage({ type: isOwner ? "close" : "leave" });
       setSoundToPlay(isOwner ? closeRoomSound : leaveRoomSound);
     };
     // none of these will change while Room is mounted
-  }, [isOwner, publishMessage, setSoundToPlay]);
+  }, [isOwner, setSoundToPlay]);
 
   //// Effects
 
@@ -207,35 +211,6 @@ function useRoom(
     }
   });
 
-  // outgoing messages
-
-  // send restartMethod when opponent joins your room
-  useEffect(() => {
-    if (isOwner && hasOpponent) {
-      publishMessage({ type: "restartMethod", restartMethod });
-    }
-    // only hasOpponent will change when isOwner
-  }, [isOwner, publishMessage, hasOpponent, restartMethod]);
-  // send player name/colour on update and on player join (and initial render)
-  useEffect(() => {
-    if (hasOpponent || !isOwner) {
-      publishMessage({
-        type: "playerInfo",
-        name: player.name,
-        colour: player.colour,
-      });
-    }
-    // only hasOpponent and player will change
-  }, [isOwner, publishMessage, hasOpponent, player.name, player.colour]);
-  // send toPlayFirst when new game starts (only toPlayFirst/gameStatus change)
-  useEffect(() => {
-    if (isOwner && gameStatus === "ongoing") {
-      publishMessage({ type: "start", toPlayFirst });
-    }
-    // toPlayFirst won't change while gameStatus is ongoing
-    // isOwner and publishMessage won't change within the Room
-  }, [isOwner, publishMessage, toPlayFirst, gameStatus]);
-
   //// Helper functions
 
   // will only be called by owner
@@ -254,19 +229,16 @@ function useRoom(
     // only act if it's your turn
     if (toPlayNext === 0) {
       placePiece(col, 0);
-      publishMessage({ type: "move", col });
     }
   }
 
   function forfeit() {
     setForfeiter(0);
-    publishMessage({ type: "forfeit" });
   }
 
   // TODO: LATER: PERMAKICK: add via uuid-check (not perfect)
 
   function kickOpponent() {
-    publishMessage({ type: "kick" });
     resetRoom();
     setSoundToPlay(kickOpponentSound);
   }

@@ -7,7 +7,7 @@ import CreateSinglePlayer from "./CreateSinglePlayer.js";
 import { useLobby } from "./useLobby.js";
 
 const checkOccupancyFailMessage =
-  "Could not successfully check room occupancy. May not be connected to the network.";
+  "Could not successfully check room occupancy.\nMay not be connected to the network.";
 
 // TODO: UI: improve design/css of lobby (and sub-components)
 
