@@ -60,7 +60,7 @@ function useRoom(
 
   useGameSoundEffects(false, gameStatus, toPlayNext, winner);
 
-  useRoomSoundEffects(isOwner, hasOpponent);
+  const { playKickSound } = useRoomSoundEffects(isOwner, hasOpponent);
 
   useSendMessages(
     network,
@@ -188,12 +188,12 @@ function useRoom(
     setForfeiter(0);
   }
 
-  // TODO: NEXT: PERMAKICK: add via uuid-check (not perfect) ??
-  // TODO: NEXT: use purmakick list to play kick sound ??
+  // TODO: MAYBE: PERMAKICK: add via uuid-check (not perfect) ??
+  // TODO: MAYBE: use permakick list to play kick sound ??
 
   function kickOpponent() {
     resetRoom();
-    // setSoundToPlay(kickOpponentSound); // TODO: NEXT: TEMP
+    playKickSound();
   }
 
   //// Return
