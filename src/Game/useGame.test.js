@@ -2,13 +2,11 @@ import { renderHook, act } from "@testing-library/react-hooks";
 
 import { useGame } from "./useGame.js";
 
-// TODO: NEXT: tests broke a while ago when useGame was refactored
-
 // NOTE: hook used to return moveHistory, so those were commented out
 
 // TODO: TEST: useGame: expand coverage of custom hook tests:
-//  add checks to current tests for winner, start game, highlights in board, ...
-//  add tests for setForfeiter
+//  add checks to current tests for winner, highlights in board, prevMove, toPlayFirst, ...
+//  add tests for resetGame, startGame, setForfeiter
 //  add tests for diagonal and anti-diagonal wins
 //  add tests for win on 42nd piece placed (ie filling up board but no draw)
 //  add tests for undo action (if/when it is added)
@@ -98,6 +96,7 @@ function isEmpty(board) {
 }
 
 function isInitialState(states) {
+  expect(states.toPlayFirst);
   expect(states.gameStatus).toBe("waiting");
   expect(states.toPlayNext).toBe(null);
   isEmpty(states.board);
@@ -107,36 +106,28 @@ function isInitialState(states) {
 // tests
 
 it("useGame initial states valid", () => {
-  for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
-    const { result } = renderHook(() => useGame(initialPlayer));
+  const { result } = renderHook(() => useGame());
 
-    validStates(result.current);
-    isInitialState(result.current);
-  }
+  validStates(result.current);
+  isInitialState(result.current);
 });
 
 it("useGame states remain valid after (redundant) reset", () => {
-  for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
-    const { result } = renderHook(() => useGame(initialPlayer));
+  const { result } = renderHook(() => useGame());
 
-    act(() => result.current.resetGame());
-    validStates(result.current);
-    isInitialState(result.current);
-
-    act(() => result.current.resetGame());
-    validStates(result.current);
-    isInitialState(result.current);
-  }
+  act(() => result.current.resetGame());
+  validStates(result.current);
+  isInitialState(result.current);
 });
 
 it("useGame states remain valid after playing first piece", () => {
   for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
     for (let col = 0; col < 7; col++) {
-      const { result } = renderHook(() => useGame(initialPlayer));
+      const { result } = renderHook(() => useGame());
 
       expect(result.current.gameStatus).toBe("waiting");
       // start game
-      act(() => result.current.startGame());
+      act(() => result.current.startGame(initialPlayer));
       // place piece in column col
       act(() => result.current.placePiece(col, result.current.toPlayNext));
       validStates(result.current);
@@ -157,10 +148,10 @@ it("useGame states remain valid after playing first piece", () => {
 it("useGame states remain valid bewteen/after 3 moves then reset", () => {
   for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
     for (let col = 0; col < 7; col++) {
-      const { result } = renderHook(() => useGame(initialPlayer));
+      const { result } = renderHook(() => useGame());
 
       // start game
-      act(() => result.current.startGame());
+      act(() => result.current.startGame(initialPlayer));
       // place piece in column col
       act(() => result.current.placePiece(col, result.current.toPlayNext));
       validStates(result.current);
@@ -201,13 +192,13 @@ it("useGame states remain valid bewteen/after 3 moves then reset", () => {
 
 it("useGame detects horizontal win", () => {
   for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
-    const { result } = renderHook(() => useGame(initialPlayer));
+    const { result } = renderHook(() => useGame());
 
     // - - 1 1 1 - -
     // - - 0 0 0 0 -    <- bottom row
 
     // start game
-    act(() => result.current.startGame());
+    act(() => result.current.startGame(initialPlayer));
     for (let i = 4; i < 11; i++) {
       act(() =>
         result.current.placePiece(Math.floor(i / 2), result.current.toPlayNext)
@@ -227,7 +218,7 @@ it("useGame detects horizontal win", () => {
 it("useGame detects vertical win", () => {
   for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
     for (let col = 0; col < 7; col++) {
-      const { result } = renderHook(() => useGame(initialPlayer));
+      const { result } = renderHook(() => useGame());
 
       // - - - - 1 - -
       // - - - - 1 0 -
@@ -235,7 +226,7 @@ it("useGame detects vertical win", () => {
       // 0 - - - 1 0 -    <- bottom row
 
       // start game
-      act(() => result.current.startGame());
+      act(() => result.current.startGame(initialPlayer));
 
       // place off-set piece
       act(() => result.current.placePiece((col + 3) % 7, initialPlayer));
@@ -263,7 +254,7 @@ it("useGame detects vertical win", () => {
 
 it("useGame detects draw", () => {
   for (let initialPlayer = 0; initialPlayer < 2; initialPlayer++) {
-    const { result } = renderHook(() => useGame(initialPlayer));
+    const { result } = renderHook(() => useGame());
 
     // 0 1 0 1 0 1 0
     // 0 1 0 1 0 1 1
@@ -273,7 +264,7 @@ it("useGame detects draw", () => {
     // 1 0 1 0 1 0 1    <- bottom row
 
     // start game
-    act(() => result.current.startGame());
+    act(() => result.current.startGame(initialPlayer));
 
     for (let k = 0; k < 3; k++) {
       // do columns 2 * k and 2 * k + 1
