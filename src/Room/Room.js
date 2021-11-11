@@ -54,38 +54,23 @@ function Room({
 
   //// in-coming network (via pubnub)
 
-  // PROBLEM: TODO: NEXT: Room doesn't always seem to unsubscribe
-  // "no-ops" on unmounted components sometimes happen
-  // and rooms sometimes think 2 people are present after player 2 leaves
+  // PROBLEM: TODO: are await and try-catches necessary for (un)subscribing?
 
   // (un)subscribe to/from Room's channel
   // PROBLEM: won't run if browser window/tab is closed
   useEffect(() => {
-    // would call subscribe directly, but can't do so for async functions
-    async function subscribe() {
-      try {
-        await pubnub.subscribe({
-          channels: [roomCode],
-          withPresence: true,
-        });
-      } catch (error) {
-        console.error("Couldn't subscribe.", error);
-        alert("Could not listen for messages from opponent. Closing room.");
-        unmountRoom();
-      }
-    }
+    pubnub.subscribe({
+      channels: [roomCode],
+      withPresence: true,
+    });
 
-    subscribe();
-    // QUESTION: shouldn't this only be returned if subscription was successful?
     return function unsubscribe() {
-      try {
-        pubnub.unsubscribe({ channels: [roomCode] });
-      } catch (error) {
-        console.error("Couldn't unsubscribe.", error);
-      }
+      pubnub.unsubscribe({ channels: [roomCode] });
     };
     // none will change while Room is mounted
   }, [pubnub, roomCode, unmountRoom]);
+
+  // PROBLEM: TODO: are await and try-catches necessary for (un)listening?
 
   // setup listener for messages
   // PROBLEM: won't run if browser window/tab is closed
@@ -94,20 +79,11 @@ function Room({
       queueIncomingMessage(event.message);
     }
     const listener = { message: handleMessage };
-    async function listen() {
-      try {
-        await pubnub.addListener(listener);
-        return function cleanupListener() {
-          pubnub.removeListener(listener);
-        };
-      } catch (error) {
-        console.error("Couldn't add listener.", error);
-        alert("Could not listen for messages from opponent. Closing room.");
-        unmountRoom();
-      }
-    }
+    pubnub.addListener(listener);
 
-    return listen();
+    return function cleanupListener() {
+      pubnub.removeListener(listener);
+    };
     // note that none of these ever change
   }, [pubnub, queueIncomingMessage, unmountRoom]);
 
