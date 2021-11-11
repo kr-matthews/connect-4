@@ -1,10 +1,8 @@
-import { useEffect, useContext } from "react";
+import { useEffect } from "react";
 
 import RoomHeader from "./RoomHeader.js";
 import Board from "./../Game/Board.js";
 import SingleFooter from "./../Game/SingleFooter.js";
-
-import { SoundContext } from "./../App.js";
 
 import { useRoom } from "./useRoom.js";
 
@@ -22,10 +20,6 @@ function Room({
   unmountRoom,
   pubnub,
 }) {
-  //// sounds
-
-  const { setSoundToPlay } = useContext(SoundContext);
-
   //// useRoom hook
 
   const {
@@ -48,7 +42,6 @@ function Room({
     setOpponent,
     restartMethod,
     setRestartMethod,
-    setSoundToPlay,
     unmountRoom
   );
 

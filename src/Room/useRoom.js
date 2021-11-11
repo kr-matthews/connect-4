@@ -2,20 +2,11 @@ import { useEffect, useReducer, useCallback } from "react";
 
 import { useGame } from "./../Game/useGame.js";
 import { useGameSoundEffects } from "./../Game/useGameSoundEffects.js";
+import { useRoomSoundEffects } from "./useRoomSoundEffects.js";
 import { useSendMessages } from "./useSendMessages.js";
 import { useResults } from "./../Game/useResults.js";
 
-import createRoomSound from "./../sounds/success-1-6297.mp3";
-import joinRoomSound from "./../sounds/good-6081.mp3";
-import playerJoinSound from "./../sounds/chime-sound-7143.mp3";
-import playerLeaveSound from "./../sounds/notification-sound-7062.mp3";
-import kickOpponentSound from "./../sounds/fist-punch-or-kick-7171.mp3";
-import closeRoomSound from "./../sounds/power-down-7103.mp3";
-import leaveRoomSound from "./../sounds/notification-sound-7062.mp3";
-
 // TODO: TEST: useRoom: create tests for custom hook
-
-// TODO: NEXT: move sounds into custom hook
 
 //// Reducers
 
@@ -48,7 +39,6 @@ function useRoom(
   setOpponent,
   restartMethod,
   setRestartMethod,
-  setSoundToPlay,
   unmountRoom
 ) {
   // is an opponent present?
@@ -69,6 +59,8 @@ function useRoom(
   } = useGame();
 
   useGameSoundEffects(false, gameStatus, toPlayNext, winner);
+
+  useRoomSoundEffects(isOwner, hasOpponent);
 
   useSendMessages(
     network,
@@ -94,14 +86,6 @@ function useRoom(
   const queueIncomingMessage = useCallback((message) => {
     dispatchIncomingMessageQueue({ type: "add", message });
   }, []);
-
-  // const [outgoingMessageQueue, dispatchOutgoingMessageQueue] = useReducer(
-  //   reduceMessageQueue,
-  //   []
-  // );
-  // const queueOutgoingMessage = useCallback((message) => {
-  //   dispatchOutgoingMessageQueue({ type: "add", message });
-  // }, []);
 
   //// Network
 
@@ -154,17 +138,6 @@ function useRoom(
     }
   }
 
-  // cleanup
-
-  // on unmount of Room, play sound
-  // PROBLEM: won't run if browser window/tab is closed
-  useEffect(() => {
-    return function cleanup() {
-      setSoundToPlay(isOwner ? closeRoomSound : leaveRoomSound);
-    };
-    // none of these will change while Room is mounted
-  }, [isOwner, setSoundToPlay]);
-
   //// Effects
 
   // result history (increments are done in the hook)
@@ -176,27 +149,6 @@ function useRoom(
     }
     // resetResults never changes
   }, [hasOpponent, resetResults]);
-
-  // Sounds
-
-  // play sounds when other player joins or leaves
-  useEffect(() => {
-    if (isOwner && !hasOpponent) {
-      // NOTE: this sound is overridden by createRoomSound on first rener (?)
-      setSoundToPlay(playerLeaveSound);
-    } else if (isOwner && hasOpponent) {
-      setSoundToPlay(playerJoinSound);
-    }
-  }, [isOwner, hasOpponent, setSoundToPlay]);
-
-  // play create/join sounds (should only run once, as both dependencies never change)
-  useEffect(() => {
-    if (isOwner) {
-      setSoundToPlay(createRoomSound);
-    } else {
-      setSoundToPlay(joinRoomSound);
-    }
-  }, [isOwner, setSoundToPlay]);
 
   // incoming messages
 
@@ -236,11 +188,12 @@ function useRoom(
     setForfeiter(0);
   }
 
-  // TODO: LATER: PERMAKICK: add via uuid-check (not perfect)
+  // TODO: NEXT: PERMAKICK: add via uuid-check (not perfect) ??
+  // TODO: NEXT: use purmakick list to play kick sound ??
 
   function kickOpponent() {
     resetRoom();
-    setSoundToPlay(kickOpponentSound);
+    // setSoundToPlay(kickOpponentSound); // TODO: NEXT: TEMP
   }
 
   //// Return
