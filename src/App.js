@@ -8,6 +8,8 @@ import Header from "./Header/Header.js";
 import PlayerInfo from "./Header/PlayerInfo.js";
 import PlayerName from "./Header/PlayerName.js";
 import PlayerColour from "./Header/PlayerColour.js";
+
+import PieceGradients from "./Header/PieceGradients.js";
 import SiteTheme from "./Header/SiteTheme.js";
 import SiteSound from "./Header/SiteSound.js";
 
@@ -31,6 +33,7 @@ const themes = {
   light: { type: "light", background: "#F5F5F5", foreground: "#121212" },
   dark: { type: "dark", background: "#121212", foreground: "#F5F5F5" },
 };
+const GradientContext = createContext("all");
 const ThemeContext = createContext(themes.light);
 const SoundContext = createContext();
 
@@ -57,6 +60,7 @@ function App() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
   }
 
+  const [usingGradient, setUsingGradient] = useLocalState("gradients", "all");
   const [soundIsOn, setSoundIsOn] = useLocalState("sound", true);
   function toggleSound() {
     setSoundIsOn(!soundIsOn);
@@ -113,84 +117,90 @@ function App() {
   //// Return
 
   return (
-    <ThemeContext.Provider value={theme}>
-      <SoundContext.Provider value={{ setSoundToPlay }}>
-        <GlobalStyle theme={theme} />
+    <GradientContext.Provider value={usingGradient}>
+      <ThemeContext.Provider value={theme}>
+        <SoundContext.Provider value={{ setSoundToPlay }}>
+          <GlobalStyle theme={theme} />
 
-        <h1>Connect 4</h1>
+          <h1>Connect 4</h1>
 
-        <Header>
-          <PlayerInfo self={true}>
-            <PlayerName editable={true} name={name} setName={setName} />
-            <PlayerColour
-              editable={true}
-              colour={colour}
-              setColour={setColour}
-            />
-          </PlayerInfo>
-
-          <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
-          <SiteSound soundIsOn={soundIsOn} toggleSound={toggleSound} />
-
-          {opponent && (
-            <PlayerInfo self={false}>
-              <PlayerName
-                editable={playType === "local"}
-                name={opponent.name}
-                setName={(name) => modifyOpponent("name", name)}
-              />
+          <Header>
+            <PlayerInfo self={true}>
+              <PlayerName editable={true} name={name} setName={setName} />
               <PlayerColour
-                editable={playType === "local" || playType === "computer"}
-                colour={opponent.colour}
-                setColour={(colour) => modifyOpponent("colour", colour)}
+                editable={true}
+                colour={colour}
+                setColour={setColour}
               />
             </PlayerInfo>
-          )}
-        </Header>
 
-        {playType === "online" ? (
-          <Room
-            roomCode={roomCode}
-            player={{ name, colour, uuid }}
-            isOwner={isOwner}
-            opponent={opponent}
-            setOpponent={setOpponent}
-            restartMethod={restartMethod}
-            setRestartMethod={setRestartMethod}
-            unmountRoom={resetAll}
-            pubnub={pubnub}
+            <PieceGradients
+              usingGradient={usingGradient}
+              setUsingGradient={setUsingGradient}
+            />
+            <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
+            <SiteSound soundIsOn={soundIsOn} toggleSound={toggleSound} />
+
+            {opponent && (
+              <PlayerInfo self={false}>
+                <PlayerName
+                  editable={playType === "local"}
+                  name={opponent.name}
+                  setName={(name) => modifyOpponent("name", name)}
+                />
+                <PlayerColour
+                  editable={playType === "local" || playType === "computer"}
+                  colour={opponent.colour}
+                  setColour={(colour) => modifyOpponent("colour", colour)}
+                />
+              </PlayerInfo>
+            )}
+          </Header>
+
+          {playType === "online" ? (
+            <Room
+              roomCode={roomCode}
+              player={{ name, colour, uuid }}
+              isOwner={isOwner}
+              opponent={opponent}
+              setOpponent={setOpponent}
+              restartMethod={restartMethod}
+              setRestartMethod={setRestartMethod}
+              unmountRoom={resetAll}
+              pubnub={pubnub}
+            />
+          ) : playType === "local" ? (
+            <LocalPlay
+              player={{ name, colour }}
+              opponent={opponent}
+              unmountLocal={resetAll}
+            />
+          ) : playType === "computer" ? (
+            <ComputerPlay
+              player={{ name, colour }}
+              opponent={opponent}
+              unmountComputer={resetAll}
+            />
+          ) : (
+            <Lobby
+              setOpponent={setOpponent}
+              setPlayType={setPlayType}
+              setRoomCode={setRoomCode}
+              setIsOwner={setIsOwner}
+              setRestartMethod={setRestartMethod}
+              pubnub={pubnub}
+            />
+          )}
+          <Links
+            gitHubLink="https://github.com/kr-matthews/connect-4"
+            themeType={theme.type}
           />
-        ) : playType === "local" ? (
-          <LocalPlay
-            player={{ name, colour }}
-            opponent={opponent}
-            unmountLocal={resetAll}
-          />
-        ) : playType === "computer" ? (
-          <ComputerPlay
-            player={{ name, colour }}
-            opponent={opponent}
-            unmountComputer={resetAll}
-          />
-        ) : (
-          <Lobby
-            setOpponent={setOpponent}
-            setPlayType={setPlayType}
-            setRoomCode={setRoomCode}
-            setIsOwner={setIsOwner}
-            setRestartMethod={setRestartMethod}
-            pubnub={pubnub}
-          />
-        )}
-        <Links
-          gitHubLink="https://github.com/kr-matthews/connect-4"
-          themeType={theme.type}
-        />
-      </SoundContext.Provider>
-    </ThemeContext.Provider>
+        </SoundContext.Provider>
+      </ThemeContext.Provider>
+    </GradientContext.Provider>
   );
 }
 
 export default App;
 
-export { ThemeContext, SoundContext };
+export { GradientContext, ThemeContext, SoundContext };
