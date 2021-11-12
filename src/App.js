@@ -16,8 +16,7 @@ import SiteSound from "./Header/SiteSound.js";
 
 import Lobby from "./Lobby/Lobby.js";
 import Room from "./Room/Room.js";
-import MultiPlay from "./Local/MultiPlay.js";
-import ComputerPlay from "./Local/ComputerPlay.js";
+import LocalPlay from "./Local/LocalPlay.js";
 
 import Links from "./links/Links.js";
 
@@ -175,16 +174,18 @@ function App() {
               pubnub={pubnub}
             />
           ) : playType === "local" ? (
-            <MultiPlay
+            <LocalPlay
+              sharingScreen={true}
               player={{ name, colour }}
               opponent={opponent}
-              unmountLocal={resetAll}
+              unmount={resetAll}
             />
           ) : playType === "computer" ? (
-            <ComputerPlay
+            <LocalPlay
+              sharingScreen={false}
               player={{ name, colour }}
               opponent={opponent}
-              unmountComputer={resetAll}
+              unmount={resetAll}
             />
           ) : (
             <Lobby

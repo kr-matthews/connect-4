@@ -31,7 +31,7 @@ function SingleFooter({
     }
   }
 
-  // TODO: UI: improve Footer design/css
+  // TODO: UI: improve (both) Footer design/css
 
   //  displayed for viewer's point of view
   return (

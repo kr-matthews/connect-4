@@ -1,3 +1,6 @@
+// TODO: UI: improve (both) Footer design/css
+// TODO: NEXT: rename this to GameFooter and combine with SingleFooter
+
 function DoubleFooter({
   names,
   gameStatus,
