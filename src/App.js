@@ -15,7 +15,7 @@ import SiteTheme from "./Header/SiteTheme.js";
 import SiteSound from "./Header/SiteSound.js";
 
 import Lobby from "./Lobby/Lobby.js";
-import Room from "./Room/Room.js";
+import Room from "./Remote/Room.js";
 import LocalPlay from "./Local/LocalPlay.js";
 
 import Links from "./links/Links.js";
