@@ -6,7 +6,7 @@ import { useGame } from "./../Game/useGame.js";
 import { useGameSoundEffects } from "./../Game/useGameSoundEffects.js";
 import { useResults } from "./../Game/useResults.js";
 
-function LocalPlay({ player, opponent, unmountLocal }) {
+function MultiPlay({ player, opponent, unmountLocal }) {
   // the game custom hook (no sound used)
   const {
     board,
@@ -32,9 +32,10 @@ function LocalPlay({ player, opponent, unmountLocal }) {
   return (
     <>
       <LocalHeader
-        resultHistory={resultHistory}
+        hasOpponent={true}
         names={[player.name, opponent.name]}
-        unmountLocal={unmountLocal}
+        resultHistory={resultHistory}
+        unmount={unmountLocal}
       />
       <Board
         viewer={toPlayNext}
@@ -55,4 +56,4 @@ function LocalPlay({ player, opponent, unmountLocal }) {
   );
 }
 
-export default LocalPlay;
+export default MultiPlay;

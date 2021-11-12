@@ -1,4 +1,4 @@
-import ComputerHeader from "./ComputerHeader.js";
+import LocalHeader from "./LocalHeader.js";
 import Board from "./../Game/Board.js";
 import SingleFooter from "./../Game/SingleFooter.js";
 
@@ -6,7 +6,7 @@ import { useGame } from "./../Game/useGame.js";
 import { useGameSoundEffects } from "./../Game/useGameSoundEffects.js";
 import { useResults } from "./../Game/useResults.js";
 
-// TODO: REUSE: this is extremely similar to ./LocalPlay.js
+// TODO: NEXT: REUSE: this is extremely similar to ./MultiPlay.js
 
 function ComputerPlay({ player, opponent, unmountComputer }) {
   // the game custom hook
@@ -37,9 +37,10 @@ function ComputerPlay({ player, opponent, unmountComputer }) {
 
   return (
     <>
-      <ComputerHeader
+      <LocalHeader
+        hasOpponent={false}
         resultHistory={resultHistory}
-        unmountComputer={unmountComputer}
+        unmount={unmountComputer}
       />
       <Board
         viewer={0}

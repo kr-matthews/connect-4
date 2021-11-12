@@ -2,6 +2,8 @@ import Results from "./../Game/Results.js";
 
 // TODO: NETWORK: add a "confirm my connection" button?
 
+// TODO: NEXT: UI: cleanup RoomHeader and add css
+
 function RoomHeader({
   roomCode,
   isOwner,
@@ -32,6 +34,14 @@ function RoomHeader({
 
   return (
     <>
+      {/* display W-D-L history against this opponent */}
+      {hasOpponent && (
+        <Results
+          resultHistory={resultHistory}
+          headings={["Wins", "Draws", "Loses"]}
+        />
+      )}
+
       {hasOpponent ? (
         /* who is in control */
         isOwner ? (
@@ -66,14 +76,6 @@ function RoomHeader({
           <button onClick={kickOpponent}>Kick Opponent</button>
         )}
       </div>
-
-      {/* display W-D-L history against this opponent */}
-      {hasOpponent && (
-        <Results
-          resultHistory={resultHistory}
-          headings={["Wins", "Draws", "Loses"]}
-        />
-      )}
     </>
   );
 }

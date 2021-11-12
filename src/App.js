@@ -16,7 +16,7 @@ import SiteSound from "./Header/SiteSound.js";
 
 import Lobby from "./Lobby/Lobby.js";
 import Room from "./Room/Room.js";
-import LocalPlay from "./Local/LocalPlay.js";
+import MultiPlay from "./Local/MultiPlay.js";
 import ComputerPlay from "./Local/ComputerPlay.js";
 
 import Links from "./links/Links.js";
@@ -175,7 +175,7 @@ function App() {
               pubnub={pubnub}
             />
           ) : playType === "local" ? (
-            <LocalPlay
+            <MultiPlay
               player={{ name, colour }}
               opponent={opponent}
               unmountLocal={resetAll}

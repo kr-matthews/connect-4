@@ -1,15 +1,19 @@
 import Results from "./../Game/Results.js";
 
-function LocalHeader({ resultHistory, names, unmountLocal }) {
+function LocalHeader({ hasOpponent, names, resultHistory, unmount }) {
+  const textAboutOpponent = hasOpponent
+    ? "You're playing locally with a friend on the same screen."
+    : "You're playing against the computer.";
+  const headings = hasOpponent
+    ? [names[0] + " Wins", "Draws", names[1] + " Wins"]
+    : ["Wins", "Draws", "Loses"];
+
   return (
-    <>
-      <p>You're playing locally with a friend on the same screen.</p>
-      <button onClick={unmountLocal}>Return to Lobby</button>
-      <Results
-        resultHistory={resultHistory}
-        headings={[names[0] + " Wins", "Draws", names[1] + " Wins"]}
-      />
-    </>
+    <div>
+      <Results resultHistory={resultHistory} headings={headings} />
+      <p>{textAboutOpponent}</p>
+      <button onClick={unmount}>Return to Lobby</button>
+    </div>
   );
 }
 
