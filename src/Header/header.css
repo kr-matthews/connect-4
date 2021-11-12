@@ -33,6 +33,11 @@
 }
 
 @media (max-width: 725px) {
+  .header {
+    max-width: 315px;
+    margin: auto;
+  }
+
   .header .playerInfo {
     float: none;
     margin: auto;

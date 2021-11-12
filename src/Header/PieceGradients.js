@@ -8,7 +8,7 @@ function PieceGradients({ usingGradient, setUsingGradient }) {
       There's a gradient on{" "}
       <select value={usingGradient.toString()} onChange={handleChange}>
         <option value="all">all</option>
-        <option value="my">my</option>
+        <option value="my">your</option>
         <option value="their">their</option>
         <option value="no">no</option>
       </select>{" "}
