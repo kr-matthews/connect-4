@@ -5,11 +5,9 @@
 }
 
 .cell {
-  border: solid 10px;
+  border: solid 7px;
   text-align: center;
   vertical-align: middle;
-  height: 2.5em;
-  width: 2.5em;
   padding: 0;
   margin: 0;
   transition: all 0.5s ease-in;
@@ -22,7 +20,7 @@
 .piece {
   height: 2em;
   width: 2em;
-  border: 0.25em solid;
+  border: 0.2em solid;
   border-radius: 50%;
   display: inline-block;
   text-align: center;
