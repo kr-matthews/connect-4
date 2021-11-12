@@ -1,0 +1,44 @@
+.header {
+  padding: 0.5em;
+  background-color: Gray;
+  border-radius: 1em;
+}
+
+.header h3 {
+  margin: 0.5em;
+}
+
+.header .headerBlock {
+  margin: 0 1em;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.header .self {
+  float: left;
+}
+
+.header .opponent {
+  float: right;
+}
+
+@media (min-width: 726px) {
+  .header .playerInfo {
+    width: 155px;
+  }
+}
+
+.header div div {
+  margin: 0.3em 0;
+}
+
+@media (max-width: 725px) {
+  .header .playerInfo {
+    float: none;
+    margin: auto;
+  }
+
+  .header .headerBlock {
+    display: block;
+  }
+}

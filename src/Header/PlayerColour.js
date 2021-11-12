@@ -6,7 +6,7 @@ function PlayerColour({ editable, colour, setColour }) {
 
   return (
     <div>
-      Piece Colour:{" "}
+      Colour:{" "}
       {editable ? (
         <input type="color" value={colour} onChange={changeHandler} />
       ) : (

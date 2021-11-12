@@ -34,7 +34,6 @@ function PlayerName({ editable, name, setName }) {
 
   return (
     <div>
-      Name:{" "}
       {isEditing ? (
         <input
           autoFocus

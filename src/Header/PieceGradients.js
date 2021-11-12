@@ -5,7 +5,7 @@ function PieceGradients({ usingGradient, setUsingGradient }) {
 
   return (
     <div>
-      Add a colour gradient to{" "}
+      There's a gradient on{" "}
       <select value={usingGradient.toString()} onChange={handleChange}>
         <option value="all">all</option>
         <option value="my">my</option>

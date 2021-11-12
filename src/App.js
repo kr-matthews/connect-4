@@ -9,6 +9,7 @@ import PlayerInfo from "./Header/PlayerInfo.js";
 import PlayerName from "./Header/PlayerName.js";
 import PlayerColour from "./Header/PlayerColour.js";
 
+import Options from "./Header/Options.js";
 import PieceGradients from "./Header/PieceGradients.js";
 import SiteTheme from "./Header/SiteTheme.js";
 import SiteSound from "./Header/SiteSound.js";
@@ -134,14 +135,16 @@ function App() {
               />
             </PlayerInfo>
 
-            <PieceGradients
-              usingGradient={usingGradient}
-              setUsingGradient={setUsingGradient}
-            />
-            <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
-            <SiteSound soundIsOn={soundIsOn} toggleSound={toggleSound} />
+            <Options>
+              <PieceGradients
+                usingGradient={usingGradient}
+                setUsingGradient={setUsingGradient}
+              />
+              <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
+              <SiteSound soundIsOn={soundIsOn} toggleSound={toggleSound} />
+            </Options>
 
-            {opponent && (
+            {opponent ? (
               <PlayerInfo self={false}>
                 <PlayerName
                   editable={playType === "local"}
@@ -154,6 +157,8 @@ function App() {
                   setColour={(colour) => modifyOpponent("colour", colour)}
                 />
               </PlayerInfo>
+            ) : (
+              <PlayerInfo self={false} />
             )}
           </Header>
 

@@ -1,13 +1,7 @@
-function Header({ children }) {
-  // TODO: UI: styling for Header/options (and all sub-components)
+import "./header.css";
 
-  return (
-    <div>
-      {children.map((child, ind) => {
-        return <div key={ind}>{child}</div>;
-      })}
-    </div>
-  );
+function Header({ children }) {
+  return <div className="header">{children}</div>;
 }
 
 export default Header;
