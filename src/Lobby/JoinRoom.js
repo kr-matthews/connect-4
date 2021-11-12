@@ -15,21 +15,24 @@ function JoinRoom({ joinRoom }) {
   }
 
   return (
-    <div>
+    <div className="option">
       <h3>Join an Online Room</h3>
       <p>
-        If someone else has given you a room code, use that code to join their
-        room. Room codes are 4 characters.
+        If a friend has given you a room code, use that code to join their room.
       </p>
-      <form>
-        <input
-          type="text"
-          value={roomCodeInput}
-          placeholder="enter room code"
-          onChange={changeHandler}
-        />
-        <button onClick={clickHandler}>Join Room</button>
-      </form>
+      <div>
+        Enter 4-character room code:
+        <form>
+          <input
+            type="text"
+            value={roomCodeInput}
+            placeholder="paste room code"
+            onChange={changeHandler}
+          />
+          <br />
+          <button onClick={clickHandler}>Join Room</button>
+        </form>
+      </div>
     </div>
   );
 }

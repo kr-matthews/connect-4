@@ -5,10 +5,10 @@ function CreateSinglePlayer({ playComputer }) {
   }
 
   return (
-    <div>
+    <div className="option">
       <h3>Play Computer</h3>
       <p>
-        If you don't have anyone to play against, there is a computer opponent
+        If you don't have a friend to play against, there is a computer opponent
         available.
       </p>
       <form>

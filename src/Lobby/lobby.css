@@ -1,0 +1,18 @@
+.lobby h3 {
+  margin-top: 0.2em;
+  margin-bottom: 0.1em;
+}
+
+.lobby .option {
+  display: inline-block;
+  max-width: 315px;
+  border: 0.3em solid Grey;
+  border-radius: 0.5em;
+  margin: 0.3em;
+  padding: 0.4em;
+  vertical-align: middle;
+}
+
+.lobby .option label {
+  display: inline-block;
+}
