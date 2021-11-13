@@ -4,7 +4,7 @@ import Results from "./../Game/Results.js";
 
 // TODO: NEXT: UI: cleanup RoomHeader and add css
 
-function RoomHeader({
+function RemoteHeader({
   roomCode,
   isOwner,
   hasOpponent,
@@ -80,4 +80,4 @@ function RoomHeader({
   );
 }
 
-export default RoomHeader;
+export default RemoteHeader;

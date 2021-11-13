@@ -5,6 +5,7 @@ import PubNub from "pubnub";
 import { subscribeKey, publishKey } from "./pubnubKeys.js";
 
 import Header from "./Header/Header.js";
+
 import PlayerInfo from "./Header/PlayerInfo.js";
 import PlayerName from "./Header/PlayerName.js";
 import PlayerColour from "./Header/PlayerColour.js";
@@ -15,7 +16,7 @@ import SiteTheme from "./Header/SiteTheme.js";
 import SiteSound from "./Header/SiteSound.js";
 
 import Lobby from "./Lobby/Lobby.js";
-import Room from "./Remote/Room.js";
+import RemotePlay from "./Remote/RemotePlay.js";
 import LocalPlay from "./Local/LocalPlay.js";
 
 import Links from "./links/Links.js";
@@ -163,7 +164,7 @@ function App() {
           </Header>
 
           {playType === "online" ? (
-            <Room
+            <RemotePlay
               roomCode={roomCode}
               player={{ name, colour, uuid }}
               isOwner={isOwner}

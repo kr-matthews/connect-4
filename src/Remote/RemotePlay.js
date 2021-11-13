@@ -1,4 +1,4 @@
-import RoomHeader from "./RoomHeader.js";
+import RemoteHeader from "./RemoteHeader.js";
 import Board from "./../Game/Board.js";
 import SingleFooter from "./../Game/SingleFooter.js";
 
@@ -46,7 +46,7 @@ function Room({
 
   return (
     <>
-      <RoomHeader
+      <RemoteHeader
         roomCode={roomCode}
         isOwner={isOwner}
         hasOpponent={opponent !== null}
