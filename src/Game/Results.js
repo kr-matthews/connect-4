@@ -1,17 +1,20 @@
-function Results({ resultHistory, headings }) {
-  // TODO: UI: Results
+import "./results.css";
 
+function Results({ resultHistory, headings }) {
   return (
-    <div>
-      <span>
-        {headings[0]}: {resultHistory.wins} --{" "}
-      </span>
-      <span>
-        {headings[1]}: {resultHistory.draws} --{" "}
-      </span>
-      <span>
-        {headings[2]}: {resultHistory.loses}
-      </span>
+    <div className="results">
+      <div className="result left side">
+        <div>{headings[0]}:</div>
+        <div>{resultHistory.wins}</div>
+      </div>
+      <div className="result middle">
+        <div>{headings[1]}:</div>
+        <div>{resultHistory.draws}</div>
+      </div>
+      <div className="result right side">
+        <div>{headings[2]}:</div>
+        <div>{resultHistory.loses}</div>
+      </div>
     </div>
   );
 }

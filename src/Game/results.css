@@ -1,0 +1,48 @@
+/* TODO: extremely similar to header.css; combine them */
+
+.results {
+  margin: 0.5em 0;
+  padding: 0.5em;
+  border: 0.2em solid Gray;
+  border-radius: 1em;
+}
+
+.results .result {
+  display: inline-block;
+  margin: 0.3em 1em;
+  vertical-align: top;
+}
+
+.results .left {
+  float: left;
+}
+
+.results .right {
+  float: right;
+}
+
+@media (min-width: 726px) {
+  .results .side {
+    width: 170px;
+  }
+}
+
+.results div div {
+  margin: 0.3em 0;
+}
+
+@media (max-width: 725px) {
+  .results {
+    max-width: 315px;
+    margin: 0.5em auto;
+  }
+
+  .results .side {
+    float: none;
+    margin: auto;
+  }
+
+  .results .result {
+    display: block;
+  }
+}
