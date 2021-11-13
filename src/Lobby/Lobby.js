@@ -17,13 +17,13 @@ function Lobby({
   setRoomCode,
   setIsOwner,
   setRestartMethod,
-  pubnub,
+  network,
 }) {
-  //// pubnub setup
+  //// network setup
 
   async function getRoomOccupancy(roomCode) {
     try {
-      const room = await pubnub.hereNow({ channels: [roomCode] });
+      const room = await network.hereNow({ channels: [roomCode] });
       return room.totalOccupancy;
     } catch (error) {
       alert(checkOccupancyFailMessage);

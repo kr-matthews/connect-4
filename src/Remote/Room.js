@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 import RoomHeader from "./RoomHeader.js";
 import Board from "./../Game/Board.js";
 import SingleFooter from "./../Game/SingleFooter.js";
@@ -18,7 +16,7 @@ function Room({
   restartMethod,
   setRestartMethod,
   unmountRoom,
-  pubnub,
+  network,
 }) {
   //// useRoom hook
 
@@ -32,9 +30,8 @@ function Room({
     makeMove,
     forfeit,
     kickOpponent,
-    queueIncomingMessage,
   } = useRoom(
-    pubnub,
+    network,
     roomCode,
     player,
     isOwner,
@@ -44,41 +41,6 @@ function Room({
     setRestartMethod,
     unmountRoom
   );
-
-  //// in-coming network (via pubnub)
-
-  // PROBLEM: TODO: are await and try-catches necessary for (un)subscribing?
-
-  // (un)subscribe to/from Room's channel
-  // PROBLEM: won't run if browser window/tab is closed
-  useEffect(() => {
-    pubnub.subscribe({
-      channels: [roomCode],
-      withPresence: true,
-    });
-
-    return function unsubscribe() {
-      pubnub.unsubscribe({ channels: [roomCode] });
-    };
-    // none will change while Room is mounted
-  }, [pubnub, roomCode, unmountRoom]);
-
-  // PROBLEM: TODO: are await and try-catches necessary for (un)listening?
-
-  // setup listener for messages
-  // PROBLEM: won't run if browser window/tab is closed
-  useEffect(() => {
-    function handleMessage(event) {
-      queueIncomingMessage(event.message);
-    }
-    const listener = { message: handleMessage };
-    pubnub.addListener(listener);
-
-    return function cleanupListener() {
-      pubnub.removeListener(listener);
-    };
-    // note that none of these ever change
-  }, [pubnub, queueIncomingMessage, unmountRoom]);
 
   //// Return
 

@@ -110,9 +110,10 @@ function App() {
   // constant identifier per user/device
   const [uuid] = useLocalState("uuid", generateRandomUuid());
   // pubnub network
-  const pubnub = useMemo(() => new PubNub({ publishKey, subscribeKey, uuid }), [
-    uuid,
-  ]);
+  const network = useMemo(
+    () => new PubNub({ publishKey, subscribeKey, uuid }),
+    [uuid]
+  );
 
   //// Return
 
@@ -171,7 +172,7 @@ function App() {
               restartMethod={restartMethod}
               setRestartMethod={setRestartMethod}
               unmountRoom={resetAll}
-              pubnub={pubnub}
+              network={network}
             />
           ) : playType === "local" ? (
             <LocalPlay
@@ -194,7 +195,7 @@ function App() {
               setRoomCode={setRoomCode}
               setIsOwner={setIsOwner}
               setRestartMethod={setRestartMethod}
-              pubnub={pubnub}
+              network={network}
             />
           )}
           <Links
