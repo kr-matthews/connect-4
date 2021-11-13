@@ -98,10 +98,6 @@ function useRoom(
     }
   }
 
-  function forfeit() {
-    setForfeiter(0);
-  }
-
   // TODO: MAYBE: PERMAKICK: add via uuid-check (not perfect) ??
   // TODO: MAYBE: use permakick list to play kick sound ??
 
@@ -120,7 +116,7 @@ function useRoom(
     toPlayNext,
     startNewGame,
     makeMove,
-    forfeit,
+    forfeit: setForfeiter,
     kickOpponent,
   };
 }

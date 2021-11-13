@@ -1,6 +1,6 @@
 import RemoteHeader from "./RemoteHeader.js";
 import Board from "./../Game/Board.js";
-import SingleFooter from "./../Game/SingleFooter.js";
+import GameFooter from "./../Game/GameFooter.js";
 
 import { useRoom } from "./useRoom.js";
 
@@ -66,15 +66,17 @@ function Room({
         />
       )}
       {opponent && (
-        <SingleFooter
+        <GameFooter
+          sharingScreen={false}
           viewer={0}
           isOwner={isOwner}
+          names={[player.name, opponent.name]}
           gameStatus={gameStatus}
           winner={winner}
           toPlayNext={toPlayNext}
           forfeit={forfeit}
           startNewGame={startNewGame}
-          hasChoice={false}
+          hasRestartChoice={false}
         />
       )}
     </>

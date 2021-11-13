@@ -2,8 +2,6 @@ import Results from "./../Game/Results.js";
 
 // TODO: NETWORK: add a "confirm my connection" button?
 
-// TODO: NEXT: UI: cleanup RoomHeader and add css
-
 function RemoteHeader({
   roomCode,
   isOwner,

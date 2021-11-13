@@ -1,7 +1,6 @@
 import LocalHeader from "./LocalHeader.js";
 import Board from "./../Game/Board.js";
-import SingleFooter from "./../Game/SingleFooter.js";
-import DoubleFooter from "./../Game/DoubleFooter.js";
+import GameFooter from "./../Game/GameFooter.js";
 
 import { useGame } from "./../Game/useGame.js";
 import { useGameSoundEffects } from "./../Game/useGameSoundEffects.js";
@@ -30,10 +29,6 @@ function LocalPlay({ sharingScreen, player, opponent, unmount }) {
     placePiece(col, sharingScreen ? toPlayNext : 0);
   }
 
-  function forfeit(player) {
-    setForfeiter(sharingScreen ? player : 0);
-  }
-
   return (
     <>
       <LocalHeader
@@ -49,27 +44,18 @@ function LocalPlay({ sharingScreen, player, opponent, unmount }) {
         colours={[player.colour, opponent.colour]}
         makeMove={makeMove}
       />
-      {sharingScreen ? (
-        <DoubleFooter
-          names={[player.name, opponent.name]}
-          gameStatus={gameStatus}
-          winner={winner}
-          toPlayNext={toPlayNext}
-          forfeit={setForfeiter}
-          startNewGame={startGame}
-        />
-      ) : (
-        <SingleFooter
-          viewer={0}
-          isOwner={true}
-          gameStatus={gameStatus}
-          winner={winner}
-          toPlayNext={toPlayNext}
-          forfeit={forfeit}
-          startNewGame={startGame}
-          hasChoice={true}
-        />
-      )}
+      <GameFooter
+        sharingScreen={sharingScreen}
+        viewer={sharingScreen ? toPlayNext : 0}
+        isOwner={true}
+        names={[sharingScreen ? player.name : "You", opponent.name]}
+        gameStatus={gameStatus}
+        winner={winner}
+        toPlayNext={toPlayNext}
+        forfeit={setForfeiter}
+        startNewGame={startGame}
+        hasRestartChoice={true}
+      />
     </>
   );
 }
