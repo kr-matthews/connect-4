@@ -2,6 +2,8 @@ import { useReducer, useEffect, useCallback } from "react";
 
 //// Reducers & initial states
 
+const initialResults = { wins: 0, draws: 0, loses: 0 };
+
 function resultReducer(state, action) {
   switch (action.type) {
     case "reset":
@@ -14,15 +16,21 @@ function resultReducer(state, action) {
   }
 }
 
-const initialResults = { wins: 0, draws: 0, loses: 0 };
-
 //// Hook
 
-function useResults(gameStatus, winner) {
+function useResults(gameStatus, winner, hasOpponent = true) {
+  //// Constants
+
   const [resultHistory, dispatchResult] = useReducer(
     resultReducer,
     initialResults
   );
+
+  //// Functions
+
+  const resetResults = useCallback(() => {
+    dispatchResult({ type: "reset" });
+  }, []);
 
   //// Effects
 
@@ -40,11 +48,13 @@ function useResults(gameStatus, winner) {
     }
   }, [gameStatus]);
 
-  //// Functions
-
-  const resetResults = useCallback(() => {
-    dispatchResult({ type: "reset" });
-  }, []);
+  // if the opponent leaves, reset
+  useEffect(() => {
+    if (!hasOpponent) {
+      resetResults();
+    }
+    // resetResults never changes
+  }, [hasOpponent, resetResults]);
 
   //// Return
 
