@@ -1,0 +1,12 @@
+.gameFooter {
+  margin: 0.5em;
+  min-height: 150px;
+}
+
+.gameFooter div {
+  padding: 0.5em;
+}
+
+.gameFooter button {
+  margin: 0 0.2em;
+}

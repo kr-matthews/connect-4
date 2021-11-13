@@ -1,3 +1,5 @@
+import "./gameFooter.css";
+
 function GameFooter({
   sharingScreen,
   viewer,
@@ -27,7 +29,7 @@ function GameFooter({
         case "draw":
           return "It's a draw.";
         case "ongoing":
-          return "It's " + names[toPlayNext] + "'s turn to drop a piece.";
+          return "It's " + names[toPlayNext] + "'s turn to play.";
         case "waiting":
           return "The game hasn't started yet.";
         default:
@@ -60,11 +62,9 @@ function GameFooter({
 
   const newGameText = gameStatus === "waiting" ? "the game" : " a new game";
 
-  // TODO: UI: improve GameFooter design/css
-
   //  displayed for viewer's point of view
   return (
-    <>
+    <div className="gameFooter">
       {/* explain what's going on with the game */}
       <div>{gameStatusMessage()}</div>
 
@@ -88,7 +88,7 @@ function GameFooter({
           <>Waiting for your opponent to start {newGameText}.</>
         )}
       </div>
-    </>
+    </div>
   );
 }
 
