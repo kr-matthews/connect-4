@@ -18,3 +18,9 @@ code {
 input {
   max-width: 8em;
 }
+
+@media (max-width: 725px) {
+  body {
+    max-width: 315px;
+  }
+}

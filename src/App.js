@@ -28,6 +28,8 @@ import { useSound } from "./sounds/useSound.js";
 
 import { getRandomColour } from "./Colours.js";
 
+// TODO: NEXT: Define computer player strategy. Share helpers with useGame.
+
 //// Contexts
 
 const themes = {
@@ -141,8 +143,8 @@ function App() {
                 usingGradient={usingGradient}
                 setUsingGradient={setUsingGradient}
               />
-              <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
               <SiteSound soundIsOn={soundIsOn} toggleSound={toggleSound} />
+              <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
             </Options>
 
             {opponent ? (

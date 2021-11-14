@@ -1,4 +1,5 @@
-/* TODO: extremely similar to header.css; combine them */
+/* TODO: CSS: extremely similar to header.css; combine them */
+/* In fact, CSS is pretty poorly done in general throughout. */
 
 .results {
   margin: 0.5em 0;
@@ -23,7 +24,7 @@
 
 @media (min-width: 726px) {
   .results .side {
-    width: 260px;
+    width: 255px;
   }
 }
 

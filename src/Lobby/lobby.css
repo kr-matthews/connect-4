@@ -1,6 +1,9 @@
+.lobby {
+  margin-bottom: 3em;
+}
+
 .lobby h3 {
   margin-top: 0.2em;
-  margin-bottom: 0.1em;
 }
 
 .lobby .option {

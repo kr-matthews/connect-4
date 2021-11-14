@@ -1,5 +1,7 @@
 import Results from "./../Game/Results.js";
 
+import "./remoteHeader.css";
+
 // TODO: NETWORK: add a "confirm my connection" button?
 
 function RemoteHeader({
@@ -15,20 +17,18 @@ function RemoteHeader({
   const restartMethodMessage =
     "In this room, " +
     (restartMethod === "random"
-      ? "the first player of a new game is selected randomly."
+      ? "the first player of subsequent games is selected randomly."
       : restartMethod === "alternate"
-      ? "players alternate playing first in a new game."
+      ? "players alternate playing first in subsequent games."
       : // else it's "winner" or "loser"
         "the " +
         restartMethod +
-        " of a game will go first for the next game. In the event of a draw, the same player will go first.");
+        " of a game will go first for the next game. (In the event of a draw, the same player will go first.)");
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(roomCode);
     alert("Room code " + roomCode + " copied to clipboard.");
   };
-
-  // TODO: UI: improve Header design/css, reorganize into sub-components
 
   return (
     <>
@@ -43,28 +43,28 @@ function RemoteHeader({
       {hasOpponent ? (
         /* who is in control */
         isOwner ? (
-          <div>You created and are in control of this room.</div>
+          <p>You created and are in control of this room.</p>
         ) : (
-          <div>Your opponent created and has control of this room.</div>
+          <p>Your opponent created and has control of this room.</p>
         )
       ) : /* waiting message & room code */
       isOwner ? (
-        <div>
+        <p>
           Waiting for an opponent to join your room. Share your room code{" "}
           <button onClick={copyToClipboard}>{roomCode}</button> with a friend.
-        </div>
+        </p>
       ) : (
-        <div>
-          Waiting for opponent information to be fetched. If this message
-          persists, then something has gone wrong. The room code is {roomCode}.
-        </div>
+        <p>
+          Waiting for opponent information to be fetched. (If this message
+          persists, then something has gone wrong.).
+        </p>
       )}
 
       {/* explain who goes first for new games */}
-      {restartMethod && <div>{restartMethodMessage}</div>}
+      {restartMethod && <p>{restartMethodMessage}</p>}
 
       {/* options to close/leave room or kick opponent, as applicable */}
-      <div>
+      <div className={hasOpponent ? "" : "exitRoom"}>
         {isOwner ? (
           <button onClick={closeRoom}>Close Room</button>
         ) : (

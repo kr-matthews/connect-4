@@ -1,7 +1,10 @@
 function SiteTheme({ themeType, toggleTheme }) {
+  const capitalizedTheme =
+    themeType.charAt(0).toUpperCase() + themeType.slice(1);
+
   return (
     <div>
-      Using the <button onClick={toggleTheme}>{themeType}</button> theme.
+      <button onClick={toggleTheme}>{capitalizedTheme}</button> theme.
     </div>
   );
 }
