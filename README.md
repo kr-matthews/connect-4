@@ -1,7 +1,5 @@
 # Connect 4
 
-This is still a work in progress, though the main components are done.
-
 This is a single-page application for the game Connect 4. A user can create an online room and play remotely against another user who joins the room. Alternatively, a user can play locally against a computer player, or two users can play locally.
 
 If you want to clone the repository, you'll need to add definitions for `publishKey` and `subscribeKey` at `src/pubnubKeys.js`.
@@ -10,7 +8,7 @@ If you want to clone the repository, you'll need to add definitions for `publish
 
 On GitHub Pages at [https://kr-matthews.github.io/connect-4](https://kr-matthews.github.io/connect-4).
 
-Note: the computer player has not been implemented yet.
+**Note**: the computer player has not been implemented yet.
 
 ## Features
 
@@ -26,15 +24,9 @@ Note: the computer player has not been implemented yet.
 
 ### Potential Future
 
-- Actually implementing a computer player.
-- The option to add a time limit to each move.
-- Highlighting the most recently played piece (would be very easy).
-- Ability to permanently kick opponent from room.
-- Allow user to select board dimensions and winning line length.
-- Possibly with animation of pieces dropping into columns, and other styling improvements.
-- An undo feature.
+See [enhancements](https://github.com/kr-matthews/connect-4/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement) on GitHub.
 
-## Intentions
+## Original Intentions
 
 Best practices with state management and (custom) hooks. Separation of concerns (keeping views dumb and state logic within hooks) and better component management/organization -- including, and especially, testing. Using context for light/dark theme. Communication with a network (PubNub).
 
@@ -49,11 +41,8 @@ Best practices with state management and (custom) hooks. Separation of concerns 
 - Promises and asynchronous functions.
 - Proper testing.
 - Better git commit messages and descriptions.
+- Using GitHub issues and projects.
 
 ## Flaws
 
-- If multiple sounds are triggered on the same render, only one will be played. (Could be fixed via a queue.)
-- On reloading the site in dark theme, it transitions from the light theme.
-- If a user closes the browser window/tab while in a room, the opponent will not be notified and the original user will register as present in the room for at least a few minutes.
-- Very lacking in tests.
-- CSS styling overall is not done very well and doesn't follow best practices.
+See the [issues](https://github.com/kr-matthews/connect-4/issues) on GitHub.
