@@ -5,6 +5,7 @@ import GameFooter from "./../Game/GameFooter.js";
 import { useGame } from "./../Game/useGame.js";
 import { useGameSoundEffects } from "./../Game/useGameSoundEffects.js";
 import { useResults } from "./../Game/useResults.js";
+import { useComputerPlayer } from "./../Computer/useComputerPlayer.js";
 
 function LocalPlay({ sharingScreen, player, opponent, unmount }) {
   // the game custom hook
@@ -22,6 +23,15 @@ function LocalPlay({ sharingScreen, player, opponent, unmount }) {
 
   // keep track of result history
   const { resultHistory } = useResults(gameStatus, winner);
+
+  // computer player, when applicable
+  useComputerPlayer(
+    opponent.type === "computer",
+    board.map((row) => row.map((cell) => cell.player)),
+    toPlayNext === 1,
+    (col) => toPlayNext === 1 && placePiece(col, 1),
+    () => setForfeiter(1)
+  );
 
   // functions for sub-components
 

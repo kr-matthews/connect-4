@@ -28,8 +28,6 @@ import { useSound } from "./sounds/useSound.js";
 
 import { getRandomColour } from "./Colours.js";
 
-// TODO: NEXT: Define computer player strategy. Share helpers with useGame.
-
 //// Contexts
 
 const themes = {
