@@ -53,7 +53,8 @@ function useReceiveMessages(
         setOpponent((opp) => {
           const name = message.name || opp.name;
           const colour = message.colour || opp.colour;
-          return { name, colour };
+          const type = "remote";
+          return { name, colour, type };
         });
         break;
 

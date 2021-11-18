@@ -70,14 +70,22 @@ function useLobby(
 
   function playLocally() {
     // setup opponent (is null til now)
-    setOpponent({ name: "Player II", colour: getRandomColour() });
+    setOpponent({
+      name: "Player II",
+      colour: getRandomColour(),
+      type: "local",
+    });
     // mount component
     setPlayType("local");
   }
 
   function playComputer() {
     // setup opponent (is null til now)
-    setOpponent({ name: "Computron 40 5000", colour: getRandomColour() });
+    setOpponent({
+      name: "Computron 40 5000",
+      colour: getRandomColour(),
+      type: "computer",
+    });
     // mount component
     setPlayType("computer");
   }
