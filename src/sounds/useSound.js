@@ -14,7 +14,9 @@ function useSound(soundIsOn) {
     if (soundToPlay && soundIsOn) {
       playSound(soundToPlay);
     }
-    setSoundToPlay(null);
+    if (soundToPlay) {
+      setSoundToPlay(null);
+    }
   }, [soundToPlay, soundIsOn]);
 
   return { setSoundToPlay };
