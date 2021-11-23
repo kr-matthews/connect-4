@@ -1,13 +1,30 @@
+import {
+  orientations,
+  findEmptyRow,
+  inBounds,
+  countPiecesInLine,
+} from "./../Game/PiecesHelpers.js";
 import { useState, useEffect } from "react";
 
+// TODO: NEXT: doesn't take into account opp playing on top of current move
+// TODO: NEXT: counts "dead" lines (those which can't ever win)
+
 // fiddle around with these parameters
-const worstThinkTime = 2500;
-const randomFactor = Math.floor(Math.random() * 500) - 250;
-const minThinkTime = 150;
+// (technically can go over max via random factor -- but won't go under min)
+const maxThinkTime = 2300;
+const minThinkTime = 500;
+const randomFactorRange = 500;
 
 // only does anything if active, and active never changes while mounted
-function useComputerPlayer(active, pieces, computersTurn, dropInCol, forfeit) {
-  //// States
+function useComputerPlayer(
+  active,
+  computerIndex,
+  computersTurn,
+  dropInCol,
+  forfeit,
+  keyAttributes
+) {
+  //// States/Flags
 
   // flag indicating whether a move needs to be made
   const [playNow, setPlayNow] = useState(false);
@@ -15,25 +32,103 @@ function useComputerPlayer(active, pieces, computersTurn, dropInCol, forfeit) {
   //// Helper functions/constants
 
   // return array with ith spot being score for playing in col i
-  function getMoveOptions(pieces) {
+  function getAllScores() {
     let moveOptions = [];
-    for (let col = 0; col < pieces[0].length; col++) {
-      moveOptions.push(calculateScore(col, pieces));
+    for (let col = 0; col < keyAttributes.cols; col++) {
+      moveOptions.push(calculateScore(col));
     }
-    console.log(moveOptions); // TEMP:
     return moveOptions;
   }
 
-  // -1 for invalid play, otherwise a non-negative score
-  function calculateScore(col, pieces) {
-    if (pieces[pieces.length - 1][col] !== null) {
+  // -1 for invalid play, otherwise a positive score
+  function calculateScore(col) {
+    const row = findEmptyRow(col, keyAttributes);
+    if (row === null) {
       // column is full
       return -1;
     }
 
     // column is not full; score all lines
-    return Math.floor(Math.random() * 10);
-    // TODO: NEXT: proper definition of calculateScore
+    let lineTypes = {};
+    orientations.forEach(([d_r, d_c]) => {
+      for (let offset = 0; offset < keyAttributes.lineLen; offset++) {
+        // a line goes in direction [d_r, d_c] and is offset in direction [-d_r, -d_c]
+        if (inBounds(row, col, offset, d_r, d_c, keyAttributes)) {
+          const type = calculateLineType(row, col, offset, d_r, d_c);
+          lineTypes[type] = (lineTypes[type] || 0) + 1;
+        }
+      }
+    });
+    console.log(lineTypes); // TEMP:
+
+    // given lineTypes, assign a score
+    // most lines you can be in is 13 (but the 3 above would be not so helpful)
+    if (lineTypes["win"] > 0) {
+      // can win here; do it
+      return 70;
+    } else if (lineTypes["blockWin"] > 0) {
+      // opp will win here next turn; must block
+      return 60;
+    } else if (lineTypes["setup"] > 1) {
+      // can setup multiple winning moves for next turn; do it
+      return 50;
+    } else if (lineTypes["blockSetup"] > 1) {
+      // opp can setup multiple winning moves for next turn; must block
+      return 40;
+    } else {
+      // weighted sum of all lines
+      // can assume no win nor blockWin; and at most 1 setup / blockSetup each
+      return (
+        5 * (lineTypes["setup"] || 0) +
+        4 * (lineTypes["blockSetup"] || 0) +
+        3 * (lineTypes["extend"] || 0) +
+        2 * (lineTypes["blockExtend"] || 0) +
+        1 * (lineTypes["empty"] || 0) +
+        0 * (lineTypes["mixed"] || 0) +
+        1 // just to ensure score is positive
+      );
+    }
+  }
+
+  // ...
+  function calculateLineType(row, col, offset, d_r, d_c) {
+    const myCount = countPiecesInLine(
+      row,
+      col,
+      offset,
+      d_r,
+      d_c,
+      computerIndex,
+      keyAttributes
+    );
+    const theirCount = countPiecesInLine(
+      row,
+      col,
+      offset,
+      d_r,
+      d_c,
+      1 - computerIndex,
+      keyAttributes
+    );
+    switch (2 ** myCount * 3 ** theirCount) {
+      case 2 ** 0 * 3 ** 0:
+        return "empty";
+      case 2 ** 3 * 3 ** 0:
+        return "win";
+      case 2 ** 0 * 3 ** 3:
+        return "blockWin";
+      case 2 ** 2 * 3 ** 0:
+        return "setup";
+      case 2 ** 0 * 3 ** 2:
+        return "blockSetup";
+      case 2 ** 1 * 3 ** 0:
+        return "extend";
+      case 2 ** 0 * 3 ** 1:
+        return "blockExtend";
+      default:
+        // [1,1], [1,2], and [2,1]
+        return "mixed";
+    }
   }
 
   // pick an index of maximum score
@@ -67,17 +162,20 @@ function useComputerPlayer(active, pieces, computersTurn, dropInCol, forfeit) {
         secondMax = score;
       }
     });
+
     if (secondMax === -1) {
       // only one valid play, so pick "immediately"
       return minThinkTime;
-    } else if (firstMax === 0) {
-      // TODO: not yet sure if all valid scores can be zero
-      return 2 * minThinkTime;
     }
+
     // otherwise, top two plays are valid and can look at ratio between 0 and 1
-    const ratio = secondMax / firstMax;
+    // top two are guaranteed to be positive
+    // ratio should be at most 1 anyway, but add bound just in case
+    const ratio = Math.min(1, secondMax / firstMax);
+    const randomFactor =
+      Math.random() * randomFactorRange - randomFactorRange / 2;
     // the larger the fraction, the longer the move should take
-    return Math.max(minThinkTime, worstThinkTime * ratio + randomFactor);
+    return Math.max(minThinkTime, maxThinkTime * ratio + randomFactor);
   }
 
   //// Effects
@@ -94,9 +192,12 @@ function useComputerPlayer(active, pieces, computersTurn, dropInCol, forfeit) {
   // eslint-disable-next-line
   useEffect(() => {
     if (playNow) {
-      const moveOptions = getMoveOptions(pieces);
+      const moveOptions = getAllScores();
+      console.log(moveOptions); // TEMP:
       const col = getNextMove(moveOptions);
       const thinkTime = getThinkTime(moveOptions);
+      console.log(thinkTime); // TEMP:
+
       setTimeout(() => dropInCol(col), thinkTime);
       setPlayNow(false);
     }

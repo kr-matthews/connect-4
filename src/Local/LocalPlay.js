@@ -17,6 +17,7 @@ function LocalPlay({ sharingScreen, player, opponent, unmount }) {
     startGame,
     placePiece,
     setForfeiter,
+    keyAttributes,
   } = useGame();
 
   useGameSoundEffects(sharingScreen, gameStatus, toPlayNext, winner);
@@ -27,10 +28,11 @@ function LocalPlay({ sharingScreen, player, opponent, unmount }) {
   // computer player, when applicable
   useComputerPlayer(
     opponent.type === "computer",
-    board.map((row) => row.map((cell) => cell.player)),
+    1,
     toPlayNext === 1,
-    (col) => toPlayNext === 1 && placePiece(col, 1),
-    () => setForfeiter(1)
+    (col) => placePiece(col, 1),
+    () => setForfeiter(1),
+    keyAttributes
   );
 
   // functions for sub-components

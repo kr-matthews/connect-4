@@ -1,18 +1,15 @@
+import {
+  directions,
+  findEmptyRow,
+  isFull,
+  isSpotInLine,
+  checkLine,
+} from "./PiecesHelpers.js";
 import { useState, useReducer } from "react";
 
 //// Generic constants helpers
 
-// the possible line directions from/to a fixed point
-const directions = [
-  [0, 1],
-  [1, 1],
-  [1, 0],
-  [1, -1],
-  [0, -1],
-  [-1, -1],
-  [-1, 0],
-  [-1, 1],
-];
+// TODO: NEXT: in process of transfering helper functions out
 
 // create empty tables (for initial states, and on resets)
 function emptyTable(rows, cols, val) {
@@ -114,10 +111,13 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   // previous move
   const prevMove =
     moveHistory.length === 0 ? null : moveHistory[moveHistory.length - 1];
+
+  // bundle of things which other hooks (computer play) may need
+  const keyAttributes = { pieces, rows, cols, lineLen };
   // based purely on the board (not forfeit); ongoing, won, or draw
   const boardStatus = isWon() // check the board for a win
     ? "won" // found win
-    : isFull() // otherwise, check the board for a draw
+    : isFull(keyAttributes) // otherwise, check the board for a draw
     ? "draw" // found draw
     : "ongoing"; // didn't find draw
   // takes into account possible forfeit: ongoing, won, draw, or forfeit
@@ -130,12 +130,12 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   const winner =
     gameStatus === "forfeit" // check for forfeit
       ? 1 - forfeiter // if so, other player won
-      : gameStatus !== "won" // otherwise, check for win
-      ? null // if no win, there's no winner
-      : moveHistory[moveHistory.length - 1].player; // if win, then most recent player won
+      : gameStatus === "won" // otherwise, check for win
+      ? prevMove.player // if so, then most recent player won
+      : null; // otherwise, there's no winner
+
   // table of booleans; indicates whether spot is highlighted in a win
   // (not using state and useEffect since it might make undo awkward?)
-
   const highlights = createHighlights();
   // matrix, row 0 at the bottom; each cell is an object
   const openColumns = checkOpenCols();
@@ -150,31 +150,10 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
       ? null
       : moveHistory.length === 0
       ? toPlayFirst
-      : 1 - moveHistory[moveHistory.length - 1].player;
+      : 1 - prevMove.player;
 
   //// Helpers
   // isWon and createHighlights share a lot of code :(
-
-  // find row that piece will end up in when dropped in this col
-  function findEmptyRow(col) {
-    for (let row = 0; row < rows; row++) {
-      if (pieces[row][col] === null) {
-        return row;
-      }
-    }
-    return null;
-  }
-
-  // check whether the board is full
-  function isFull() {
-    // check the top row for nulls
-    for (let col = 0; col < cols; col++) {
-      if (pieces[rows - 1][col] === null) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   // check if the game is won
   function isWon() {
@@ -182,19 +161,14 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
       // impossible for anyone to have won yet
       return false;
     }
-    // only need to examine most recent move (which exists)
-    const { player, row, col } = moveHistory[moveHistory.length - 1];
-    for (let d = 0; d < directions.length; d++) {
-      const [d_r, d_c] = directions[d];
-      // check for a win using given piece in direction directions[d]
-      for (let j = -3; j < 1; j++) {
-        // check for a win in the direction starting from offset of j
-        if (checkLine(player, row + j * d_r, col + j * d_c, d_r, d_c)) {
-          return true;
-        }
-      }
+
+    const { row, col } = prevMove;
+    if (pieces[row][col] === null) {
+      // pieces are out of sync with board, don't bother checking
+      return false;
     }
-    return false;
+    // only need to examine most recent move (which exists)
+    return isSpotInLine(row, col, keyAttributes);
   }
 
   // TODO: MAYBE: HIGHLIGHT: highlight most recent piece? would be easy
@@ -207,13 +181,22 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
       return table;
     }
     // only check the most recently played location (which exists)
-    let { player, row, col } = moveHistory[moveHistory.length - 1];
+    let { player, row, col } = prevMove;
     for (let d = 0; d < directions.length; d++) {
       const [d_r, d_c] = directions[d];
       // for the 4 pieces in this direction (including row,col),
       //  check if it is in a line pointing towards row,col
       for (let j = -lineLen + 1; j < 1; j++) {
-        if (checkLine(player, row + j * d_r, col + j * d_c, d_r, d_c)) {
+        if (
+          checkLine(
+            player,
+            row + j * d_r,
+            col + j * d_c,
+            d_r,
+            d_c,
+            keyAttributes
+          )
+        ) {
           // this piece, and the 3 after it, form a line of 4, so update them all
           for (let k = j; k < j + lineLen; k++) {
             table[row + k * d_r][col + k * d_c] = true;
@@ -234,19 +217,6 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
       }
     }
     return table;
-  }
-
-  // given a spot and a direction, check if it's a line of 4
-  function checkLine(player, row, col, d_r, d_c) {
-    for (let k = 0; k < lineLen; k++) {
-      let [r, c] = [row + k * d_r, col + k * d_c];
-      // if (r, c) is out of bounds, or doesn't have the right piece
-      if (0 > r || r >= rows || 0 > c || c >= cols || pieces[r][c] !== player) {
-        return false;
-      }
-    }
-    // all 4 were in-bounds and belonged to player, so return true (they won)
-    return true;
   }
 
   //// Externally accessible functions
@@ -296,13 +266,19 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     setWaiting(false);
   }
 
+  // NOTE: PROBLEM: re-render between two dispatches below means state may be
+  //  out of sync
+
+  // QUESTION: under what cicumstances does react re-render between those
+  //  dispatches?
+  //  Does it ever re-render mid-useEffect?
+
   // given out to allow component to (attempt to) place a piece
   function placePiece(col, player) {
-    let row = findEmptyRow(col);
+    let row = findEmptyRow(col, keyAttributes);
     // only proceed if move is valid
     if (gameStatus === "ongoing" && player === toPlayNext && row !== null) {
       dispatchMoveHistory({ type: "addMove", player, row, col });
-      // (use dispatch instead of useEffect since might make undo awkward?)
       dispatchPieces({ type: "placePiece", player, row, col });
     }
   }
@@ -321,6 +297,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     startGame,
     placePiece,
     setForfeiter,
+    keyAttributes,
   };
 }
 
