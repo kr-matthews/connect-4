@@ -5,28 +5,29 @@ import { useGame } from "./useGame.js";
 // NOTE: hook used to return moveHistory, so those were commented out
 
 // TODO: TEST: useGame: expand coverage of custom hook tests:
-//  add checks to current tests for winner, highlights in board, prevMove, toPlayFirst, ...
+//  add checks to current tests for winner, highlights in positions, prevMove, toPlayFirst, ...
 //  add tests for resetGame, startGame, setForfeiter
 //  add tests for diagonal and anti-diagonal wins
-//  add tests for win on 42nd piece placed (ie filling up board but no draw)
+//  add tests for win on 42nd piece placed (ie filling up positions but no draw)
 //  add tests for undo action (if/when it is added)
 
 // helpers
 
 function validStates(states) {
   // test each of them
-  expect(states).toHaveProperty("board");
-  expect(states.board).toHaveLength(6);
-  states.board.forEach((row) => {
+  expect(states).toHaveProperty("boardStats");
+  expect(states.boardStats).toHaveProperty("positions");
+  expect(states.boardStats.positions).toHaveLength(6);
+  states.boardStats.positions.forEach((row) => {
     expect(row).toHaveLength(7);
     row.forEach((entry) => {
       expect(Object.keys(entry)).toHaveLength(3);
-      expect(entry).toHaveProperty("player");
-      expect([0, 1, null]).toContain(entry.player);
-      expect(entry).toHaveProperty("isHighlight");
-      expect([true, false]).toContain(entry.isHighlight);
-      expect(entry).toHaveProperty("colIsOpen");
-      expect([true, false]).toContain(entry.colIsOpen);
+      expect(entry).toHaveProperty("piece");
+      expect([0, 1, null]).toContain(entry.piece);
+      expect(entry).toHaveProperty("isWinner");
+      expect([true, false]).toContain(entry.isWinner);
+      expect(entry).toHaveProperty("wouldWin");
+      expect(entry.wouldWin).toHaveLength(2);
     });
   });
 
@@ -86,11 +87,11 @@ function validStates(states) {
   expect(states.setForfeiter).toBeFunction;
 }
 
-function isEmpty(board) {
-  board.forEach((row, i) => {
+function isEmpty(positions) {
+  positions.forEach((row, i) => {
     row.forEach((entry, j) => {
-      expect(entry.player).toBeNull();
-      expect(entry.isHighlight).toBe(false);
+      expect(entry.piece).toBeNull();
+      expect(entry.isWinner).toBe(false);
     });
   });
 }
@@ -99,7 +100,7 @@ function isInitialState(states) {
   expect(states.toPlayFirst);
   expect(states.gameStatus).toBe("waiting");
   expect(states.toPlayNext).toBe(null);
-  isEmpty(states.board);
+  isEmpty(states.boardStats.positions);
   // expect(states.moveHistory).toEqual([]);
 }
 
@@ -132,12 +133,12 @@ it("useGame states remain valid after playing first piece", () => {
       act(() => result.current.placePiece(col, result.current.toPlayNext));
       validStates(result.current);
       expect(result.current.gameStatus).toBe("ongoing");
-      result.current.board.forEach((row, i) => {
+      result.current.boardStats.positions.forEach((row, i) => {
         row.forEach((entry, j) => {
           if (i === 0 && j === col) {
-            expect(entry.player).toBe(1 - result.current.toPlayNext);
+            expect(entry.piece).toBe(1 - result.current.toPlayNext);
           } else {
-            expect(entry.player).toBeNull();
+            expect(entry.piece).toBeNull();
           }
         });
       });
@@ -168,21 +169,21 @@ it("useGame states remain valid bewteen/after 3 moves then reset", () => {
       );
       validStates(result.current);
 
-      // check board matches the 3 pieces placed
+      // check positions matches the 3 pieces placed
       expect(result.current.gameStatus).toBe("ongoing");
-      result.current.board.forEach((row, i) => {
+      result.current.boardStats.positions.forEach((row, i) => {
         row.forEach((entry, j) => {
           if ((i === 0 && j === col) || (i === 1 && j === (col + 2) % 7)) {
-            expect(entry.player).toBe(initialPlayer);
+            expect(entry.piece).toBe(initialPlayer);
           } else if (i === 0 && j === (col + 2) % 7) {
-            expect(entry.player).toBe(1 - initialPlayer);
+            expect(entry.piece).toBe(1 - initialPlayer);
           } else {
-            expect(entry.player).toBeNull();
+            expect(entry.piece).toBeNull();
           }
         });
       });
 
-      // reset board
+      // reset positions
       act(() => result.current.resetGame());
       validStates(result.current);
       isInitialState(result.current);
@@ -210,7 +211,7 @@ it("useGame detects horizontal win", () => {
     expect(result.current.winner).toBe(initialPlayer);
 
     for (let i = 2; i < 6; i++) {
-      expect(result.current.board[0][i].isHighlight).toBe(true);
+      expect(result.current.boardStats.positions[0][i].isHighlight).toBe(true);
     }
   }
 });
@@ -246,7 +247,9 @@ it("useGame detects vertical win", () => {
       expect(result.current.winner).toBe(1 - initialPlayer);
 
       for (let i = 0; i < 4; i++) {
-        expect(result.current.board[i][col].isHighlight).toBe(true);
+        expect(result.current.boardStats.positions[i][col].isHighlight).toBe(
+          true
+        );
       }
     }
   }

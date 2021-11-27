@@ -5,15 +5,15 @@ import { useState, useReducer } from "react";
 
 // create empty tables (for initial states, and on resets)
 function emptyTable(rows, cols, val) {
-  let board = [];
+  let table = [];
   for (let r = 0; r < rows; r++) {
     let row = [];
     for (let c = 0; c < cols; c++) {
       row.push(val === "empty" ? {} : val);
     }
-    board.push(row);
+    table.push(row);
   }
-  return board;
+  return table;
 }
 
 //// Reducers
@@ -66,6 +66,8 @@ function piecesReducer(state, action) {
 // TODO: LATER: TIME_LIMIT: option to add time limit to turns
 // TODO: MAYBE: UNDO: return an undo function
 
+// TODO: NEXT: NEXT: gameStatus seems to be wrong
+
 function useGame(rows = 6, cols = 7, lineLen = 4) {
   //// States
 
@@ -91,10 +93,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
 
   // generate data about all positions and lines on the board
   const keyAttributes = { pieces, rows, cols, lineLen };
-  const [positionStats, lineStats, columnStats] = boardStats(keyAttributes);
-
-  // the board, provided to UI (could differ from positionStats in future)
-  const board = positionStats;
+  const { positions, lines, columns } = boardStats(keyAttributes);
 
   // previous move: { player, row, col } (or null)
   const prevMove =
@@ -140,12 +139,12 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     }
     // only need to examine most recent move (which exists)
     const { row, col } = prevMove;
-    return positionStats[row][col].isWinner;
+    return positions[row][col].isWinner;
   }
 
   // check if the board is full
   function isFull() {
-    columnStats.every((col) => col.isFull);
+    columns.every((col) => col.isFull);
   }
 
   //// Externally accessible functions
@@ -204,7 +203,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
 
   // given out to allow component to (attempt to) place a piece
   function placePiece(col, player) {
-    const columnStat = columnStats[col];
+    const columnStat = columns[col];
     // only proceed if move is valid
     if (player === toPlayNext && !columnStat.isFull) {
       const row = columnStat.firstOpenRow;
@@ -216,9 +215,8 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   //// Return
 
   return {
-    board,
     gameStatus,
-    prevMove, // QUESTION: necessary?
+    prevMove,
     toPlayFirst,
     toPlayNext,
     winner,
@@ -226,7 +224,8 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     startGame,
     placePiece,
     setForfeiter,
-    stats: [positionStats, lineStats, columnStats],
+    keyAttributes,
+    boardStats: { positions, lines, columns },
   };
 }
 

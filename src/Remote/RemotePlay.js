@@ -22,7 +22,7 @@ function Room({
 
   const {
     resultHistory,
-    board,
+    boardStats,
     gameStatus,
     winner,
     toPlayNext,
@@ -41,6 +41,7 @@ function Room({
     setRestartMethod,
     unmountRoom
   );
+  const { positions, columns } = boardStats;
 
   //// Return
 
@@ -59,7 +60,8 @@ function Room({
       {opponent && (
         <Board
           viewer={0}
-          board={board}
+          positions={positions}
+          columns={columns}
           isViewersTurn={0 === toPlayNext}
           colours={[player.colour, opponent.colour]}
           makeMove={makeMove}

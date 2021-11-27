@@ -10,7 +10,6 @@ import { useComputerPlayer } from "./../Computer/useComputerPlayer.js";
 function LocalPlay({ sharingScreen, player, opponent, unmount }) {
   // the game custom hook
   const {
-    board,
     gameStatus,
     toPlayNext,
     winner,
@@ -18,7 +17,9 @@ function LocalPlay({ sharingScreen, player, opponent, unmount }) {
     placePiece,
     setForfeiter,
     keyAttributes,
+    boardStats,
   } = useGame();
+  const { positions, columns } = boardStats;
 
   useGameSoundEffects(sharingScreen, gameStatus, toPlayNext, winner);
 
@@ -51,7 +52,8 @@ function LocalPlay({ sharingScreen, player, opponent, unmount }) {
       />
       <Board
         viewer={sharingScreen ? toPlayNext : 0}
-        board={board}
+        positions={positions}
+        columns={columns}
         isViewersTurn={sharingScreen ? toPlayNext !== null : toPlayNext === 0}
         colours={[player.colour, opponent.colour]}
         makeMove={makeMove}

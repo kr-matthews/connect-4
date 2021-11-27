@@ -115,11 +115,10 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
   // is column full (boolean), piece (player index),
   //  would win by playing here (array of index), isWinner (boolean)
   function basicPositionStats(r, c) {
-    const colIsFull = pieces[rows - 1][c] !== null;
     const piece = pieces[r][c];
     const isWinner = checkWinner(r, c);
     const wouldWin = checkWouldWin(r, c);
-    return { colIsFull, piece, wouldWin, isWinner };
+    return { piece, wouldWin, isWinner };
   }
 
   // check each line to see if it's been won
@@ -169,5 +168,5 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
     return wouldWin;
   }
 
-  return [positions, lines, columns];
+  return { positions, lines, columns };
 }

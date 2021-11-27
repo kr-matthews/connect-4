@@ -6,18 +6,24 @@ import { oppositeColourOf } from "./../Colours.js";
 
 import "./board.css";
 
-// TODO: NEXT: change .player to .piece where applicable, similarly highlights
-
-function Board({ viewer, board, isViewersTurn, colours, makeMove }) {
+function Board({
+  viewer,
+  positions,
+  columns,
+  isViewersTurn,
+  colours,
+  makeMove,
+}) {
   const { foreground } = useContext(ThemeContext);
-  const rows = board.length;
+  const rows = positions.length;
   let tableRows = [];
   // the first row goes on the bottom, visually
-  for (let row = rows - 1; row > -1; row--) {
+  for (let r = rows - 1; r > -1; r--) {
     tableRows.push(
       <Row
-        key={row}
-        row={board[row]}
+        key={r}
+        row={positions[r]}
+        columns={columns}
         viewer={viewer}
         isViewersTurn={isViewersTurn}
         makeMove={makeMove}
@@ -33,23 +39,23 @@ function Board({ viewer, board, isViewersTurn, colours, makeMove }) {
   );
 }
 
-function Row({ row, viewer, isViewersTurn, makeMove, colours }) {
+function Row({ row, columns, viewer, isViewersTurn, makeMove, colours }) {
   const usingGradient = useContext(GradientContext);
 
-  let rowCells = row.map(({ player, isHighlight, colIsOpen }, col) => {
+  let rowCells = row.map(({ piece, wouldWin, isWinner }, col) => {
     return (
       <Cell
         key={col}
-        clickHandler={() => makeMove(col, viewer)}
-        colour={colours[player]}
+        handleClick={() => makeMove(col, viewer)}
+        colour={colours[piece]}
         useGradient={
-          player !== null &&
+          piece !== null &&
           (usingGradient === "all" ||
-            (usingGradient === "my" && player === 0) ||
-            (usingGradient === "their" && player === 1))
+            (usingGradient === "my" && piece === 0) ||
+            (usingGradient === "their" && piece === 1))
         }
-        isHighlight={isHighlight}
-        isClickable={isViewersTurn && colIsOpen}
+        isHighlight={isWinner}
+        isClickable={isViewersTurn && !columns[col].isFull}
       />
     );
   });
@@ -57,7 +63,7 @@ function Row({ row, viewer, isViewersTurn, makeMove, colours }) {
   return <tr>{rowCells}</tr>;
 }
 
-function Cell({ clickHandler, colour, useGradient, isHighlight, isClickable }) {
+function Cell({ handleClick, colour, useGradient, isHighlight, isClickable }) {
   // colours/styles -- bit of a mess
   const { background, foreground } = useContext(ThemeContext);
   const backgroundColor = colour || background;
@@ -75,7 +81,7 @@ function Cell({ clickHandler, colour, useGradient, isHighlight, isClickable }) {
   const cellStyle = { borderColor: foreground };
 
   return (
-    <td className={cellClass} style={cellStyle} onClick={clickHandler}>
+    <td className={cellClass} style={cellStyle} onClick={handleClick}>
       <span
         className="piece"
         style={useGradient ? gradientPieceStyle : pieceStyle}

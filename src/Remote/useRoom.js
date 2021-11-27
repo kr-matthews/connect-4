@@ -25,7 +25,7 @@ function useRoom(
 
   // game (& board)
   const {
-    board,
+    boardStats,
     gameStatus,
     prevMove,
     toPlayFirst,
@@ -110,7 +110,7 @@ function useRoom(
 
   return {
     resultHistory,
-    board,
+    boardStats,
     gameStatus,
     winner,
     toPlayNext,
