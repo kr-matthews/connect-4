@@ -6,6 +6,8 @@ import { oppositeColourOf } from "./../Colours.js";
 
 import "./board.css";
 
+// TODO: NEXT: change .player to .piece where applicable, similarly highlights
+
 function Board({ viewer, board, isViewersTurn, colours, makeMove }) {
   const { foreground } = useContext(ThemeContext);
   const rows = board.length;

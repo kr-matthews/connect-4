@@ -1,15 +1,7 @@
-import {
-  directions,
-  findEmptyRow,
-  isFull,
-  isSpotInLine,
-  checkLine,
-} from "./PiecesHelpers.js";
+import { boardStats } from "./../Game/boardStats.js";
 import { useState, useReducer } from "react";
 
 //// Generic constants helpers
-
-// TODO: NEXT: in process of transfering helper functions out
 
 // create empty tables (for initial states, and on resets)
 function emptyTable(rows, cols, val) {
@@ -22,22 +14,6 @@ function emptyTable(rows, cols, val) {
     board.push(row);
   }
   return board;
-}
-
-// merge data into one table for passing to component
-function combineTables(tables, names) {
-  const tableCount = tables.length;
-  const [rows, cols] = [tables[0].length, tables[0][0].length];
-  let combinedTable = emptyTable(rows, cols, "empty");
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      combinedTable[row][col] = {};
-      for (let i = 0; i < tableCount; i++) {
-        combinedTable[row][col][names[i]] = tables[i][row][col];
-      }
-    }
-  }
-  return combinedTable;
 }
 
 //// Reducers
@@ -88,9 +64,10 @@ function piecesReducer(state, action) {
 //// The actual hook
 
 // TODO: LATER: TIME_LIMIT: option to add time limit to turns
+// TODO: MAYBE: UNDO: return an undo function
 
 function useGame(rows = 6, cols = 7, lineLen = 4) {
-  //// States & Constants
+  //// States
 
   // who goes first
   const [toPlayFirst, setToPlayFirst] = useState(null);
@@ -100,32 +77,43 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
 
   // who has forfeit (player index, or null)
   const [forfeiter, setForfeiter] = useState(null);
-  // stack (array) of {player, row, col}
 
+  // stack (array) of {player, row, col}
   const [moveHistory, dispatchMoveHistory] = useReducer(moveHistoryReducer, []);
+
   // table of player indices/null; indicates which piece is there (if any)
   const [pieces, dispatchPieces] = useReducer(
     piecesReducer,
     emptyTable(rows, cols, null)
   );
-  // previous move
+
+  //// Constants
+
+  // generate data about all positions and lines on the board
+  const keyAttributes = { pieces, rows, cols, lineLen };
+  const [positionStats, lineStats, columnStats] = boardStats(keyAttributes);
+
+  // the board, provided to UI (could differ from positionStats in future)
+  const board = positionStats;
+
+  // previous move: { player, row, col } (or null)
   const prevMove =
     moveHistory.length === 0 ? null : moveHistory[moveHistory.length - 1];
 
-  // bundle of things which other hooks (computer play) may need
-  const keyAttributes = { pieces, rows, cols, lineLen };
   // based purely on the board (not forfeit); ongoing, won, or draw
   const boardStatus = isWon() // check the board for a win
     ? "won" // found win
-    : isFull(keyAttributes) // otherwise, check the board for a draw
+    : isFull() // otherwise, check the board for a draw
     ? "draw" // found draw
     : "ongoing"; // didn't find draw
+
   // takes into account possible forfeit: ongoing, won, draw, or forfeit
-  const gameStatus = waiting // waiting to start
-    ? "waiting"
-    : forfeiter !== null // check for feifeit
+  const gameStatus = waiting // check whether we're waiting to start
+    ? "waiting" // if so
+    : forfeiter !== null // if not, check for feifeit
     ? "forfeit" // if so
     : boardStatus; // otherwise, default to boardStatus
+
   // index of winning player (via game play for via forfeit), or null
   const winner =
     gameStatus === "forfeit" // check for forfeit
@@ -133,16 +121,6 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
       : gameStatus === "won" // otherwise, check for win
       ? prevMove.player // if so, then most recent player won
       : null; // otherwise, there's no winner
-
-  // table of booleans; indicates whether spot is highlighted in a win
-  // (not using state and useEffect since it might make undo awkward?)
-  const highlights = createHighlights();
-  // matrix, row 0 at the bottom; each cell is an object
-  const openColumns = checkOpenCols();
-  const board = combineTables(
-    [pieces, highlights, openColumns],
-    ["player", "isHighlight", "colIsOpen"]
-  );
 
   // index of player to play next move, or null if game is not ongoing
   const toPlayNext =
@@ -153,70 +131,21 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
       : 1 - prevMove.player;
 
   //// Helpers
-  // isWon and createHighlights share a lot of code :(
 
-  // check if the game is won
+  // check if the board is won
   function isWon() {
     if (moveHistory.length < 2 * lineLen - 1) {
       // impossible for anyone to have won yet
       return false;
     }
-
-    const { row, col } = prevMove;
-    if (pieces[row][col] === null) {
-      // pieces are out of sync with board, don't bother checking
-      return false;
-    }
     // only need to examine most recent move (which exists)
-    return isSpotInLine(row, col, keyAttributes);
+    const { row, col } = prevMove;
+    return positionStats[row][col].isWinner;
   }
 
-  // TODO: MAYBE: HIGHLIGHT: highlight most recent piece? would be easy
-
-  // highlight winning locations
-  function createHighlights() {
-    let table = emptyTable(rows, cols, false);
-    if (moveHistory.length < 2 * lineLen - 1) {
-      // impossible for anyone to have won yet; no highlights needed
-      return table;
-    }
-    // only check the most recently played location (which exists)
-    let { player, row, col } = prevMove;
-    for (let d = 0; d < directions.length; d++) {
-      const [d_r, d_c] = directions[d];
-      // for the 4 pieces in this direction (including row,col),
-      //  check if it is in a line pointing towards row,col
-      for (let j = -lineLen + 1; j < 1; j++) {
-        if (
-          checkLine(
-            player,
-            row + j * d_r,
-            col + j * d_c,
-            d_r,
-            d_c,
-            keyAttributes
-          )
-        ) {
-          // this piece, and the 3 after it, form a line of 4, so update them all
-          for (let k = j; k < j + lineLen; k++) {
-            table[row + k * d_r][col + k * d_c] = true;
-          }
-        }
-      }
-    }
-    return table;
-  }
-
-  // indicates whether the cell is in an open column
-  function checkOpenCols() {
-    let table = emptyTable(rows, cols);
-    for (let col = 0; col < cols; col++) {
-      const isOpen = pieces[rows - 1][col] === null;
-      for (let row = 0; row < rows; row++) {
-        table[row][col] = isOpen;
-      }
-    }
-    return table;
+  // check if the board is full
+  function isFull() {
+    columnStats.every((col) => col.isFull);
   }
 
   //// Externally accessible functions
@@ -275,9 +204,10 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
 
   // given out to allow component to (attempt to) place a piece
   function placePiece(col, player) {
-    let row = findEmptyRow(col, keyAttributes);
+    const columnStat = columnStats[col];
     // only proceed if move is valid
-    if (gameStatus === "ongoing" && player === toPlayNext && row !== null) {
+    if (player === toPlayNext && !columnStat.isFull) {
+      const row = columnStat.firstOpenRow;
       dispatchMoveHistory({ type: "addMove", player, row, col });
       dispatchPieces({ type: "placePiece", player, row, col });
     }
@@ -285,11 +215,10 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
 
   //// Return
 
-  // TODO: MAYBE: UNDO: return an undo function
   return {
     board,
     gameStatus,
-    prevMove,
+    prevMove, // QUESTION: necessary?
     toPlayFirst,
     toPlayNext,
     winner,
@@ -297,7 +226,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     startGame,
     placePiece,
     setForfeiter,
-    keyAttributes,
+    stats: [positionStats, lineStats, columnStats],
   };
 }
 

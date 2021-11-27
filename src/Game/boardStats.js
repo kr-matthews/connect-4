@@ -5,13 +5,12 @@ const primaryDirections = [
   [1, -1], // up-left
 ];
 
-// TODO: NEXT: NEXXT: board is [r][c] = #/null, positions is [r][c] = {...}
-
 // provide full statistics for each position and each line (of length lineLen)
 export function boardStats({ pieces, rows, cols, lineLen }) {
   //// Calculations to do
 
   // two "matrices"
+  let columns = []; // 1D: col
   let positions = []; // 2D: row col
   let lines = []; // 4D: row col deltaRow deltaCol
 
@@ -40,6 +39,8 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
 
   // TODO: NEXT: (maybe) replace status with type; alive expands to more details?
   //  hm maybe not
+
+  // TODO: NEXT: first add "hot" spots to columns, then use to do lines below
 
   // lines: find status (full, alive, dead)
   for (let r = 0; r < rows; r++) {
@@ -71,7 +72,19 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
     }
   }
 
-  //// Helper functions
+  // column stats: isFull, firstOpenRow
+  for (let col = 0; col < cols; col++) {
+    for (let row = 0; row < rows; row++) {
+      if (positions[row][col].piece === null) {
+        columns.push({ isFull: false, firstOpenRow: row });
+        break;
+      } else if (row === rows - 1) {
+        columns.push({ isFull: true });
+      }
+    }
+  }
+
+  //// Internal Helper functions
 
   // is [r,c] actually on the board
   function positionInBounds(r, c) {
@@ -102,11 +115,11 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
   // is column full (boolean), piece (player index),
   //  would win by playing here (array of index), isWinner (boolean)
   function basicPositionStats(r, c) {
-    const isColFull = pieces[rows - 1][c] !== null;
+    const colIsFull = pieces[rows - 1][c] !== null;
     const piece = pieces[r][c];
     const isWinner = checkWinner(r, c);
     const wouldWin = checkWouldWin(r, c);
-    return { isColFull, piece, wouldWin, isWinner };
+    return { colIsFull, piece, wouldWin, isWinner };
   }
 
   // check each line to see if it's been won
@@ -156,8 +169,5 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
     return wouldWin;
   }
 
-  console.log(positions); // TEMP:
-  console.log(lines); // TEMP:
-
-  return [positions, lines];
+  return [positions, lines, columns];
 }

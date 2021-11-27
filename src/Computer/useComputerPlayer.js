@@ -6,6 +6,7 @@ import {
 } from "./../Game/PiecesHelpers.js";
 import { useState, useEffect } from "react";
 
+// TODO: NEXT: refactor to use stats from useGame, instead of doing all self
 // TODO: NEXT: doesn't take into account opp playing on top of current move
 // TODO: NEXT: counts "dead" lines (those which can't ever win)
 
