@@ -211,7 +211,7 @@ it("useGame detects horizontal win", () => {
     expect(result.current.winner).toBe(initialPlayer);
 
     for (let i = 2; i < 6; i++) {
-      expect(result.current.boardStats.positions[0][i].isHighlight).toBe(true);
+      expect(result.current.boardStats.positions[0][i].isWinner).toBe(true);
     }
   }
 });
@@ -247,9 +247,7 @@ it("useGame detects vertical win", () => {
       expect(result.current.winner).toBe(1 - initialPlayer);
 
       for (let i = 0; i < 4; i++) {
-        expect(result.current.boardStats.positions[i][col].isHighlight).toBe(
-          true
-        );
+        expect(result.current.boardStats.positions[i][col].isWinner).toBe(true);
       }
     }
   }

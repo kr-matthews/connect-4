@@ -66,8 +66,6 @@ function piecesReducer(state, action) {
 // TODO: LATER: TIME_LIMIT: option to add time limit to turns
 // TODO: MAYBE: UNDO: return an undo function
 
-// TODO: NEXT: NEXT: gameStatus seems to be wrong
-
 function useGame(rows = 6, cols = 7, lineLen = 4) {
   //// States
 
@@ -100,9 +98,9 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     moveHistory.length === 0 ? null : moveHistory[moveHistory.length - 1];
 
   // based purely on the board (not forfeit); ongoing, won, or draw
-  const boardStatus = isWon() // check the board for a win
+  const boardStatus = boardIsWon() // check the board for a win
     ? "won" // found win
-    : isFull() // otherwise, check the board for a draw
+    : boardIsFull() // otherwise, check the board for a draw
     ? "draw" // found draw
     : "ongoing"; // didn't find draw
 
@@ -132,7 +130,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   //// Helpers
 
   // check if the board is won
-  function isWon() {
+  function boardIsWon() {
     if (moveHistory.length < 2 * lineLen - 1) {
       // impossible for anyone to have won yet
       return false;
@@ -143,8 +141,8 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   }
 
   // check if the board is full
-  function isFull() {
-    columns.every((col) => col.isFull);
+  function boardIsFull() {
+    return columns.every((col) => col.isFull);
   }
 
   //// Externally accessible functions
@@ -203,10 +201,10 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
 
   // given out to allow component to (attempt to) place a piece
   function placePiece(col, player) {
-    const columnStat = columns[col];
+    const column = columns[col];
     // only proceed if move is valid
-    if (player === toPlayNext && !columnStat.isFull) {
-      const row = columnStat.firstOpenRow;
+    if (player === toPlayNext && !column.isFull) {
+      const row = column.firstOpenRow;
       dispatchMoveHistory({ type: "addMove", player, row, col });
       dispatchPieces({ type: "placePiece", player, row, col });
     }

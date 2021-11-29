@@ -127,12 +127,14 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
       // no need to check all lines if there's no piece here
       return false;
     }
-    // check all lines
-    primaryDirections.forEach(([deltaR, deltaC]) => {
-      for (let offset = 1 - lineLen; offset < lineLen; offset++) {
-        // a spot on the line
+    // check all lines going through [r, c]
+    for (let ind = 0; ind < primaryDirections.length; ind++) {
+      const [deltaR, deltaC] = primaryDirections[ind];
+      for (let offset = 1 - lineLen; offset <= 0; offset++) {
+        // a spot to start a line which goes through [r, c]
         const [r2, c2] = [r + offset * deltaR, c + offset * deltaC];
         if (positionInBounds(r2, c2)) {
+          // said line
           const line = lines[r2][c2][deltaR][deltaC];
           if (line.isInBounds && line.isWinner) {
             // found a winning line
@@ -140,7 +142,7 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
           }
         }
       }
-    });
+    }
     // didn't find a winner
     return false;
   }
