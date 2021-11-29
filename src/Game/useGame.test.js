@@ -21,13 +21,15 @@ function validStates(states) {
   states.boardStats.positions.forEach((row) => {
     expect(row).toHaveLength(7);
     row.forEach((entry) => {
-      expect(Object.keys(entry)).toHaveLength(3);
+      expect(Object.keys(entry)).toHaveLength(4);
       expect(entry).toHaveProperty("piece");
       expect([0, 1, null]).toContain(entry.piece);
       expect(entry).toHaveProperty("isWinner");
       expect([true, false]).toContain(entry.isWinner);
       expect(entry).toHaveProperty("wouldWin");
       expect(entry.wouldWin).toHaveLength(2);
+      expect(entry).toHaveProperty("isHot");
+      expect([true, false]).toContain(entry.isHot);
     });
   });
 

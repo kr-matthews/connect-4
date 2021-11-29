@@ -40,8 +40,6 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
   // TODO: NEXT: (maybe) replace status with type; alive expands to more details?
   //  hm maybe not
 
-  // TODO: NEXT: first add "hot" spots to columns, then use to do lines below
-
   // lines: find status (full, alive, dead)
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -60,7 +58,7 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
               for (let subR2 = 0; subR2 < r2; subR2++) {
                 // a spot below the line
                 const position = positions[subR2][c2];
-                if (position.wouldWin[0] && position.wouldWin[1]) {
+                if (position.isHot) {
                   status = "dead";
                 }
               }
@@ -116,9 +114,10 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
   //  would win by playing here (array of index), isWinner (boolean)
   function basicPositionStats(r, c) {
     const piece = pieces[r][c];
-    const isWinner = checkWinner(r, c);
     const wouldWin = checkWouldWin(r, c);
-    return { piece, wouldWin, isWinner };
+    const isHot = wouldWin.every((i) => i);
+    const isWinner = checkWinner(r, c);
+    return { piece, wouldWin, isHot, isWinner };
   }
 
   // check each line to see if it's been won
