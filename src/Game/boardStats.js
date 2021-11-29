@@ -5,6 +5,9 @@ const primaryDirections = [
   [1, -1], // up-left
 ];
 
+// TODO: NEXT: NEXT: NEXT: add function to return array of lines through given point
+//  (and vice versa)
+
 // provide full statistics for each position and each line (of length lineLen)
 export function boardStats({ pieces, rows, cols, lineLen }) {
   //// Calculations to do

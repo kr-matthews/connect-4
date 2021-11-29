@@ -1,17 +1,6 @@
 // NOTE: this will all be deleted once useComputerPlayer.js switches over to
 //  using the stats from useGame
 
-// the possible line directions from/to a fixed point
-export const directions = [
-  [0, 1],
-  [1, 1],
-  [1, 0],
-  [1, -1],
-  [0, -1],
-  [-1, -1],
-  [-1, 0],
-  [-1, 1],
-];
 // the possible line orientations (opposite directions being the same)
 export const orientations = [
   [0, 1],
@@ -19,17 +8,6 @@ export const orientations = [
   [1, 0],
   [1, -1],
 ];
-
-// find row that piece will end up in when dropped in this col
-export function findEmptyRow(col, keyAttributes) {
-  const { pieces, rows } = keyAttributes;
-  for (let row = 0; row < rows; row++) {
-    if (pieces[row][col] === null) {
-      return row;
-    }
-  }
-  return null;
-}
 
 // is the line within the board
 export function inBounds(row, col, offset, d_r, d_c, keyAttributes) {

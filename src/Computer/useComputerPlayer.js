@@ -1,12 +1,11 @@
 import {
   orientations,
-  findEmptyRow,
   inBounds,
   countPiecesInLine,
 } from "./../Game/PiecesHelpers.js";
 import { useState, useEffect } from "react";
 
-// TODO: NEXT: refactor to use stats from useGame, instead of doing all self
+// TODO: NEXT: NEXT: refactor to use stats from useGame, instead of doing all self
 // TODO: NEXT: doesn't take into account opp playing on top of current move
 // TODO: NEXT: counts "dead" lines (those which can't ever win)
 
@@ -23,44 +22,49 @@ function useComputerPlayer(
   computersTurn,
   dropInCol,
   forfeit,
-  keyAttributes
+  keyAttributes,
+  boardStats
 ) {
-  //// States/Flags
+  //// States
 
   // flag indicating whether a move needs to be made
   const [playNow, setPlayNow] = useState(false);
 
-  //// Helper functions/constants
+  //// Constants
 
-  // return array with ith spot being score for playing in col i
-  function getAllScores() {
-    let moveOptions = [];
-    for (let col = 0; col < keyAttributes.cols; col++) {
-      moveOptions.push(calculateScore(col));
-    }
-    return moveOptions;
-  }
+  // board info from useGame hook
+  const { positions, lines, columns } = boardStats;
+
+  // array of scores of each column; used for nextMove and thinkTime
+  const scores = columns.slice().map(calculateScore);
+
+  // col index to play in next
+  const nextMove = getNextMove(scores);
+
+  // timeout cmomputer will use
+  const thinkTime = getThinkTime(scores);
+
+  //// Helpers
 
   // -1 for invalid play, otherwise a positive score
-  function calculateScore(col) {
-    const row = findEmptyRow(col, keyAttributes);
-    if (row === null) {
-      // column is full
+  function calculateScore(col, c) {
+    if (col.isFull) {
       return -1;
     }
 
     // column is not full; score all lines
+    const r = col.firstOpenRow;
     let lineTypes = {};
     orientations.forEach(([d_r, d_c]) => {
       for (let offset = 0; offset < keyAttributes.lineLen; offset++) {
         // a line goes in direction [d_r, d_c] and is offset in direction [-d_r, -d_c]
-        if (inBounds(row, col, offset, d_r, d_c, keyAttributes)) {
-          const type = calculateLineType(row, col, offset, d_r, d_c);
+        if (inBounds(r, c, offset, d_r, d_c, keyAttributes)) {
+          const type = calculateLineType(r, c, offset, d_r, d_c);
           lineTypes[type] = (lineTypes[type] || 0) + 1;
         }
       }
     });
-    console.log(lineTypes); // TEMP:
+    console.log(c, lineTypes); // TEMP:
 
     // given lineTypes, assign a score
     // most lines you can be in is 13 (but the 3 above would be not so helpful)
@@ -92,10 +96,10 @@ function useComputerPlayer(
   }
 
   // ...
-  function calculateLineType(row, col, offset, d_r, d_c) {
+  function calculateLineType(r, c, offset, d_r, d_c) {
     const myCount = countPiecesInLine(
-      row,
-      col,
+      r,
+      c,
       offset,
       d_r,
       d_c,
@@ -103,8 +107,8 @@ function useComputerPlayer(
       keyAttributes
     );
     const theirCount = countPiecesInLine(
-      row,
-      col,
+      r,
+      c,
       offset,
       d_r,
       d_c,
@@ -133,11 +137,11 @@ function useComputerPlayer(
   }
 
   // pick an index of maximum score
-  function getNextMove(moveOptions) {
+  function getNextMove(scores) {
     // find all indices of the largest score
     let maxVal = -1;
     let indicesOfMax = [];
-    moveOptions.forEach((score, ind) => {
+    scores.forEach((score, ind) => {
       if (score > maxVal) {
         maxVal = score;
         indicesOfMax = [ind];
@@ -151,11 +155,11 @@ function useComputerPlayer(
 
   // based on the difference between the top two scores
   // (assumes valid scores are non-neg, and at least one positive)
-  function getThinkTime(moveOptions) {
+  function getThinkTime(scores) {
     // find the largest two scores (duplicates are distinct)
     let firstMax = -1;
     let secondMax = -1;
-    moveOptions.forEach((score) => {
+    scores.forEach((score) => {
       if (score > firstMax) {
         secondMax = firstMax;
         firstMax = score;
@@ -193,13 +197,9 @@ function useComputerPlayer(
   // eslint-disable-next-line
   useEffect(() => {
     if (playNow) {
-      const moveOptions = getAllScores();
-      console.log(moveOptions); // TEMP:
-      const col = getNextMove(moveOptions);
-      const thinkTime = getThinkTime(moveOptions);
-      console.log(thinkTime); // TEMP:
+      console.log(scores, thinkTime); // TEMP:
 
-      setTimeout(() => dropInCol(col), thinkTime);
+      setTimeout(() => dropInCol(nextMove), thinkTime);
       setPlayNow(false);
     }
   });
