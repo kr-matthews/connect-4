@@ -4,12 +4,12 @@ import { useState, useReducer } from "react";
 //// Generic constants helpers
 
 // create empty tables (for initial states, and on resets)
-function emptyTable(rows, cols, val) {
+function emptyTable(rows, cols, val = null) {
   let table = [];
   for (let r = 0; r < rows; r++) {
     let row = [];
     for (let c = 0; c < cols; c++) {
-      row.push(val === "empty" ? {} : val);
+      row.push(val);
     }
     table.push(row);
   }
@@ -46,7 +46,7 @@ function piecesReducer(state, action) {
   let newState = [...state];
   switch (action.type) {
     case "reset":
-      return emptyTable(action.rows, action.cols, null);
+      return emptyTable(action.rows, action.cols);
     case "placePiece":
       // add the piece
       newState[action.row][action.col] = action.player;
@@ -84,7 +84,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   // table of player indices/null; indicates which piece is there (if any)
   const [pieces, dispatchPieces] = useReducer(
     piecesReducer,
-    emptyTable(rows, cols, null)
+    emptyTable(rows, cols)
   );
 
   //// Constants
@@ -97,10 +97,17 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   const prevMove =
     moveHistory.length === 0 ? null : moveHistory[moveHistory.length - 1];
 
+  // check if the board is won
+  const boardIsWon =
+    moveHistory.length > 0 && positions[prevMove.row][prevMove.col].isWinner;
+
+  // check if the board is full
+  const boardIsFull = columns.every((col) => col.isFull);
+
   // based purely on the board (not forfeit); ongoing, won, or draw
-  const boardStatus = boardIsWon() // check the board for a win
+  const boardStatus = boardIsWon // check the board for a win
     ? "won" // found win
-    : boardIsFull() // otherwise, check the board for a draw
+    : boardIsFull // otherwise, check the board for a draw
     ? "draw" // found draw
     : "ongoing"; // didn't find draw
 
@@ -126,24 +133,6 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
       : moveHistory.length === 0
       ? toPlayFirst
       : 1 - prevMove.player;
-
-  //// Helpers
-
-  // check if the board is won
-  function boardIsWon() {
-    if (moveHistory.length < 2 * lineLen - 1) {
-      // impossible for anyone to have won yet
-      return false;
-    }
-    // only need to examine most recent move (which exists)
-    const { row, col } = prevMove;
-    return positions[row][col].isWinner;
-  }
-
-  // check if the board is full
-  function boardIsFull() {
-    return columns.every((col) => col.isFull);
-  }
 
   //// Externally accessible functions
 
