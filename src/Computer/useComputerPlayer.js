@@ -1,11 +1,5 @@
-import {
-  orientations,
-  inBounds,
-  countPiecesInLine,
-} from "./../Game/PiecesHelpers.js";
 import { useState, useEffect } from "react";
 
-// TODO: NEXT: NEXT: refactor to use stats from useGame, instead of doing all self
 // TODO: NEXT: doesn't take into account opp playing on top of current move
 // TODO: NEXT: counts "dead" lines (those which can't ever win)
 
@@ -54,68 +48,46 @@ function useComputerPlayer(
 
     // column is not full; score all lines
     const r = col.firstOpenRow;
-    let lineTypes = {};
-    orientations.forEach(([d_r, d_c]) => {
-      for (let offset = 0; offset < keyAttributes.lineLen; offset++) {
-        // a line goes in direction [d_r, d_c] and is offset in direction [-d_r, -d_c]
-        if (inBounds(r, c, offset, d_r, d_c, keyAttributes)) {
-          const type = calculateLineType(r, c, offset, d_r, d_c);
-          lineTypes[type] = (lineTypes[type] || 0) + 1;
-        }
-      }
+    let lineTypeCounts = {};
+    linesThrough(r, c).forEach((line) => {
+      const type = calculateLineType(line);
+      lineTypeCounts[type] = (lineTypeCounts[type] || 0) + 1;
     });
-    console.log(c, lineTypes); // TEMP:
 
-    // given lineTypes, assign a score
+    console.log(c, lineTypeCounts); // TEMP:
+
+    // given lineTypeCounts, assign a score
     // most lines you can be in is 13 (but the 3 above would be not so helpful)
-    if (lineTypes["win"] > 0) {
+    if (lineTypeCounts["win"] > 0) {
       // can win here; do it
       return 70;
-    } else if (lineTypes["blockWin"] > 0) {
+    } else if (lineTypeCounts["blockWin"] > 0) {
       // opp will win here next turn; must block
       return 60;
-    } else if (lineTypes["setup"] > 1) {
+    } else if (lineTypeCounts["setup"] > 1) {
       // can setup multiple winning moves for next turn; do it
       return 50;
-    } else if (lineTypes["blockSetup"] > 1) {
+    } else if (lineTypeCounts["blockSetup"] > 1) {
       // opp can setup multiple winning moves for next turn; must block
       return 40;
     } else {
       // weighted sum of all lines
       // can assume no win nor blockWin; and at most 1 setup / blockSetup each
       return (
-        5 * (lineTypes["setup"] || 0) +
-        4 * (lineTypes["blockSetup"] || 0) +
-        3 * (lineTypes["extend"] || 0) +
-        2 * (lineTypes["blockExtend"] || 0) +
-        1 * (lineTypes["empty"] || 0) +
-        0 * (lineTypes["mixed"] || 0) +
+        5 * (lineTypeCounts["setup"] || 0) +
+        4 * (lineTypeCounts["blockSetup"] || 0) +
+        3 * (lineTypeCounts["extend"] || 0) +
+        2 * (lineTypeCounts["blockExtend"] || 0) +
+        1 * (lineTypeCounts["empty"] || 0) +
+        0 * (lineTypeCounts["mixed"] || 0) +
         1 // just to ensure score is positive
       );
     }
   }
 
   // ...
-  function calculateLineType(r, c, offset, d_r, d_c) {
-    const myCount = countPiecesInLine(
-      r,
-      c,
-      offset,
-      d_r,
-      d_c,
-      computerIndex,
-      keyAttributes
-    );
-    const theirCount = countPiecesInLine(
-      r,
-      c,
-      offset,
-      d_r,
-      d_c,
-      1 - computerIndex,
-      keyAttributes
-    );
-    switch (2 ** myCount * 3 ** theirCount) {
+  function calculateLineType({ isWinner, counts, status }) {
+    switch (2 ** counts[computerIndex] * 3 ** counts[1 - computerIndex]) {
       case 2 ** 0 * 3 ** 0:
         return "empty";
       case 2 ** 3 * 3 ** 0:
