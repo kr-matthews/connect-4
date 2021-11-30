@@ -21,7 +21,7 @@ function validStates(states) {
   states.boardStats.positions.forEach((row) => {
     expect(row).toHaveLength(7);
     row.forEach((entry) => {
-      expect(Object.keys(entry)).toHaveLength(4);
+      expect(Object.keys(entry)).toHaveLength(6);
       expect(entry).toHaveProperty("piece");
       expect([0, 1, null]).toContain(entry.piece);
       expect(entry).toHaveProperty("isWinner");
@@ -30,6 +30,8 @@ function validStates(states) {
       expect(entry.wouldWin).toHaveLength(2);
       expect(entry).toHaveProperty("isHot");
       expect([true, false]).toContain(entry.isHot);
+      expect(entry).toHaveProperty("row");
+      expect(entry).toHaveProperty("col");
     });
   });
 

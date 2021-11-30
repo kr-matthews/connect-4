@@ -5,9 +5,6 @@ const primaryDirections = [
   [1, -1], // up-left
 ];
 
-// TODO: NEXT: NEXT: NEXT: add function to return array of lines through given point
-//  (and vice versa)
-
 // provide full statistics for each position and each line (of length lineLen)
 export function boardStats({ pieces, rows, cols, lineLen }) {
   //// Calculations to do
@@ -39,9 +36,6 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
     }
     positions.push(row);
   }
-
-  // TODO: NEXT: (maybe) replace status with type; alive expands to more details?
-  //  hm maybe not
 
   // lines: find status (full, alive, dead)
   for (let r = 0; r < rows; r++) {
@@ -85,6 +79,38 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
     }
   }
 
+  //// External functions
+
+  function linesThrough(r, c) {
+    let result = [];
+    // iterate over primary directions
+    primaryDirections.forEach(([deltaR, deltaC]) => {
+      // iterate over potential lines in that direction
+      for (let offset = 1 - lineLen; offset <= 0; offset++) {
+        // start of potential line
+        const [r2, c2] = [r + offset * deltaR, c + offset * deltaC];
+        if (
+          positionInBounds(r2, c2) &&
+          lines[r2][c2][deltaR][deltaC].isInBounds
+        ) {
+          result.push(lines[r2][c2][deltaR][deltaC]);
+        }
+      }
+    });
+
+    return result;
+  }
+
+  function positionsOn(r, c, dR, dC) {
+    let result = [];
+    if (lines[r][c][dR][dC].isInBounds) {
+      for (let pos = 0; pos < lineLen; pos++) {
+        result.push(positions[r + pos * dR][c + pos * dC]);
+      }
+    }
+    return result;
+  }
+
   //// Internal Helper functions
 
   // is [r,c] actually on the board
@@ -120,7 +146,7 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
     const wouldWin = checkWouldWin(r, c);
     const isHot = wouldWin.every((i) => i);
     const isWinner = checkWinner(r, c);
-    return { piece, wouldWin, isHot, isWinner };
+    return { row: r, col: c, piece, wouldWin, isHot, isWinner };
   }
 
   // check each line to see if it's been won
@@ -172,5 +198,5 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
     return wouldWin;
   }
 
-  return { positions, lines, columns };
+  return { positions, lines, columns, linesThrough, positionsOn };
 }

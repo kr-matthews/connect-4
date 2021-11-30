@@ -33,7 +33,7 @@ function useComputerPlayer(
   //// Constants
 
   // board info from useGame hook
-  const { positions, lines, columns } = boardStats;
+  const { positions, lines, columns, linesThrough, positionsOn } = boardStats;
 
   // array of scores of each column; used for nextMove and thinkTime
   const scores = columns.slice().map(calculateScore);

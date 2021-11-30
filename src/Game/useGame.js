@@ -1,4 +1,4 @@
-import { boardStats } from "./../Game/boardStats.js";
+import { boardStats as getBoardStats } from "./../Game/boardStats.js";
 import { useState, useReducer } from "react";
 
 //// Generic constants helpers
@@ -91,7 +91,8 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
 
   // generate data about all positions and lines on the board
   const keyAttributes = { pieces, rows, cols, lineLen };
-  const { positions, lines, columns } = boardStats(keyAttributes);
+  const boardStats = getBoardStats(keyAttributes);
+  const { positions, columns } = boardStats;
 
   // previous move: { player, row, col } (or null)
   const prevMove =
@@ -212,7 +213,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     placePiece,
     setForfeiter,
     keyAttributes,
-    boardStats: { positions, lines, columns },
+    boardStats,
   };
 }
 
