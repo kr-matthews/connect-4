@@ -36,6 +36,8 @@ Best practices with state management and (custom) hooks. Separation of concerns 
 - Separation of concerns: Encapsulating sounds effects in sound effect custom hooks, for instance.
 - Mounting and unmounting components: Side effects, and cleanup functions in particular.
 - Event listeners, and queues for incoming messages.
+- Providing clean data for computer players to use.
+- Computer player strategy.
 - Contexts, for site theme in particular.
 - Reusable components: Game in rooms and in local play.
 - Promises and asynchronous functions.
