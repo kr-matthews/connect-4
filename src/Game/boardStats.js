@@ -37,15 +37,15 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
     positions.push(row);
   }
 
-  // lines: find status (full, alive, dead)
+  // lines: find fill (full, fillable, unfillable)
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       primaryDirections.forEach(([deltaR, deltaC], i) => {
         let line = lines[r][c][deltaR][deltaC];
         if (line.isInBounds) {
-          let status = "alive";
+          let fill = "fillable";
           if (line.counts[0] + line.counts[1] === lineLen) {
-            status = "full";
+            fill = "full";
           } else {
             // check whether there's a spot below any spot in this line which
             //  both players would win in
@@ -56,12 +56,12 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
                 // a spot below the line
                 const position = positions[subR2][c2];
                 if (position.isHot) {
-                  status = "dead";
+                  fill = "unfillable";
                 }
               }
             }
           }
-          line.status = status;
+          line.fill = fill;
         }
       });
     }

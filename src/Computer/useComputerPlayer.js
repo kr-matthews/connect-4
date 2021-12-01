@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 
 // TODO: NEXT: doesn't take into account opp playing on top of current move
-// TODO: NEXT: counts "dead" lines (those which can't ever win)
 
 // fiddle around with these parameters
 // (technically can go over max via random factor -- but won't go under min)
@@ -27,7 +26,7 @@ function useComputerPlayer(
   //// Constants
 
   // board info from useGame hook
-  const { positions, lines, columns, linesThrough, positionsOn } = boardStats;
+  const { columns, linesThrough } = boardStats;
 
   // array of scores of each column; used for nextMove and thinkTime
   const scores = columns.slice().map(calculateScore);
@@ -86,7 +85,11 @@ function useComputerPlayer(
   }
 
   // ...
-  function calculateLineType({ isWinner, counts, status }) {
+  function calculateLineType({ isWinner, counts, fill }) {
+    if (fill !== "fillable") {
+      return "dead";
+    }
+    // only care about lines which can be filled up
     switch (2 ** counts[computerIndex] * 3 ** counts[1 - computerIndex]) {
       case 2 ** 0 * 3 ** 0:
         return "empty";
