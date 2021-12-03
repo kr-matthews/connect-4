@@ -46,7 +46,7 @@ function Row({ row, columns, viewer, isViewersTurn, makeMove, colours }) {
     return (
       <Cell
         key={col}
-        handleClick={() => makeMove(col, viewer)}
+        handleClick={() => makeMove(col)}
         colour={colours[piece]}
         useGradient={
           piece !== null &&

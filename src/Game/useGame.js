@@ -193,7 +193,7 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   function placePiece(col, player) {
     const column = columns[col];
     // only proceed if move is valid
-    if (player === toPlayNext && !column.isFull) {
+    if (gameStatus === "ongoing" && player === toPlayNext && !column.isFull) {
       const row = column.firstOpenRow;
       dispatchMoveHistory({ type: "addMove", player, row, col });
       dispatchPieces({ type: "placePiece", player, row, col });
