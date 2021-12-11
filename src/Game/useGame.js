@@ -63,6 +63,7 @@ function piecesReducer(state, action) {
 
 //// The actual hook
 
+// TODO: STATE: Combine history and pieces into single state (?)
 // TODO: LATER: TIME_LIMIT: option to add time limit to turns
 // TODO: MAYBE: UNDO: return an undo function
 

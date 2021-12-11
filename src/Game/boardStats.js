@@ -178,20 +178,13 @@ export function boardStats({ pieces, rows, cols, lineLen }) {
   // check each line to see if it's the only missing piece to win
   function checkWouldWin(r, c) {
     let wouldWin = [false, false];
+    // only bother checking each line if nobody has played here yet
     if (pieces[r][c] === null) {
-      // only bother checking each line if nobody has played here yet
-      primaryDirections.forEach(([deltaR, deltaC]) => {
-        for (let offset = 1 - lineLen; offset < lineLen; offset++) {
-          // a spot on the line
-          const [r2, c2] = [r + offset * deltaR, c + offset * deltaC];
-          if (positionInBounds(r2, c2)) {
-            const line = lines[r2][c2][deltaR][deltaC];
-            if (line.isInBounds && line.counts[0] === lineLen - 1) {
-              wouldWin[0] = true;
-            } else if (line.isInBounds && line.counts[1] === lineLen - 1) {
-              wouldWin[1] = true;
-            }
-          }
+      linesThrough(r, c).forEach(({ counts }) => {
+        if (counts[0] === lineLen - 1) {
+          wouldWin[0] = true;
+        } else if (counts[1] === lineLen - 1) {
+          wouldWin[1] = true;
         }
       });
     }
