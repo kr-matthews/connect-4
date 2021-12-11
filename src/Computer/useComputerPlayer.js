@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
 
-// TODO: NEXT: doesn't take into account opp playing on top of current move
-
-// fiddle around with these parameters
-// (technically can go over max via random factor -- but won't go under min)
-const maxThinkTime = 2300;
+// fiddle around with these parameters for artificially delayed play time
+const maxThinkTime = 2700;
 const minThinkTime = 500;
 const randomFactorRange = 500;
+
+// fiddle around with these parameters for line scores
+function scoreOwnLine(pieceCount, lineLen) {
+  // linear, with bonus for lineLen - 2 pieces (lineLen - 1 is irrelevant)
+  return 2 * pieceCount + (pieceCount < lineLen - 2 ? 1 : 3);
+}
+function scoreOppLine(pieceCount, lineLen) {
+  // linear, with bonus for lineLen - 2 pieces (lineLen - 1 is irrelevant)
+  return 2 * pieceCount + (pieceCount < lineLen - 2 ? 0 : 2);
+}
 
 // only does anything if active, and active never changes while mounted
 function useComputerPlayer(
@@ -25,8 +32,12 @@ function useComputerPlayer(
 
   //// Constants
 
+  const { rows, lineLen } = keyAttributes;
+  // just down for vertical, and all possiblilities for 3 other directions
+  const maxNotableLinesThroughPosition = 3 * lineLen + 1;
+
   // board info from useGame hook
-  const { columns, linesThrough } = boardStats;
+  const { positions, columns, linesThrough } = boardStats;
 
   // array of scores of each column; used for nextMove and thinkTime
   const scores = columns.slice().map(calculateScore);
@@ -45,69 +56,69 @@ function useComputerPlayer(
       return -1;
     }
 
-    // column is not full; score all lines
+    // column is not full; tally the types of lines through this position
     const r = col.firstOpenRow;
-    let lineTypeCounts = {};
-    linesThrough(r, c).forEach((line) => {
-      const type = calculateLineType(line);
-      lineTypeCounts[type] = (lineTypeCounts[type] || 0) + 1;
-    });
+    let lineTypeCounts = {
+      empty: 0,
+      dead: 0, // impossible for anyone to use to win
+      self: new Array(lineLen).fill(0), // ith: i of own pieces, 0 of opp
+      opp: new Array(lineLen).fill(0), //ith: 0 of own pieces, i of opp
+    };
+    linesThrough(r, c).forEach((line) => addLineType(lineTypeCounts, line));
 
-    console.log(c, lineTypeCounts); // TEMP:
+    // booleans
+    const wouldWin = lineTypeCounts["self"][lineLen - 1] > 0;
+    const wouldBlockOppWin = lineTypeCounts["opp"][lineLen - 1] > 0;
+    const oppCouldWinOnTop =
+      r < rows - 1 && positions[r + 1][c].wouldWin[1 - computerIndex];
+    const oppCouldBlockWinOnTop =
+      r < rows - 1 && positions[r + 1][c].wouldWin[computerIndex];
+    // const wouldSetupSelfForLater = lineTypeCounts["self"][lineLen - 2] > 0;
+    // const wouldBlockOppSetupForLater = lineTypeCounts["opp"][lineLen - 2] > 0;
 
-    // given lineTypeCounts, assign a score
-    // most lines you can be in is 13 (but the 3 above would be not so helpful)
-    if (lineTypeCounts["win"] > 0) {
-      // can win here; do it
-      return 70;
-    } else if (lineTypeCounts["blockWin"] > 0) {
-      // opp will win here next turn; must block
-      return 60;
-    } else if (lineTypeCounts["setup"] > 1) {
-      // can setup multiple winning moves for next turn; do it
-      return 50;
-    } else if (lineTypeCounts["blockSetup"] > 1) {
-      // opp can setup multiple winning moves for next turn; must block
-      return 40;
+    const elseScoreUpperBound = Math.max(
+      3,
+      maxNotableLinesThroughPosition * (lineLen - 1)
+    );
+
+    // given above booleans, assign a score to this column
+    if (wouldWin) {
+      return elseScoreUpperBound * 3;
+    } else if (wouldBlockOppWin) {
+      return elseScoreUpperBound * 2;
+    } else if (oppCouldWinOnTop) {
+      return 1;
+    } else if (oppCouldBlockWinOnTop) {
+      return 2;
     } else {
-      // weighted sum of all lines
-      // can assume no win nor blockWin; and at most 1 setup / blockSetup each
-      return (
-        5 * (lineTypeCounts["setup"] || 0) +
-        4 * (lineTypeCounts["blockSetup"] || 0) +
-        3 * (lineTypeCounts["extend"] || 0) +
-        2 * (lineTypeCounts["blockExtend"] || 0) +
-        1 * (lineTypeCounts["empty"] || 0) +
-        0 * (lineTypeCounts["mixed"] || 0) +
-        1 // just to ensure score is positive
-      );
+      // empty is worth 1
+      let score = lineTypeCounts["empty"];
+      lineTypeCounts["self"].forEach((lineTypeCount, pieceCount) => {
+        // non-empty line with only own pieces is worth 3, 5, 7, ...
+        score += scoreOwnLine(pieceCount, lineLen) * lineTypeCount;
+      });
+      lineTypeCounts["opp"].forEach((lineTypeCount, pieceCount) => {
+        // non-empty line with only opp pieces is worth 2, 4, 6, ...
+        score += scoreOppLine(pieceCount, lineLen) * lineTypeCount;
+      });
+      return Math.max(3, score); // ensure greater than oppCouldBlockWinOnTop case
     }
   }
 
-  // ...
-  function calculateLineType({ isWinner, counts, fill }) {
-    if (fill !== "fillable") {
-      return "dead";
-    }
-    // only care about lines which can be filled up
-    switch (2 ** counts[computerIndex] * 3 ** counts[1 - computerIndex]) {
-      case 2 ** 0 * 3 ** 0:
-        return "empty";
-      case 2 ** 3 * 3 ** 0:
-        return "win";
-      case 2 ** 0 * 3 ** 3:
-        return "blockWin";
-      case 2 ** 2 * 3 ** 0:
-        return "setup";
-      case 2 ** 0 * 3 ** 2:
-        return "blockSetup";
-      case 2 ** 1 * 3 ** 0:
-        return "extend";
-      case 2 ** 0 * 3 ** 1:
-        return "blockExtend";
-      default:
-        // [1,1], [1,2], and [2,1]
-        return "mixed";
+  // increase onw of the counts
+  function addLineType(lineTypeCounts, { isWinner, counts, fill }) {
+    if (counts[0] === 0 && counts[1] === 0) {
+      // no pieces in this line
+      lineTypeCounts["empty"] += 1;
+    } else if (fill !== "fillable" || counts[0] * counts[1] > 0) {
+      // can't be filled, or it already has both pieces
+      lineTypeCounts["dead"] += 1;
+    } else if (counts[computerIndex] > 0) {
+      // only own pieces in this line
+      lineTypeCounts["self"][counts[computerIndex]] += 1;
+    } else {
+      // only opp pieces in this line
+      lineTypeCounts["opp"][counts[1 - computerIndex]] += 1;
     }
   }
 
@@ -155,7 +166,10 @@ function useComputerPlayer(
     const randomFactor =
       Math.random() * randomFactorRange - randomFactorRange / 2;
     // the larger the fraction, the longer the move should take
-    return Math.max(minThinkTime, maxThinkTime * ratio + randomFactor);
+    return Math.min(
+      maxThinkTime,
+      Math.max(minThinkTime, maxThinkTime * ratio + randomFactor)
+    );
   }
 
   //// Effects
@@ -171,8 +185,9 @@ function useComputerPlayer(
   // (yes, it's ok to run every re-render)
   // eslint-disable-next-line
   useEffect(() => {
+    console.log(positions);
     if (playNow) {
-      console.log(scores, thinkTime); // TEMP:
+      console.log(thinkTime, scores); // TEMP:
 
       setTimeout(() => dropInCol(nextMove), thinkTime);
       setPlayNow(false);
