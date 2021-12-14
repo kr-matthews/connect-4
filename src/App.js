@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, createContext } from "react";
+import { useState, useMemo, useEffect, useCallback, createContext } from "react";
 
 import PubNub from "pubnub";
 // pubnubKeys.js is listed in .gitignore, contains private keys
@@ -57,9 +57,23 @@ function App() {
   // Site Properties
 
   const [theme, setTheme] = useLocalState("theme", themes.light);
+  const [themeToggled, setThemeToggled] = useState(null);
+
   function toggleTheme() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
+    setThemeToggled(true);
   }
+
+  useEffect(() => {
+    document.body.style.transition = 'all 0.75s ease-in';
+    document.body.style.transitionProperty = 'background, color';
+
+    return () => {
+      document.body.style.transition = 'none';
+      document.body.style.transitionProperty = 'none';
+    }
+
+  }, [themeToggled])
 
   const [usingGradient, setUsingGradient] = useLocalState("gradients", "all");
   const [soundIsOn, setSoundIsOn] = useLocalState("sound", true);
