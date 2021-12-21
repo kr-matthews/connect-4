@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 // fiddle around with these parameters for artificially delayed play time
-const maxThinkTime = 2700;
+const maxThinkTime = 3000;
 const minThinkTime = 500;
 const randomFactorRange = 500;
 
@@ -14,6 +14,8 @@ function scoreOppLine(pieceCount, lineLen) {
   // linear, with bonus for lineLen - 2 pieces (lineLen - 1 is irrelevant)
   return 2 * pieceCount + (pieceCount < lineLen - 2 ? 0 : 2);
 }
+
+// TODO: NEXT: avoid stupid early loss along bottom row
 
 // only does anything if active, and active never changes while mounted
 function useComputerPlayer(
@@ -32,12 +34,19 @@ function useComputerPlayer(
 
   //// Constants
 
-  const { rows, lineLen } = keyAttributes;
+  const { rows, cols, lineLen } = keyAttributes;
   // just down for vertical, and all possiblilities for 3 other directions
   const maxNotableLinesThroughPosition = 3 * lineLen + 1;
 
   // board info from useGame hook
   const { positions, columns, linesThrough } = boardStats;
+  const piecesPlayed = (() => {
+    let ans = 0;
+    columns.forEach(
+      ({ isFull, firstOpenRow }) => (ans += isFull ? rows : firstOpenRow)
+    );
+    return ans;
+  })();
 
   // array of scores of each column; used for nextMove and thinkTime
   const scores = columns.slice().map(calculateScore);
@@ -142,6 +151,11 @@ function useComputerPlayer(
   // based on the difference between the top two scores
   // (assumes valid scores are non-neg, and at least one positive)
   function getThinkTime(scores) {
+    // very early in the game, usually easier to play, so adjust maxThinkTime
+    const thisMaxThinkTime = Math.max(
+      minThinkTime,
+      maxThinkTime * Math.sqrt((piecesPlayed + 3) / (rows * cols + 3))
+    );
     // find the largest two scores (duplicates are distinct)
     let firstMax = -1;
     let secondMax = -1;
@@ -167,8 +181,8 @@ function useComputerPlayer(
       Math.random() * randomFactorRange - randomFactorRange / 2;
     // the larger the fraction, the longer the move should take
     return Math.min(
-      maxThinkTime,
-      Math.max(minThinkTime, maxThinkTime * ratio + randomFactor)
+      thisMaxThinkTime,
+      Math.max(minThinkTime, thisMaxThinkTime * ratio + randomFactor)
     );
   }
 
@@ -185,9 +199,8 @@ function useComputerPlayer(
   // (yes, it's ok to run every re-render)
   // eslint-disable-next-line
   useEffect(() => {
-    console.log(positions);
     if (playNow) {
-      console.log(thinkTime, scores); // TEMP:
+      console.log(Math.floor(thinkTime), scores); // TEMP:
 
       setTimeout(() => dropInCol(nextMove), thinkTime);
       setPlayNow(false);

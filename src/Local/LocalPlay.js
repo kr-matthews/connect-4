@@ -33,7 +33,7 @@ function LocalPlay({ sharingScreen, player, opponent, unmount }) {
     toPlayNext === 1,
     (col) => placePiece(col, 1),
     () => setForfeiter(1),
-    keyAttributes, // TODO: need this?
+    keyAttributes,
     boardStats
   );
 
