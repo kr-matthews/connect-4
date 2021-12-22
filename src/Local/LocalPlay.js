@@ -27,12 +27,13 @@ function LocalPlay({ sharingScreen, player, opponent, unmount }) {
   const { resultHistory } = useResults(gameStatus, winner);
 
   // computer player, when applicable
+  const computerIndex = 1;
   useComputerPlayer(
     opponent.type === "computer",
-    1,
-    toPlayNext === 1,
-    (col) => placePiece(col, 1),
-    () => setForfeiter(1),
+    computerIndex,
+    toPlayNext === computerIndex,
+    (col) => placePiece(col, computerIndex),
+    () => setForfeiter(computerIndex),
     keyAttributes,
     boardStats
   );
