@@ -18,52 +18,33 @@ function emptyTable(rows, cols, val = null) {
 
 //// Reducers
 
-function moveHistoryReducer(state, action) {
-  let newState = [...state];
+function gameStatesReducer(state, action) {
+  let newState = { ...state };
   switch (action.type) {
     case "reset":
-      return [];
-    case "addMove":
+      return { moveHistory: [], pieces: emptyTable(action.rows, action.cols) };
+    case "move":
       let { player, row, col } = action;
-      newState.push({ player, row, col });
+      newState.moveHistory.push({ player, row, col });
+      newState.pieces[action.row][action.col] = action.player;
       return newState;
     case "undo":
-      // NOTE: this case is currently not used
-      if (state === []) {
-        // nothing to undo
+      // NOTE: undo case currently unused
+      if (state.moveHistory.length === 0) {
         return state;
       } else {
-        newState.pop();
+        newState.moveHistory.pop();
+        newState[action.row][action.col] = null;
         return newState;
       }
     default:
-      console.error("moveHistoryReducer didn't match any case.", action);
-      return state;
-  }
-}
-
-function piecesReducer(state, action) {
-  let newState = [...state];
-  switch (action.type) {
-    case "reset":
-      return emptyTable(action.rows, action.cols);
-    case "placePiece":
-      // add the piece
-      newState[action.row][action.col] = action.player;
-      return newState;
-    case "undo":
-      // NOTE: this case is currently not used
-      newState[action.row][action.col] = null;
-      return newState;
-    default:
-      console.error("peicesReducer didn't match any case.", action);
+      console.error("gameStatesReducer has no matching case: ", action);
       return state;
   }
 }
 
 //// The actual hook
 
-// TODO: STATE: Combine history and pieces into single state (?)
 // TODO: LATER: TIME_LIMIT: option to add time limit to turns
 // TODO: MAYBE: UNDO: return an undo function
 
@@ -79,13 +60,13 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
   // who has forfeit (player index, or null)
   const [forfeiter, setForfeiter] = useState(null);
 
-  // stack (array) of {player, row, col}
-  const [moveHistory, dispatchMoveHistory] = useReducer(moveHistoryReducer, []);
-
-  // table of player indices/null; indicates which piece is there (if any)
-  const [pieces, dispatchPieces] = useReducer(
-    piecesReducer,
-    emptyTable(rows, cols)
+  // pieces and moveHistory wrapped in object
+  const [{ moveHistory, pieces }, dispatchToGame] = useReducer(
+    gameStatesReducer,
+    {
+      moveHistory: [],
+      pieces: emptyTable(rows, cols),
+    }
   );
 
   //// Constants
@@ -143,16 +124,14 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     setWaiting(true);
     setForfeiter(null);
     setToPlayFirst(null);
-    dispatchMoveHistory({ type: "reset" });
-    dispatchPieces({ type: "reset", rows, cols });
+    dispatchToGame({ type: "reset", rows, cols });
   }
 
   // starts a game (from reset/initial state or from old game)
   function startGame(option) {
     // partial reset
     setForfeiter(null);
-    dispatchMoveHistory({ type: "reset" });
-    dispatchPieces({ type: "reset", rows, cols });
+    dispatchToGame({ type: "reset", rows, cols });
 
     // start
     setToPlayFirst((prev) => {
@@ -183,21 +162,13 @@ function useGame(rows = 6, cols = 7, lineLen = 4) {
     setWaiting(false);
   }
 
-  // NOTE: PROBLEM: re-render between two dispatches below means state may be
-  //  out of sync
-
-  // QUESTION: under what cicumstances does react re-render between those
-  //  dispatches?
-  //  Does it ever re-render mid-useEffect?
-
   // given out to allow component to (attempt to) place a piece
   function placePiece(col, player) {
     const column = columns[col];
     // only proceed if move is valid
     if (gameStatus === "ongoing" && player === toPlayNext && !column.isFull) {
       const row = column.firstOpenRow;
-      dispatchMoveHistory({ type: "addMove", player, row, col });
-      dispatchPieces({ type: "placePiece", player, row, col });
+      dispatchToGame({ type: "move", player, row, col });
     }
   }
 

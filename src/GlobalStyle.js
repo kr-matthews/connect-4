@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 
-// TODO: STYLE: stop using global style
+// TODO: NEXT: STYLE: stop using global style
 
 const GlobalStyle = createGlobalStyle`
   body {
