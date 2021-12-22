@@ -7,12 +7,16 @@ const randomFactorRange = 500;
 
 // fiddle around with these parameters for line scores
 function scoreOwnLine(pieceCount, lineLen) {
-  // linear, with bonus for lineLen - 2 pieces (lineLen - 1 is irrelevant)
-  return 3 * pieceCount + (pieceCount < lineLen - 2 ? 1 : 3);
+  // linear, with exceptions at each extreme
+  const baseScore = 2 * pieceCount;
+  const bonus = pieceCount < 2 ? 0 : pieceCount < lineLen - 2 ? 1 : 3;
+  return baseScore + bonus;
 }
 function scoreOppLine(pieceCount, lineLen) {
-  // linear, with bonus for lineLen - 2 pieces (lineLen - 1 is irrelevant)
-  return 3 * pieceCount + (pieceCount < lineLen - 2 ? 0 : 2);
+  // linear, with exceptions at each extreme
+  const baseScore = 2 * pieceCount - 1;
+  const bonus = pieceCount < 2 ? 0 : pieceCount < lineLen - 2 ? 1 : 3;
+  return baseScore + bonus;
 }
 
 // only does anything if active, and active never changes while mounted
