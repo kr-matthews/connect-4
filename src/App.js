@@ -1,4 +1,10 @@
-import { useState, useMemo, useEffect, useCallback, createContext } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  createContext,
+} from "react";
 
 import PubNub from "pubnub";
 // pubnubKeys.js is listed in .gitignore, contains private keys
@@ -20,8 +26,6 @@ import RemotePlay from "./Remote/RemotePlay.js";
 import LocalPlay from "./Local/LocalPlay.js";
 
 import Links from "./links/Links.js";
-
-import { GlobalStyle } from "./GlobalStyle.js";
 
 import { useLocalState } from "./useLocalState.js";
 import { useSound } from "./sounds/useSound.js";
@@ -57,23 +61,13 @@ function App() {
   // Site Properties
 
   const [theme, setTheme] = useLocalState("theme", themes.light);
+  // for applying transition properties to body after initial load
   const [themeToggled, setThemeToggled] = useState(null);
 
   function toggleTheme() {
     setTheme(theme.type === "light" ? themes.dark : themes.light);
     setThemeToggled(true);
   }
-
-  useEffect(() => {
-    document.body.style.transition = 'all 0.75s ease-in';
-    document.body.style.transitionProperty = 'background, color';
-
-    return () => {
-      document.body.style.transition = 'none';
-      document.body.style.transitionProperty = 'none';
-    }
-
-  }, [themeToggled])
 
   const [usingGradient, setUsingGradient] = useLocalState("gradients", "all");
   const [soundIsOn, setSoundIsOn] = useLocalState("sound", true);
@@ -130,14 +124,29 @@ function App() {
     [uuid]
   );
 
+  //// Theme handling
+
+  // set body css properties
+  document.body.style.background = theme.background;
+  document.body.style.color = theme.foreground;
+
+  // after initial load, introduce transition on theme change
+  useEffect(() => {
+    document.body.style.transition = "all 0.75s ease-in";
+    document.body.style.transitionProperty = "background, color";
+
+    return () => {
+      document.body.style.transition = "none";
+      document.body.style.transitionProperty = "none";
+    };
+  }, [themeToggled]);
+
   //// Return
 
   return (
     <GradientContext.Provider value={usingGradient}>
       <ThemeContext.Provider value={theme}>
         <SoundContext.Provider value={{ setSoundToPlay }}>
-          <GlobalStyle theme={theme} />
-
           <h1>Connect 4</h1>
 
           <Header>
