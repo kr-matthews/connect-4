@@ -8,8 +8,6 @@ If you want to clone the repository, you'll need to add definitions for `publish
 
 On GitHub Pages at [https://kr-matthews.github.io/connect-4](https://kr-matthews.github.io/connect-4).
 
-**Note**: the computer player has not been implemented yet.
-
 ## Features
 
 ### Current
