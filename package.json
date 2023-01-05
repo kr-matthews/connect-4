@@ -1,7 +1,7 @@
 {
   "name": "connect-4",
   "homepage": "https://kr-matthews.github.io/connect-4",
-  "version": "0.1.0",
+  "version": "6.2.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
