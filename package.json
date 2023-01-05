@@ -1,12 +1,13 @@
 {
   "name": "connect-4",
   "homepage": "https://kr-matthews.github.io/connect-4",
-  "version": "0.1.0",
+  "version": "6.2.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "footer-dependency": "github:kr-matthews/footer-dependency#v1.0.1",
     "pubnub": "^4.33.1",
     "pubnub-react": "^2.1.0",
     "react": "^17.0.2",

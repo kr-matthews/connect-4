@@ -5,6 +5,13 @@ import {
   useCallback,
   createContext,
 } from "react";
+import {
+  WithHeavyFooter,
+  Body,
+  HeavyFooter,
+  HomeLink,
+  CodeLink,
+} from "footer-dependency/dist/lib";
 
 import PubNub from "pubnub";
 // pubnubKeys.js is listed in .gitignore, contains private keys
@@ -24,8 +31,6 @@ import SiteSound from "./Header/SiteSound.js";
 import Lobby from "./Lobby/Lobby.js";
 import RemotePlay from "./Remote/RemotePlay.js";
 import LocalPlay from "./Local/LocalPlay.js";
-
-import Links from "./links/Links.js";
 
 import { useLocalState } from "./useLocalState.js";
 import { useSound } from "./sounds/useSound.js";
@@ -147,85 +152,90 @@ function App() {
     <GradientContext.Provider value={usingGradient}>
       <ThemeContext.Provider value={theme}>
         <SoundContext.Provider value={{ setSoundToPlay }}>
-          <h1>Connect 4</h1>
+          <WithHeavyFooter>
+            <Body>
+              <h1>Connect 4</h1>
 
-          <Header>
-            <PlayerInfo self={true}>
-              <PlayerName editable={true} name={name} setName={setName} />
-              <PlayerColour
-                editable={true}
-                colour={colour}
-                setColour={setColour}
-              />
-            </PlayerInfo>
+              <Header>
+                <PlayerInfo self={true}>
+                  <PlayerName editable={true} name={name} setName={setName} />
+                  <PlayerColour
+                    editable={true}
+                    colour={colour}
+                    setColour={setColour}
+                  />
+                </PlayerInfo>
 
-            <Options>
-              <PieceGradients
-                usingGradient={usingGradient}
-                setUsingGradient={setUsingGradient}
-              />
-              <SiteSound soundIsOn={soundIsOn} toggleSound={toggleSound} />
-              <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
-            </Options>
+                <Options>
+                  <PieceGradients
+                    usingGradient={usingGradient}
+                    setUsingGradient={setUsingGradient}
+                  />
+                  <SiteSound soundIsOn={soundIsOn} toggleSound={toggleSound} />
+                  <SiteTheme themeType={theme.type} toggleTheme={toggleTheme} />
+                </Options>
 
-            {opponent ? (
-              <PlayerInfo self={false}>
-                <PlayerName
-                  editable={playType === "local"}
-                  name={opponent.name}
-                  setName={(name) => modifyOpponent("name", name)}
+                {opponent ? (
+                  <PlayerInfo self={false}>
+                    <PlayerName
+                      editable={playType === "local"}
+                      name={opponent.name}
+                      setName={(name) => modifyOpponent("name", name)}
+                    />
+                    <PlayerColour
+                      editable={playType === "local" || playType === "computer"}
+                      colour={opponent.colour}
+                      setColour={(colour) => modifyOpponent("colour", colour)}
+                    />
+                  </PlayerInfo>
+                ) : (
+                  <PlayerInfo self={false} />
+                )}
+              </Header>
+
+              {playType === "online" ? (
+                <RemotePlay
+                  roomCode={roomCode}
+                  player={{ name, colour, uuid }}
+                  isOwner={isOwner}
+                  opponent={opponent}
+                  setOpponent={setOpponent}
+                  restartMethod={restartMethod}
+                  setRestartMethod={setRestartMethod}
+                  unmountRoom={resetAll}
+                  network={network}
                 />
-                <PlayerColour
-                  editable={playType === "local" || playType === "computer"}
-                  colour={opponent.colour}
-                  setColour={(colour) => modifyOpponent("colour", colour)}
+              ) : playType === "local" ? (
+                <LocalPlay
+                  sharingScreen={true}
+                  player={{ name, colour }}
+                  opponent={opponent}
+                  unmount={resetAll}
                 />
-              </PlayerInfo>
-            ) : (
-              <PlayerInfo self={false} />
-            )}
-          </Header>
+              ) : playType === "computer" ? (
+                <LocalPlay
+                  sharingScreen={false}
+                  player={{ name, colour }}
+                  opponent={opponent}
+                  unmount={resetAll}
+                />
+              ) : (
+                <Lobby
+                  setOpponent={setOpponent}
+                  setPlayType={setPlayType}
+                  setRoomCode={setRoomCode}
+                  setIsOwner={setIsOwner}
+                  setRestartMethod={setRestartMethod}
+                  network={network}
+                />
+              )}
+            </Body>
 
-          {playType === "online" ? (
-            <RemotePlay
-              roomCode={roomCode}
-              player={{ name, colour, uuid }}
-              isOwner={isOwner}
-              opponent={opponent}
-              setOpponent={setOpponent}
-              restartMethod={restartMethod}
-              setRestartMethod={setRestartMethod}
-              unmountRoom={resetAll}
-              network={network}
-            />
-          ) : playType === "local" ? (
-            <LocalPlay
-              sharingScreen={true}
-              player={{ name, colour }}
-              opponent={opponent}
-              unmount={resetAll}
-            />
-          ) : playType === "computer" ? (
-            <LocalPlay
-              sharingScreen={false}
-              player={{ name, colour }}
-              opponent={opponent}
-              unmount={resetAll}
-            />
-          ) : (
-            <Lobby
-              setOpponent={setOpponent}
-              setPlayType={setPlayType}
-              setRoomCode={setRoomCode}
-              setIsOwner={setIsOwner}
-              setRestartMethod={setRestartMethod}
-              network={network}
-            />
-          )}
-          <Links
-            gitHubLink="https://github.com/kr-matthews/connect-4"
-            themeType={theme.type}
-          />
+            <HeavyFooter>
+              <HomeLink />
+              <CodeLink gitHubRepoName="connect-4" themeType={theme.type} />
+            </HeavyFooter>
+          </WithHeavyFooter>
         </SoundContext.Provider>
       </ThemeContext.Provider>
     </GradientContext.Provider>
