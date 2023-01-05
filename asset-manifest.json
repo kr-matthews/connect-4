@@ -1,30 +1,23 @@
 {
   "files": {
-    "main.css": "/connect-4/static/css/main.aee6bf54.chunk.css",
-    "main.js": "/connect-4/static/js/main.64b059af.chunk.js",
-    "main.js.map": "/connect-4/static/js/main.64b059af.chunk.js.map",
-    "runtime-main.js": "/connect-4/static/js/runtime-main.e842ebb0.js",
-    "runtime-main.js.map": "/connect-4/static/js/runtime-main.e842ebb0.js.map",
-    "static/js/2.46c55118.chunk.js": "/connect-4/static/js/2.46c55118.chunk.js",
-    "static/js/2.46c55118.chunk.js.map": "/connect-4/static/js/2.46c55118.chunk.js.map",
+    "main.css": "/connect-4/static/css/main.96647fd2.css",
+    "main.js": "/connect-4/static/js/main.e2e8da5a.js",
+    "static/media/mixkit-retro-game-notification-212.wav": "/connect-4/static/media/mixkit-retro-game-notification-212.b222ebf03a29c11b61f0.wav",
+    "static/media/success-1-6297.mp3": "/connect-4/static/media/success-1-6297.fd2c2fea27379cbc44da.mp3",
+    "static/media/failure-drum-sound-effect-2mp3-7184.mp3": "/connect-4/static/media/failure-drum-sound-effect-2mp3-7184.7b134939934153701fac.mp3",
+    "static/media/power-down-7103.mp3": "/connect-4/static/media/power-down-7103.2164432c7395a7c0186f.mp3",
+    "static/media/good-6081.mp3": "/connect-4/static/media/good-6081.4c04bbc539116b0a76bd.mp3",
+    "static/media/chime-sound-7143.mp3": "/connect-4/static/media/chime-sound-7143.09264db5360929db9e16.mp3",
+    "static/media/fist-punch-or-kick-7171.mp3": "/connect-4/static/media/fist-punch-or-kick-7171.1d430a44dd9f22a6a661.mp3",
+    "static/media/notification-sound-7062.mp3": "/connect-4/static/media/notification-sound-7062.d73a48979f61f8154e1c.mp3",
+    "static/media/water_dropwav-6707.mp3": "/connect-4/static/media/water_dropwav-6707.104e70a9c2f77764e95b.mp3",
+    "static/media/website-logo.svg": "/connect-4/static/media/website-logo.2a15d8d040919c10066eaa55c12d2b83.svg",
     "index.html": "/connect-4/index.html",
-    "static/css/main.aee6bf54.chunk.css.map": "/connect-4/static/css/main.aee6bf54.chunk.css.map",
-    "static/js/2.46c55118.chunk.js.LICENSE.txt": "/connect-4/static/js/2.46c55118.chunk.js.LICENSE.txt",
-    "static/media/chime-sound-7143.09264db5.mp3": "/connect-4/static/media/chime-sound-7143.09264db5.mp3",
-    "static/media/failure-drum-sound-effect-2mp3-7184.7b134939.mp3": "/connect-4/static/media/failure-drum-sound-effect-2mp3-7184.7b134939.mp3",
-    "static/media/fist-punch-or-kick-7171.1d430a44.mp3": "/connect-4/static/media/fist-punch-or-kick-7171.1d430a44.mp3",
-    "static/media/good-6081.4c04bbc5.mp3": "/connect-4/static/media/good-6081.4c04bbc5.mp3",
-    "static/media/mixkit-retro-game-notification-212.b222ebf0.wav": "/connect-4/static/media/mixkit-retro-game-notification-212.b222ebf0.wav",
-    "static/media/notification-sound-7062.d73a4897.mp3": "/connect-4/static/media/notification-sound-7062.d73a4897.mp3",
-    "static/media/power-down-7103.2164432c.mp3": "/connect-4/static/media/power-down-7103.2164432c.mp3",
-    "static/media/success-1-6297.fd2c2fea.mp3": "/connect-4/static/media/success-1-6297.fd2c2fea.mp3",
-    "static/media/water_dropwav-6707.104e70a9.mp3": "/connect-4/static/media/water_dropwav-6707.104e70a9.mp3",
-    "static/media/website-logo.2a15d8d0.svg": "/connect-4/static/media/website-logo.2a15d8d0.svg"
+    "main.96647fd2.css.map": "/connect-4/static/css/main.96647fd2.css.map",
+    "main.e2e8da5a.js.map": "/connect-4/static/js/main.e2e8da5a.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.e842ebb0.js",
-    "static/js/2.46c55118.chunk.js",
-    "static/css/main.aee6bf54.chunk.css",
-    "static/js/main.64b059af.chunk.js"
+    "static/css/main.96647fd2.css",
+    "static/js/main.e2e8da5a.js"
   ]
 }
