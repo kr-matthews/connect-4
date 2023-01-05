@@ -2,6 +2,8 @@
 
 This is a single-page application for the game Connect 4. A user can create an online room and play remotely against another user who joins the room. Alternatively, a user can play locally against a computer player, or two users can play locally.
 
+<img src="src/assets/screenshot-lobby.png" height="275" /> <img src="src/assets/screenshot-game.png" height="275" />
+
 If you want to clone the repository, you'll need to add definitions for `publishKey` and `subscribeKey` at `src/pubnubKeys.js`.
 
 ## Play
