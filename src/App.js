@@ -25,8 +25,6 @@ import Lobby from "./Lobby/Lobby.js";
 import RemotePlay from "./Remote/RemotePlay.js";
 import LocalPlay from "./Local/LocalPlay.js";
 
-import Links from "./links/Links.js";
-
 import { useLocalState } from "./useLocalState.js";
 import { useSound } from "./sounds/useSound.js";
 
@@ -222,10 +220,6 @@ function App() {
               network={network}
             />
           )}
-          <Links
-            gitHubLink="https://github.com/kr-matthews/connect-4"
-            themeType={theme.type}
-          />
         </SoundContext.Provider>
       </ThemeContext.Provider>
     </GradientContext.Provider>
